@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string-array name="main_title_array">
+        <item>Personal Computer</item>
+        <item>Mobile Device</item>
+        <item>Photography</item>
+        <item>Pictures</item>
+        <item>Auto</item>
+        <item>Bicycle</item>
+        <item>Model</item>
+        <item>Fancy</item>
+        <item>Audio</item>
+        <item>Food</item>
+    </string-array>
+
+</resources>
