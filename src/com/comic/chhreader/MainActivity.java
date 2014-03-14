@@ -8,18 +8,23 @@ import java.util.List;
 import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 
+import com.comic.chhreader.content.ContentActivity;
 import com.comic.chhreader.data.MainGridData;
 import com.comic.chhreader.provider.DataProvider;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnItemClickListener {
 
 	private static final String MAIN_DATA_URL = "ABCD";
 
@@ -34,6 +39,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		mGrid = (GridView) findViewById(R.id.main_gird);
+		mGrid.setOnItemClickListener(this);
 		mGirdAdapter = new MainGridAdapter(this);
 		mGrid.setAdapter(mGirdAdapter);
 
@@ -45,6 +51,14 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Intent intent = new Intent(MainActivity.this, ContentActivity.class);
+		intent.putExtra("category", "computer");
+		startActivity(intent);
+	};
 
 	class FetchDataTask extends AsyncTask<String, Void, String> {
 
@@ -77,7 +91,6 @@ public class MainActivity extends Activity {
 								} catch (MalformedURLException e) {
 									e.printStackTrace();
 								}
-								data.mContent = cur.getString(cur.getColumnIndex(DataProvider.KEY_MAIN_CONTENT));
 								mGridData.add(data);
 							} while (cur.moveToNext());
 						}
@@ -98,7 +111,6 @@ public class MainActivity extends Activity {
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
-					data.mContent = "ASUS RP-N53 无线中继器简评";
 					tempGridData.add(data);
 				}
 
@@ -107,7 +119,7 @@ public class MainActivity extends Activity {
 					ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 
 					for (MainGridData item : tempGridData) {
-						ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mPictureUrl.toString()).withValue(DataProvider.KEY_MAIN_SUB_TITLE, item.mContent);
+						ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mPictureUrl.toString());
 						opertions.add(builder.build());
 					}
 
@@ -138,6 +150,5 @@ public class MainActivity extends Activity {
 				}
 			}
 		}
-	};
-
+	}
 }

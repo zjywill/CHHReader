@@ -23,7 +23,6 @@ public class MainGridAdapter extends BaseAdapter {
 	static class ViewHolder {
 		TextView title;
 		PhotoView image;
-		TextView content;
 	}
 
 	MainGridAdapter(Context context) {
@@ -56,7 +55,6 @@ public class MainGridAdapter extends BaseAdapter {
 			holder = new ViewHolder();
 			holder.title = (TextView) convertView.findViewById(R.id.gird_title);
 			holder.image = (PhotoView) convertView.findViewById(R.id.gird_image);
-			holder.content = (TextView) convertView.findViewById(R.id.gird_content);
 
 			convertView.setTag(holder);
 		} else {
@@ -69,7 +67,6 @@ public class MainGridAdapter extends BaseAdapter {
 				Loge.d("getView title = " + itemData.mTitle);
 				holder.title.setText(itemData.mTitle);
 				holder.image.setImageURL(itemData.mPictureUrl, false, true, mDefaultDrawable);
-				holder.content.setText(itemData.mContent);
 			}
 		}
 
