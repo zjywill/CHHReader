@@ -132,7 +132,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mListView.setOnRefreshListener(new PullDownRefreashListView.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				new NetDataFetch().execute();
+				new NetDataFetch().execute("1213");
 			}
 		});
 
@@ -246,6 +246,10 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 				} else {
 					mListAdapter.swapCursor(cursor);
 					mLoadingView.setVisibility(View.GONE);
+
+					mLoadMoreView.setVisibility(View.VISIBLE);
+					mLoadMoreBtn.setClickable(true);
+					mLoadMoreBtn.setText(R.string.load_more);
 				}
 			}
 			super.onPostExecute(cursor);
@@ -258,8 +262,12 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			mLoadMoreBtn.setClickable(false);
-			mLoadMoreBtn.setText(R.string.loading);
+			if (mListAdapter.getCount() == 0) {
+				mLoadMoreView.setVisibility(View.GONE);
+			} else {
+				mLoadMoreBtn.setClickable(false);
+				mLoadMoreBtn.setText(R.string.loading);
+			}
 		}
 
 		@Override
@@ -314,8 +322,6 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			mLoadMoreBtn.setClickable(true);
-			mLoadMoreBtn.setText(R.string.load_more);
 			if (result.equals("success")) {
 				mListView.onRefreshComplete();
 				new LocalDataFetch().execute();
