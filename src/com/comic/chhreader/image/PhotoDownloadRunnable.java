@@ -43,8 +43,7 @@ import com.comic.chhreader.Loge;
  */
 class PhotoDownloadRunnable implements Runnable {
 	// Sets the image cache folder in external storage
-	private static final String IMAGE_CACHE_FOLDER = Environment
-			.getExternalStorageDirectory().getPath() + "/ChhReader/Cache";
+	private static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache";
 
 	// Sets the size for each read action (bytes)
 	private static final int READ_SIZE = 1024 * 2;
@@ -135,8 +134,7 @@ class PhotoDownloadRunnable implements Runnable {
 		mPhotoTask.setDownloadThread(Thread.currentThread());
 
 		// Moves the current Thread into the background
-		android.os.Process
-				.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
 		/*
 		 * Gets the image cache buffer object from the PhotoTask instance. This
@@ -145,41 +143,45 @@ class PhotoDownloadRunnable implements Runnable {
 		byte[] byteBuffer = mPhotoTask.getByteBuffer();
 
 		// gen photo name in cache
-		String[] photoFileNameArray = mPhotoTask.getImageURL().toString()
-				.split("/");
+		String[] photoFileNameArray = mPhotoTask.getImageURL().toString().split("/");
 		String photoFileName = null;
 		if (photoFileNameArray.length > 2) {
-			photoFileName = photoFileNameArray[photoFileNameArray.length - 2]
-					+ photoFileNameArray[photoFileNameArray.length - 1];
+			photoFileName = photoFileNameArray[photoFileNameArray.length - 2] + photoFileNameArray[photoFileNameArray.length - 1];
 		} else {
 			photoFileName = photoFileNameArray[photoFileNameArray.length - 1];
 		}
 
 		Loge.d("photoFileName = " + photoFileName);
-		photoFileName = photoFileName + ".seexian";
+		photoFileName = photoFileName + ".chhreader";
 
-		if (null == byteBuffer) {
-			try {
-				// get photo from local storage cache
-				File folder = new File(IMAGE_CACHE_FOLDER);
-				if (!folder.exists()) {
-					Loge.w("Folder not exsist, create new folder");
-					folder.mkdirs();
-				}
+		synchronized (this) {
+			if (null == byteBuffer) {
+				try {
+					// get photo from local storage cache
+					File folder = new File(IMAGE_CACHE_FOLDER);
+					if (!folder.exists()) {
+						Loge.w("Folder not exsist, create new folder");
+						folder.mkdirs();
+					}
 
-				String path = IMAGE_CACHE_FOLDER + "/" + photoFileName;
-				Loge.i("Cache photo path = " + path);
-				File photoFile = new File(path);
-				if (photoFile.exists()) {
-					Loge.i("Photo file exsist, get photo from local cache");
-					FileInputStream fis = new FileInputStream(photoFile);
-					byteBuffer = new byte[fis.available()];
-					int result = fis.read(byteBuffer);
-					Loge.i("read result = " + result);
-					fis.close();
+					String path = IMAGE_CACHE_FOLDER + "/" + photoFileName;
+					Loge.i("Cache photo path = " + path);
+					File photoFile = new File(path);
+					if (photoFile.exists()) {
+						Loge.i("Photo file exsist, get photo from local cache");
+						FileInputStream fis = new FileInputStream(photoFile);
+						byteBuffer = new byte[fis.available()];
+						int result = fis.read(byteBuffer);
+						fis.close();
+						if (result == 0) {
+							Loge.i("read error = " + result);
+							byteBuffer = null;
+							photoFile.delete();
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 
@@ -210,12 +212,10 @@ class PhotoDownloadRunnable implements Runnable {
 				// Downloads the image and catches IO errors
 				try {
 					// Opens an HTTP connection to the image's URL
-					HttpURLConnection httpConn = (HttpURLConnection) mPhotoTask
-							.getImageURL().openConnection();
+					HttpURLConnection httpConn = (HttpURLConnection) mPhotoTask.getImageURL().openConnection();
 
 					// Sets the user agent to report to the server
-					httpConn.setRequestProperty("User-Agent",
-							PhotoConstants.USER_AGENT);
+					httpConn.setRequestProperty("User-Agent", PhotoConstants.USER_AGENT);
 
 					// Before continuing, checks to see that the Thread
 					// hasn't been interrupted
@@ -261,7 +261,7 @@ class PhotoDownloadRunnable implements Runnable {
 						 * temporary buffer is full, and then allocates more
 						 * buffer space.
 						 */
-						outer: do {
+						outer : do {
 							while (bufferLeft > 0) {
 
 								/*
@@ -270,8 +270,7 @@ class PhotoDownloadRunnable implements Runnable {
 								 * available free byte and reading as many bytes
 								 * as are available in the buffer.
 								 */
-								readResult = byteStream.read(tempBuffer,
-										bufferOffset, bufferLeft);
+								readResult = byteStream.read(tempBuffer, bufferOffset, bufferLeft);
 
 								/*
 								 * InputStream.read() returns zero when the file
@@ -323,8 +322,7 @@ class PhotoDownloadRunnable implements Runnable {
 							 * new buffer.
 							 */
 							byte[] expandedBuffer = new byte[newSize];
-							System.arraycopy(tempBuffer, 0, expandedBuffer, 0,
-									tempBuffer.length);
+							System.arraycopy(tempBuffer, 0, expandedBuffer, 0, tempBuffer.length);
 							tempBuffer = expandedBuffer;
 						} while (true);
 
@@ -338,8 +336,7 @@ class PhotoDownloadRunnable implements Runnable {
 						byteBuffer = new byte[bufferOffset];
 
 						// Copies the temporary buffer to the image buffer
-						System.arraycopy(tempBuffer, 0, byteBuffer, 0,
-								bufferOffset);
+						System.arraycopy(tempBuffer, 0, byteBuffer, 0, bufferOffset);
 
 						/*
 						 * The download size is available, so this creates a
@@ -360,8 +357,7 @@ class PhotoDownloadRunnable implements Runnable {
 						 * have been read.
 						 */
 						while (remainingLength > 0) {
-							int readResult = byteStream.read(byteBuffer,
-									bufferOffset, remainingLength);
+							int readResult = byteStream.read(byteBuffer, bufferOffset, remainingLength);
 							/*
 							 * EOF should not occur, because the loop should
 							 * read the exact # of bytes in the image

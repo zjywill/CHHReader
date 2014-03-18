@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff5f5f5"
+    android:background="#ff343434"
     android:orientation="vertical" >
 
     <FrameLayout
@@ -18,7 +18,7 @@
             <ImageView
                 android:layout_width="fill_parent"
                 android:layout_height="5dp"
-                android:background="#ff6f0420" />
+                android:background="#ffae1a11" />
         </FrameLayout>
 
         <ProgressBar
@@ -33,7 +33,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#fff5f5f5" >
+        android:background="#ff343434" >
 
         <com.comic.chhreader.view.PullDownRefreashListView
             android:id="@+id/user_history_list"

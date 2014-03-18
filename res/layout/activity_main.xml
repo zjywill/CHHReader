@@ -4,6 +4,7 @@
     android:layout_height="fill_parent"
     android:paddingLeft="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_vertical_margin"
+    android:background="#ff343434"
     tools:context=".MainActivity" >
 
     <GridView

@@ -20,7 +20,8 @@ public class ContentAdapter extends CursorAdapter {
 
 	static class ViewHolder {
 		PhotoView icon;
-		TextView text;
+		TextView title;
+		TextView subcontent;
 	}
 
 	private Context mContext;
@@ -51,7 +52,8 @@ public class ContentAdapter extends CursorAdapter {
 		final ViewHolder holder = new ViewHolder();
 
 		holder.icon = (PhotoView) itemLayout.findViewById(R.id.content_ori_image);
-		holder.text = (TextView) itemLayout.findViewById(R.id.content_title_text);
+		holder.title = (TextView) itemLayout.findViewById(R.id.content_title_text);
+		holder.subcontent = (TextView) itemLayout.findViewById(R.id.content_subcontent_text);
 
 		itemLayout.setTag(holder);
 
@@ -68,29 +70,22 @@ public class ContentAdapter extends CursorAdapter {
 
 			ContentData data = new ContentData();
 
-			data.mContentPic = cursor.getString(3);
-			data.mContentPostDate = cursor.getLong(12);
+			data.mContentTitle = cursor.getString(1);
+			data.mContentPic = cursor.getString(2);
+			data.mContentShortcut = cursor.getString(3);
+			data.mContentPostDate = cursor.getLong(4);
 
-			holder.text.setText(String.format(" TIME %d", data.mContentPostDate));
+			holder.title.setText(data.mContentTitle);
+			holder.subcontent.setText(data.mContentShortcut);
 
 			if (data.mContentPic == null) {
 				return;
 			}
 
-			// Handles invalid URLs
 			try {
-				// Converts the URL string to a valid URL
 				URL localURL = new URL(data.mContentPic);
-				/*
-				 * setImageURL(url,false,null) attempts to download and decode
-				 * the picture at at "url" without caching and without providing
-				 * a Drawable. The result will be a BitMap stored in the
-				 * PhotoView for this Fragment.
-				 */
 				holder.icon.setImageURL(localURL, true, true, null);
 				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
-
-				// Catches an invalid URL format
 			} catch (MalformedURLException localMalformedURLException) {
 				localMalformedURLException.printStackTrace();
 			}

@@ -1,36 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:padding="3dp" >
+
+    <com.comic.chhreader.image.PhotoView
+        android:id="@+id/content_ori_image"
+        android:layout_width="120dp"
+        android:layout_height="90dp"
+        android:layout_alignParentLeft="true"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="17dp"
-        android:layout_marginRight="17dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginLeft="3dp"
+        android:layout_toRightOf="@id/content_ori_image"
         android:orientation="vertical" >
-
-        <com.comic.seexian.image.PhotoView
-            android:id="@+id/content_ori_image"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/content_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:paddingRight="5dp"
+            android:ellipsize="end"
+            android:gravity="center|left"
             android:singleLine="true"
             android:text="@string/app_name"
-            android:textColor="#ff777777"
+            android:textColor="#ffff0000"
             android:textSize="19.33sp"
+            android:typeface="sans" />
+
+        <TextView
+            android:id="@+id/content_subcontent_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center|left"
+            android:maxLines="3"
+            android:text="@string/app_name"
+            android:textColor="#ffb8b8b8"
+            android:textSize="17.33sp"
             android:typeface="sans" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

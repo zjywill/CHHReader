@@ -30,7 +30,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_MAIN_ID = "_id";
 	public static final String KEY_MAIN_TITLE = "title";
 	public static final String KEY_MAIN_PIC_URL = "picture";
-	public static final String KEY_MAIN_SUB_TITLE = "subtitle";
+	public static final String KEY_MAIN_TYPE = "type";
 	public static final String KEY_MAIN_CATEGORY = "category";
 	public static final String KEY_MAIN_SHORTCUT = "shortcut";
 	public static final String KEY_MAIN_POSTER = "poster";
@@ -151,7 +151,7 @@ public class DataProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			String commandMain = "create table " + DB_TABLE_MAIN_DATA + " (" + KEY_MAIN_ID + " integer primary key autoincrement, " + KEY_MAIN_TITLE + " TEXT," + KEY_MAIN_PIC_URL + " TEXT," + KEY_MAIN_SUB_TITLE + " TEXT," + KEY_MAIN_CATEGORY + " TEXT," + KEY_MAIN_SHORTCUT + " TEXT, " + KEY_MAIN_POSTER + " TEXT, " + KEY_MAIN_CONTENT + " TEXT, " + KEY_MAIN_URL + " TEXT, " + KEY_MAIN_EXTEND_DATA1 + " TEXT, " + KEY_MAIN_EXTEND_DATA2 + " TEXT, " + KEY_MAIN_PUBLISH_DATE + " INTEGER );";
+			String commandMain = "create table " + DB_TABLE_MAIN_DATA + " (" + KEY_MAIN_ID + " integer primary key autoincrement, " + KEY_MAIN_TITLE + " TEXT," + KEY_MAIN_PIC_URL + " TEXT," + KEY_MAIN_TYPE + " TEXT," + KEY_MAIN_CATEGORY + " TEXT," + KEY_MAIN_SHORTCUT + " TEXT, " + KEY_MAIN_POSTER + " TEXT, " + KEY_MAIN_CONTENT + " TEXT, " + KEY_MAIN_URL + " TEXT, " + KEY_MAIN_EXTEND_DATA1 + " TEXT, " + KEY_MAIN_EXTEND_DATA2 + " TEXT, " + KEY_MAIN_PUBLISH_DATE + " INTEGER );";
 			db.execSQL(commandMain);
 		}
 

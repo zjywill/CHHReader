@@ -2,6 +2,7 @@ package com.comic.chhreader.content;
 
 import java.util.ArrayList;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -14,19 +15,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comic.chhreader.Constants;
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.MainActivity;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentData;
-import com.comic.chhreader.data.MainGridData;
+import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.provider.DataProvider;
 import com.comic.chhreader.view.NetworkDialog;
 import com.comic.chhreader.view.PullDownRefreashListView;
@@ -34,11 +35,10 @@ import com.comic.chhreader.view.PullDownRefreashListView;
  import com.comic.seexian.utils.SeeXianNetUtils;
  import com.comic.seexian.utils.SeeXianUtils;*/
 
-public class ContentActivity extends Activity
-		implements
-			OnItemClickListener,
-			OnItemLongClickListener,
-			OnCreateContextMenuListener {
+public class ContentActivity extends Activity implements OnItemClickListener {
+
+	private static final int MSG_GET_LOCAL_DATA_FINISH = 1;
+	private static final int MSG_GET_NET_DATA_FINISH = 2;
 
 	private Context mCtx;
 
@@ -51,10 +51,9 @@ public class ContentActivity extends Activity
 
 	private ContentResolver mContentResolver;
 
-	private ArrayList<ContentData> mListData = new ArrayList<ContentData>();
-
 	private NetworkDialog mNetworkDialog = null;
 
+	private String mMainTitle;
 	private String mCategory;
 
 	// ------------------------------------------------------------------
@@ -73,6 +72,11 @@ public class ContentActivity extends Activity
 		@Override
 		public boolean handleMessage(Message msg) {
 			switch (msg.what) {
+				case MSG_GET_LOCAL_DATA_FINISH : {
+					mLoadingProgress.setVisibility(View.GONE);
+					mLoadingText.setVisibility(View.GONE);
+				}
+					break;
 				case Constants.MESSAGE_NETWORK_ERROR : {
 					if (mNetworkDialog == null) {
 						mNetworkDialog = new NetworkDialog(mCtx, R.style.Theme_dialog);
@@ -112,30 +116,53 @@ public class ContentActivity extends Activity
 		mListView.setOnItemClickListener(this);
 		mListView.addCustomView(mRefreshViewInside, mRefreshHorizontalImage, mRefreshHorizontalProgress);
 		mListView.setOnCreateContextMenuListener(this);
-		mListView.setOnItemLongClickListener(this);
 
 		Intent infointent = getIntent();
+		mMainTitle = infointent.getStringExtra("title");
 		mCategory = infointent.getStringExtra("category");
+
+		intActionBar();
 
 		mListView.setOnRefreshListener(new PullDownRefreashListView.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				// new GetDataFromNetTask().execute(null);
+				new NetDataFetch().execute();
 			}
 		});
 
 		new LocalDataFetch().execute();
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+	void intActionBar() {
+		ActionBar actionBar = getActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setTitle(mMainTitle);
+		}
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,
-			long arg3) {
-		mSelectedItem = arg2;
-		return false;
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home :
+				finish();
+				break;
+			default :
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Intent intent = new Intent(ContentActivity.this, DetailActivity.class);
+		Cursor cur = (Cursor) mListAdapter.getItem(position);
+		if (cur != null) {
+			intent.putExtra("title", cur.getString(1));
+			intent.putExtra("url", cur.getString(5));
+			startActivity(intent);
+		}
 	}
 
 	@Override
@@ -161,12 +188,15 @@ public class ContentActivity extends Activity
 			if (mContentResolver == null) {
 				mContentResolver = getContentResolver();
 			}
-			String[] projection = new String[3];
-			projection[0] = DataProvider.KEY_MAIN_TITLE;
-			projection[1] = DataProvider.KEY_MAIN_PIC_URL;
-			projection[2] = DataProvider.KEY_MAIN_SHORTCUT;
+			String[] projection = new String[6];
+			projection[0] = DataProvider.KEY_MAIN_ID;
+			projection[1] = DataProvider.KEY_MAIN_TITLE;
+			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+			projection[3] = DataProvider.KEY_MAIN_SHORTCUT;
+			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
+			projection[5] = DataProvider.KEY_MAIN_URL;
 
-			String selection = DataProvider.KEY_MAIN_CATEGORY + "='" + "main" + "'";
+			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "content" + "'" + " AND " + DataProvider.KEY_MAIN_CATEGORY + "='" + mCategory + "'" ;
 			Loge.i("selection = " + selection);
 
 			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
@@ -181,6 +211,7 @@ public class ContentActivity extends Activity
 					new NetDataFetch().execute();
 				} else {
 					mListAdapter.swapCursor(cursor);
+					mMessageHandler.sendEmptyMessage(MSG_GET_LOCAL_DATA_FINISH);
 				}
 			}
 			super.onPostExecute(cursor);
@@ -202,6 +233,8 @@ public class ContentActivity extends Activity
 				item.mContentURL = "http://www.chiphell.com/thread-986442-1-1.html";
 				item.mContentShortcut = "venue8pro简单评测 ——从metro应用看windows平板 正题之前，首先说一下自己的移动电子产品吧：一台nexus4手机，一台mx3手机，一台X220笔记本，一个LG的蓝牙耳机。以前买过一个昂达的7寸平板，一 ...";
 				item.mContentPostDate = i * 1000;
+				item.mContentType = "content";
+				tempListData.add(item);
 			}
 
 			if (mContentResolver == null) {
@@ -212,14 +245,7 @@ public class ContentActivity extends Activity
 				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 
 				for (ContentData item : tempListData) {
-					ContentProviderOperation.Builder builder = 
-							ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).
-							withValue(DataProvider.KEY_MAIN_TITLE, item.mContentTitle).
-							withValue(DataProvider.KEY_MAIN_PIC_URL, item.mContentPic).
-							withValue(DataProvider.KEY_MAIN_CATEGORY, mCategory).
-							withValue(DataProvider.KEY_MAIN_SHORTCUT, item.mContentShortcut).
-							withValue(DataProvider.KEY_MAIN_URL, item.mContentURL).
-							withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mContentPostDate);
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mContentTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mContentPic).withValue(DataProvider.KEY_MAIN_CATEGORY, mCategory).withValue(DataProvider.KEY_MAIN_SHORTCUT, item.mContentShortcut).withValue(DataProvider.KEY_MAIN_URL, item.mContentURL).withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mContentPostDate).withValue(DataProvider.KEY_MAIN_TYPE, item.mContentType);
 					opertions.add(builder.build());
 				}
 
@@ -238,6 +264,10 @@ public class ContentActivity extends Activity
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			if (result.equals("success")) {
+				mListView.onRefreshComplete();
+				new LocalDataFetch().execute();
+			}
 		}
 
 	};

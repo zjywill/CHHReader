@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
-        android:textAppearance="@android:style/TextAppearance.Large.Inverse" />
+        android:textAppearance="@android:style/TextAppearance.Large.Inverse"
+        android:textColor="#ffb8b8b8" />
 
     <com.comic.chhreader.image.PhotoView
         android:id="@+id/gird_image"

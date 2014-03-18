@@ -172,7 +172,7 @@ class PhotoDecodeRunnable implements Runnable {
 				targetHeight = mPhotoTask.getTargetHeight();
 			}
 
-            
+			Loge.d("imageBuffer.length = " + imageBuffer.length);
 	        Loge.d("targetWidth = " + targetWidth + " targetHeight = " + targetHeight);
     
             // Before continuing, checks to see that the Thread hasn't

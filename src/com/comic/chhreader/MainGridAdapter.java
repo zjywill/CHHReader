@@ -1,83 +1,105 @@
 package com.comic.chhreader;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.comic.chhreader.data.MainGridData;
 import com.comic.chhreader.image.PhotoView;
 
-public class MainGridAdapter extends BaseAdapter {
-
-	private List<MainGridData> mGridData = new ArrayList<MainGridData>();
-	private Context mContext;
-	private Drawable mDefaultDrawable;
+public class MainGridAdapter extends CursorAdapter {
 
 	static class ViewHolder {
 		TextView title;
 		PhotoView image;
 	}
+	
+	private Context mContext;
+	private Cursor mCursor;
 
-	MainGridAdapter(Context context) {
-		mContext = context;
-		mDefaultDrawable = mContext.getResources().getDrawable(R.drawable.gray_image_downloading);
+	MainGridAdapter(Context ctx, Cursor cursor) {
+		super(ctx, cursor, 0);
+		mContext = ctx;
+		mCursor = cursor;
+	}
+
+	void setCursor(Cursor cursor) {
+		setCursor(cursor);
+	}
+
+	@Override
+	public Cursor swapCursor(Cursor newCursor) {
+		mCursor = newCursor;
+		return super.swapCursor(newCursor);
+	}
+
+	@Override
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		Loge.d("Create new view");
+
+		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(R.layout.main_gird_item, null);
+		final ViewHolder holder = new ViewHolder();
+
+		holder.image = (PhotoView) itemLayout.findViewById(R.id.gird_image);
+		holder.title = (TextView) itemLayout.findViewById(R.id.gird_title);
+
+		itemLayout.setTag(holder);
+
+		return itemLayout;
+	}
+
+	@Override
+	public void bindView(View view, Context context, Cursor cursor) {
+		Loge.d("Bind view");
+
+		if (cursor != null) {
+
+			final ViewHolder holder = (ViewHolder) view.getTag();
+
+			MainGridData data = new MainGridData();
+
+			data.mTitle = cursor.getString(1);
+			data.mPictureUrl = cursor.getString(2);
+
+			holder.title.setText(data.mTitle);
+
+			if (data.mPictureUrl == null) {
+				return;
+			}
+
+			try {
+				URL localURL = new URL(data.mPictureUrl);
+				holder.image.setImageURL(localURL, true, true, null);
+				holder.image.setCustomDownloadingImage(R.drawable.gray_image_downloading);
+			} catch (MalformedURLException localMalformedURLException) {
+				localMalformedURLException.printStackTrace();
+			}
+		}
 	}
 
 	@Override
 	public int getCount() {
-		Loge.d("getCount = " + mGridData.size());
-		return mGridData.size();
+		if (getCursor() == null) {
+			return 0;
+		}
+		int count = getCursor().getCount();
+		return count;
 	}
 
 	@Override
-	public MainGridData getItem(int position) {
-		return mGridData.get(position);
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder;
-		if (convertView == null) {
-			convertView = LayoutInflater.from(mContext.getApplicationContext()).inflate(R.layout.main_gird_item, null);
-
-			holder = new ViewHolder();
-			holder.title = (TextView) convertView.findViewById(R.id.gird_title);
-			holder.image = (PhotoView) convertView.findViewById(R.id.gird_image);
-
-			convertView.setTag(holder);
+	public Object getItem(int position) {
+		if (mCursor != null) {
+			mCursor.moveToPosition(position);
+			return mCursor;
 		} else {
-			holder = (ViewHolder) convertView.getTag();
-		}
-
-		synchronized (mGridData) {
-			MainGridData itemData = mGridData.get(position);
-			if (itemData != null) {
-				Loge.d("getView title = " + itemData.mTitle);
-				holder.title.setText(itemData.mTitle);
-				holder.image.setImageURL(itemData.mPictureUrl, false, true, mDefaultDrawable);
-			}
-		}
-
-		return convertView;
-	}
-
-	public void setGridData(List<MainGridData> gridData) {
-		synchronized (mGridData) {
-			mGridData.clear();
-			mGridData.addAll(gridData);
-			Loge.d("setGridData size = " + mGridData.size());
+			return null;
 		}
 	}
 

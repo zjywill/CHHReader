@@ -6,5 +6,6 @@ public class ContentData {
 	public String mContentPic;
 	public String mContentURL;
 	public String mContentShortcut;
+	public String mContentType;
 	public long mContentPostDate;
 }
