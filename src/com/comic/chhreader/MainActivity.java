@@ -3,6 +3,8 @@ package com.comic.chhreader;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -42,6 +44,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	private ProgressBar mLoadingProgress;
 	private ImageButton mRefreshBtn;
 
+	private int mShortAnimationDuration;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,6 +57,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		mGrid.setAdapter(mGirdAdapter);
 
 		initActionBar();
+		mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
 		new FetchDataTaskLocal().execute();
 	}
@@ -115,6 +120,43 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 	};
 
+	private void showContentOrLoadingIndicator(boolean contentLoaded) {
+		// Decide which view to hide and which to show.
+		final View showView = contentLoaded ? mLoadingProgress : mRefreshBtn;
+		final View hideView = contentLoaded ? mRefreshBtn : mLoadingProgress;
+
+		// Set the "show" view to 0% opacity but visible, so that it is visible
+		// (but fully transparent) during the animation.
+		showView.setAlpha(0f);
+		showView.setVisibility(View.VISIBLE);
+
+		// Animate the "show" view to 100% opacity, and clear any animation
+		// listener set on
+		// the view. Remember that listeners are not limited to the specific
+		// animation
+		// describes in the chained method calls. Listeners are set on the
+		// ViewPropertyAnimator object for the view, which persists across
+		// several
+		// animations.
+		showView.animate().alpha(1f).setDuration(mShortAnimationDuration).setListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				showView.setVisibility(View.VISIBLE);
+			}
+		});
+
+		// Animate the "hide" view to 0% opacity. After the animation ends, set
+		// its visibility
+		// to GONE as an optimization step (it won't participate in layout
+		// passes, etc.)
+		hideView.animate().alpha(0f).setDuration(mShortAnimationDuration).setListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				hideView.setVisibility(View.GONE);
+			}
+		});
+	}
+
 	class FetchDataTaskLocal extends AsyncTask<Void, Void, Cursor> {
 
 		@Override
@@ -160,8 +202,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			mRefreshBtn.setVisibility(View.GONE);
-			mLoadingProgress.setVisibility(View.VISIBLE);
+			showContentOrLoadingIndicator(true);
 		}
 
 		@Override
@@ -205,8 +246,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			mRefreshBtn.setVisibility(View.VISIBLE);
-			mLoadingProgress.setVisibility(View.GONE);
+			showContentOrLoadingIndicator(false);
 			if (result.equals("success")) {
 				new FetchDataTaskLocal().execute();
 			}

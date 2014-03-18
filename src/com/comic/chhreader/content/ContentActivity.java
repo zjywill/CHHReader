@@ -17,18 +17,19 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ProgressBar;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.comic.chhreader.Constants;
 import com.comic.chhreader.Loge;
-import com.comic.chhreader.MainActivity;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 import com.comic.chhreader.view.PullDownRefreashListView;
 /*import com.comic.seexian.detail.DetailActivity;
@@ -46,8 +47,9 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	private ContentAdapter mListAdapter;
 
 	private View mLoadingView;
-	private ProgressBar mLoadingProgress;
 	private TextView mLoadingText;
+	private View mLoadMoreView;
+	private Button mLoadMoreBtn;
 
 	private ContentResolver mContentResolver;
 
@@ -73,8 +75,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		public boolean handleMessage(Message msg) {
 			switch (msg.what) {
 				case MSG_GET_LOCAL_DATA_FINISH : {
-					mLoadingProgress.setVisibility(View.GONE);
-					mLoadingText.setVisibility(View.GONE);
+					mLoadingView.setVisibility(View.GONE);
 				}
 					break;
 				case Constants.MESSAGE_NETWORK_ERROR : {
@@ -101,7 +102,6 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mListView = (PullDownRefreashListView) findViewById(R.id.user_history_list);
 
 		mLoadingView = (View) findViewById(R.id.user_empty_view);
-		mLoadingProgress = (ProgressBar) findViewById(R.id.user_loading_progress);
 		mLoadingText = (TextView) findViewById(R.id.user_empty_text);
 
 		mLoadingText.setText(R.string.loading);
@@ -116,6 +116,12 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mListView.setOnItemClickListener(this);
 		mListView.addCustomView(mRefreshViewInside, mRefreshHorizontalImage, mRefreshHorizontalProgress);
 		mListView.setOnCreateContextMenuListener(this);
+		// mListView.setOnScrollListener(mScrollListener);//no need this
+
+		mLoadMoreView = getLayoutInflater().inflate(R.layout.loadmore_view, null);
+		mLoadMoreBtn = (Button) mLoadMoreView.findViewById(R.id.loadmore_btn);
+		mLoadMoreBtn.setOnClickListener(mLoadMoreClicked);
+		mListView.addFooterView(mLoadMoreView);
 
 		Intent infointent = getIntent();
 		mMainTitle = infointent.getStringExtra("title");
@@ -130,9 +136,13 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			}
 		});
 
+		if (!Utils.isNetworkAvailable(getApplicationContext())) {
+			Loge.i("Net unavilable not show loadmore");
+			mLoadMoreView.setVisibility(View.GONE);
+		}
+
 		new LocalDataFetch().execute();
 	}
-
 	void intActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
@@ -165,6 +175,30 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		}
 	}
 
+	AbsListView.OnScrollListener mScrollListener = new AbsListView.OnScrollListener() {
+
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem,
+				int visibleItemCount, int totalItemCount) {
+			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
+				Loge.i("Scroll to the end");
+			}
+		}
+	};
+
+	View.OnClickListener mLoadMoreClicked = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			Loge.i("Load more clicked");
+			new NetDataFetch().execute("13241");// TODO
+		}
+	};
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -196,7 +230,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
 			projection[5] = DataProvider.KEY_MAIN_URL;
 
-			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "content" + "'" + " AND " + DataProvider.KEY_MAIN_CATEGORY + "='" + mCategory + "'" ;
+			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "content" + "'" + " AND " + DataProvider.KEY_MAIN_CATEGORY + "='" + mCategory + "'";
 			Loge.i("selection = " + selection);
 
 			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
@@ -208,10 +242,10 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			if (cursor != null) {
 				Loge.d("cursor count = " + cursor.getCount());
 				if (cursor.getCount() == 0) {
-					new NetDataFetch().execute();
+					new NetDataFetch().execute("13241");
 				} else {
 					mListAdapter.swapCursor(cursor);
-					mMessageHandler.sendEmptyMessage(MSG_GET_LOCAL_DATA_FINISH);
+					mLoadingView.setVisibility(View.GONE);
 				}
 			}
 			super.onPostExecute(cursor);
@@ -219,10 +253,26 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	};
 
-	class NetDataFetch extends AsyncTask<Void, Void, String> {
+	class NetDataFetch extends AsyncTask<String, Void, String> {
 
 		@Override
-		protected String doInBackground(Void... params) {
+		protected void onPreExecute() {
+			super.onPreExecute();
+			mLoadMoreBtn.setClickable(false);
+			mLoadMoreBtn.setText(R.string.loading);
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+
+			String loadingUrl = null;
+			if (params != null && params.length > 0) {
+				loadingUrl = params[0];
+			}
+			if (loadingUrl == null) {
+				return "fail";
+			}
+			Loge.i("loading URL = " + loadingUrl);
 
 			ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
 
@@ -264,11 +314,12 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			mLoadMoreBtn.setClickable(true);
+			mLoadMoreBtn.setText(R.string.load_more);
 			if (result.equals("success")) {
 				mListView.onRefreshComplete();
 				new LocalDataFetch().execute();
 			}
 		}
-
 	};
 }
