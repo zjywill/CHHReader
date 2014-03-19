@@ -148,6 +148,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setTitle(mMainTitle);
+			actionBar.setIcon(R.drawable.chh_icon);
 		}
 	}
 

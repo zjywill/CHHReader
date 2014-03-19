@@ -45,6 +45,7 @@ public class DetailActivity extends Activity {
 		if (actionbar != null) {
 			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
+			actionbar.setIcon(R.drawable.chh_icon);
 		}
 	}
 

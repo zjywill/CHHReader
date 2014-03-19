@@ -58,6 +58,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 		initActionBar();
 		mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+		
+		mGrid.setAlpha(0f);
+		mGrid.animate().alpha(1f).setDuration(800).setListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				mGrid.setVisibility(View.VISIBLE);
+			}
+		});
 
 		new FetchDataTaskLocal().execute();
 	}
@@ -65,6 +73,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
+			
+			actionBar.setIcon(R.drawable.title_icon);
 
 			Loge.i("action bar setCustomView");
 			LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
