@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
+import com.comic.chhreader.utils.Utils;
 
 public class DetailActivity extends Activity {
 
@@ -41,7 +42,9 @@ public class DetailActivity extends Activity {
 		mMainUrl = dataIntent.getStringExtra("url");
 
 		initActionBar();
-
+		if (!Utils.isNetworkAvailable(getBaseContext())) {
+			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
+		}
 		mWebView.loadUrl(mMainUrl);
 	}
 

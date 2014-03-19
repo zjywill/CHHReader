@@ -27,10 +27,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.comic.chhreader.content.ContentActivity;
 import com.comic.chhreader.data.MainGridData;
 import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.utils.Utils;
+import com.comic.chhreader.view.NetworkDialog;
 
 public class MainActivity extends Activity implements OnItemClickListener {
 
@@ -46,6 +49,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 	private int mShortAnimationDuration;
 
+	private Context mContext = this;
+	private NetworkDialog mNetworkDialog = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,7 +64,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 		initActionBar();
 		mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-		
+
 		mGrid.setAlpha(0f);
 		mGrid.animate().alpha(1f).setDuration(800).setListener(new AnimatorListenerAdapter() {
 			@Override
@@ -73,7 +79,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
-			
+
 			actionBar.setIcon(R.drawable.title_icon);
 
 			Loge.i("action bar setCustomView");
@@ -213,44 +219,55 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			showContentOrLoadingIndicator(true);
+			if (!Utils.isNetworkAvailable(getBaseContext())) {
+				if (mNetworkDialog == null) {
+					mNetworkDialog = new NetworkDialog(mContext, R.style.Theme_dialog);
+					mNetworkDialog.show();
+				}else{
+					Toast.makeText(mContext, R.string.no_network, Toast.LENGTH_SHORT).show();
+				}
+			}
 		}
 
 		@Override
 		protected String doInBackground(Void... params) {
-			ContentResolver cr = getContentResolver();
+			if (Utils.isNetworkAvailable(getBaseContext())) {
+				ContentResolver cr = getContentResolver();
 
-			List<MainGridData> tempGridData = new ArrayList<MainGridData>();
+				List<MainGridData> tempGridData = new ArrayList<MainGridData>();
 
-			// get data from net
-			String[] titles = getResources().getStringArray(R.array.main_title_array);
-			String[] types = getResources().getStringArray(R.array.main_type_array);
-			int i = 0;
-			for (String title : titles) {
-				MainGridData data = new MainGridData();
-				data.mTitle = title;
-				data.mPictureUrl = "http://www.chiphell.com/data/attachment/block/9b/9beb2354162c5327d1369ed31b3b7fae.jpg";
-				data.mType = "main";
-				data.mCategory = types[i];
-				i++;
-				tempGridData.add(data);
-			}
-
-			// save data and update data
-			if (tempGridData.size() > 0) {
-				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
-				for (MainGridData item : tempGridData) {
-					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mPictureUrl).withValue(DataProvider.KEY_MAIN_TYPE, item.mType).withValue(DataProvider.KEY_MAIN_CATEGORY, item.mCategory);
-					opertions.add(builder.build());
+				// get data from net
+				String[] titles = getResources().getStringArray(R.array.main_title_array);
+				String[] types = getResources().getStringArray(R.array.main_type_array);
+				int i = 0;
+				for (String title : titles) {
+					MainGridData data = new MainGridData();
+					data.mTitle = title;
+					data.mPictureUrl = "http://www.chiphell.com/data/attachment/block/9b/9beb2354162c5327d1369ed31b3b7fae.jpg";
+					data.mType = "main";
+					data.mCategory = types[i];
+					i++;
+					tempGridData.add(data);
 				}
-				try {
-					cr.applyBatch(DataProvider.DB_AUTHOR, opertions);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				} catch (OperationApplicationException e) {
-					e.printStackTrace();
+
+				// save data and update data
+				if (tempGridData.size() > 0) {
+					ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
+					for (MainGridData item : tempGridData) {
+						ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mPictureUrl).withValue(DataProvider.KEY_MAIN_TYPE, item.mType).withValue(DataProvider.KEY_MAIN_CATEGORY, item.mCategory);
+						opertions.add(builder.build());
+					}
+					try {
+						cr.applyBatch(DataProvider.DB_AUTHOR, opertions);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					} catch (OperationApplicationException e) {
+						e.printStackTrace();
+					}
 				}
+				return "success";
 			}
-			return "success";
+			return "fail";
 		}
 
 		@Override

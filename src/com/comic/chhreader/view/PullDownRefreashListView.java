@@ -92,8 +92,7 @@ public class PullDownRefreashListView extends ListView {
 		mRefreshHorizontalView = refreshHorizontalView;
 		mRefreshHorizontalImage = refreshHorizontalImage;
 		mRefreshHorizontalProgress = refreshHorizontalProgress;
-		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth,
-				0);
+		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth, 0);
 	}
 
 	@Override
@@ -162,8 +161,7 @@ public class PullDownRefreashListView extends ListView {
 		mRefreshHorizontalView.setVisibility(View.GONE);
 		mRefreshHorizontalImage.setVisibility(View.VISIBLE);
 		mRefreshHorizontalProgress.setVisibility(View.GONE);
-		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth,
-				0);
+		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth, 0);
 	}
 
 	/**
@@ -208,17 +206,13 @@ public class PullDownRefreashListView extends ListView {
 	private void init(Context context) {
 		setVerticalFadingEdgeEnabled(false);
 
-		headerContainer = (View) LayoutInflater.from(getContext()).inflate(
-				R.layout.pull_to_refresh_header, null);
+		headerContainer = (View) LayoutInflater.from(getContext()).inflate(R.layout.pull_to_refresh_header, null);
 		header = (View) headerContainer.findViewById(R.id.ptr_id_header);
 		text = (TextView) header.findViewById(R.id.ptr_id_text);
-		lastUpdatedTextView = (TextView) header
-				.findViewById(R.id.ptr_id_last_updated);
+		lastUpdatedTextView = (TextView) header.findViewById(R.id.ptr_id_last_updated);
 
-		pullToRefreshText = getContext()
-				.getString(R.string.ptr_pull_to_refresh);
-		releaseToRefreshText = getContext().getString(
-				R.string.ptr_release_to_refresh);
+		pullToRefreshText = getContext().getString(R.string.ptr_pull_to_refresh);
+		releaseToRefreshText = getContext().getString(R.string.ptr_release_to_refresh);
 		refreshingText = getContext().getString(R.string.ptr_refreshing);
 
 		addHeaderView(headerContainer);
@@ -237,8 +231,7 @@ public class PullDownRefreashListView extends ListView {
 	private void setHeaderPadding(int padding) {
 		headerPadding = padding;
 
-		MarginLayoutParams mlp = (MarginLayoutParams) header
-				.getLayoutParams();
+		MarginLayoutParams mlp = (MarginLayoutParams) header.getLayoutParams();
 		mlp.setMargins(0, Math.round(padding), 0, 0);
 		header.setLayoutParams(mlp);
 	}
@@ -255,108 +248,93 @@ public class PullDownRefreashListView extends ListView {
 
 			mRefreshHorizontalView.setVisibility(View.VISIBLE);
 			if (!(padding > mHalfSreenWidth)) {
-				mRefreshHorizontalImage.setPadding(mHalfSreenWidth - padding,
-						0, mHalfSreenWidth - padding, 0);
+				mRefreshHorizontalImage.setPadding(mHalfSreenWidth - padding, 0, mHalfSreenWidth - padding, 0);
 			}
 		}
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (lockScrollWhileRefreshing
-				&& (state == State.REFRESHING || getAnimation() != null
-						&& !getAnimation().hasEnded())) {
+		if (lockScrollWhileRefreshing && (state == State.REFRESHING || getAnimation() != null && !getAnimation().hasEnded())) {
 			return true;
 		}
 
 		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			if (getFirstVisiblePosition() == 0) {
-				previousY = event.getY();
-			} else {
-				previousY = -1;
-			}
-
-			// Remember where have we started
-			mScrollStartY = event.getY();
-
-			break;
-
-		case MotionEvent.ACTION_UP:
-			if (previousY != -1
-					&& (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
-				switch (state) {
-				case RELEASE_TO_REFRESH:
-					setState(State.REFRESHING);
-					bounceBackHeader();
-
-					break;
-
-				case PULL_TO_REFRESH:
-					resetHeader();
-					break;
+			case MotionEvent.ACTION_DOWN :
+				if (getFirstVisiblePosition() == 0) {
+					previousY = event.getY();
+				} else {
+					previousY = -1;
 				}
-			}
-			break;
 
-		case MotionEvent.ACTION_MOVE:
-			if (previousY != -1 && getFirstVisiblePosition() == 0
-					&& Math.abs(mScrollStartY - event.getY()) > IDLE_DISTANCE) {
-				float y = event.getY();
-				float diff = y - previousY;
-				if (diff > 0)
-					diff /= PULL_RESISTANCE;
-				previousY = y;
+				// Remember where have we started
+				mScrollStartY = event.getY();
 
-				int newHeaderPadding = Math.max(
-						Math.round(headerPadding + diff), -header.getHeight());
+				break;
 
-				if (newHeaderPadding != headerPadding
-						&& state != State.REFRESHING) {
-					setHeaderPadding(newHeaderPadding);
-					applyRefreshImagePadding(event);
-
-					if (state == State.PULL_TO_REFRESH && headerPadding > 0) {
-						setState(State.RELEASE_TO_REFRESH);
-
-					} else if (state == State.RELEASE_TO_REFRESH
-							&& headerPadding < 0) {
-						setState(State.PULL_TO_REFRESH);
-
+			case MotionEvent.ACTION_UP :
+				if (previousY != -1 && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
+					switch (state) {
+						case RELEASE_TO_REFRESH :
+							setState(State.REFRESHING);
+							bounceBackHeader();
+							break;
+						case PULL_TO_REFRESH :
+							resetHeader();
+							break;
 					}
 				}
-			}
+				if (getFirstVisiblePosition() > 0) {
+					mRefreshHorizontalView.setVisibility(View.GONE);
+				}
+				break;
 
-			break;
+			case MotionEvent.ACTION_MOVE :
+				if (previousY != -1 && getFirstVisiblePosition() == 0 && Math.abs(mScrollStartY - event.getY()) > IDLE_DISTANCE) {
+					float y = event.getY();
+					float diff = y - previousY;
+					if (diff > 0)
+						diff /= PULL_RESISTANCE;
+					previousY = y;
+
+					int newHeaderPadding = Math.max(Math.round(headerPadding + diff), -header.getHeight());
+
+					if (newHeaderPadding != headerPadding && state != State.REFRESHING) {
+						setHeaderPadding(newHeaderPadding);
+						applyRefreshImagePadding(event);
+
+						if (state == State.PULL_TO_REFRESH && headerPadding > 0) {
+							setState(State.RELEASE_TO_REFRESH);
+
+						} else if (state == State.RELEASE_TO_REFRESH && headerPadding < 0) {
+							setState(State.PULL_TO_REFRESH);
+
+						}
+					}
+				}
+
+				break;
 		}
 
 		return super.onTouchEvent(event);
 	}
 
 	private void bounceBackHeader() {
-		int yTranslate = state == State.REFRESHING ? header.getHeight()
-				- headerContainer.getHeight() : -headerContainer.getHeight()
-				- headerContainer.getTop() + getPaddingTop();
+		int yTranslate = state == State.REFRESHING ? header.getHeight() - headerContainer.getHeight() : -headerContainer.getHeight() - headerContainer.getTop() + getPaddingTop();
 
-		TranslateAnimation bounceAnimation = new TranslateAnimation(
-				TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0,
-				TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE,
-				yTranslate);
+		TranslateAnimation bounceAnimation = new TranslateAnimation(TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, yTranslate);
 
 		bounceAnimation.setDuration(BOUNCE_ANIMATION_DURATION);
 		bounceAnimation.setFillEnabled(true);
 		bounceAnimation.setFillAfter(false);
 		bounceAnimation.setFillBefore(true);
-		bounceAnimation.setInterpolator(new OvershootInterpolator(
-				BOUNCE_OVERSHOOT_TENSION));
-		bounceAnimation.setAnimationListener(new HeaderAnimationListener(
-				yTranslate));
+		bounceAnimation.setInterpolator(new OvershootInterpolator(BOUNCE_OVERSHOOT_TENSION));
+		bounceAnimation.setAnimationListener(new HeaderAnimationListener(yTranslate));
 
 		startAnimation(bounceAnimation);
 
 		mRefreshHorizontalView.setVisibility(View.VISIBLE);
-		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth,
-				0);
+		mRefreshHorizontalImage.setPadding(mHalfSreenWidth, 0, mHalfSreenWidth, 0);
 	}
 
 	private void resetHeader() {
@@ -383,21 +361,21 @@ public class PullDownRefreashListView extends ListView {
 	private void setState(State state) {
 		this.state = state;
 		switch (state) {
-		case PULL_TO_REFRESH:
-			text.setText(pullToRefreshText);
-			lastUpdatedTextView.setVisibility(View.VISIBLE);
-			break;
-		case RELEASE_TO_REFRESH:
-			text.setText(releaseToRefreshText);
-			break;
-		case REFRESHING:
-			setUiRefreshing();
-			if (onRefreshListener == null) {
-				setState(State.PULL_TO_REFRESH);
-			} else {
-				onRefreshListener.onRefresh();
-			}
-			break;
+			case PULL_TO_REFRESH :
+				text.setText(pullToRefreshText);
+				lastUpdatedTextView.setVisibility(View.VISIBLE);
+				break;
+			case RELEASE_TO_REFRESH :
+				text.setText(releaseToRefreshText);
+				break;
+			case REFRESHING :
+				setUiRefreshing();
+				if (onRefreshListener == null) {
+					setState(State.PULL_TO_REFRESH);
+				} else {
+					onRefreshListener.onRefresh();
+				}
+				break;
 		}
 	}
 
@@ -439,8 +417,7 @@ public class PullDownRefreashListView extends ListView {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
-			setHeaderPadding(stateAtAnimationStart == State.REFRESHING ? 0
-					: -measuredHeaderHeight - headerContainer.getTop());
+			setHeaderPadding(stateAtAnimationStart == State.REFRESHING ? 0 : -measuredHeaderHeight - headerContainer.getTop());
 			setSelection(0);
 
 			ViewGroup.LayoutParams lp = getLayoutParams();
@@ -501,8 +478,7 @@ public class PullDownRefreashListView extends ListView {
 			if (onItemClickListener != null && state == State.PULL_TO_REFRESH) {
 				// Passing up onItemClick. Correct position with the number of
 				// header views
-				onItemClickListener.onItemClick(adapterView, view, position
-						- getHeaderViewsCount(), id);
+				onItemClickListener.onItemClick(adapterView, view, position - getHeaderViewsCount(), id);
 			}
 		}
 	}
@@ -514,12 +490,10 @@ public class PullDownRefreashListView extends ListView {
 				int position, long id) {
 			hasResetHeader = false;
 
-			if (onItemLongClickListener != null
-					&& state == State.PULL_TO_REFRESH) {
+			if (onItemLongClickListener != null && state == State.PULL_TO_REFRESH) {
 				// Passing up onItemLongClick. Correct position with the number
 				// of header views
-				return onItemLongClickListener.onItemLongClick(adapterView,
-						view, position - getHeaderViewsCount(), id);
+				return onItemLongClickListener.onItemLongClick(adapterView, view, position - getHeaderViewsCount(), id);
 			}
 
 			return false;

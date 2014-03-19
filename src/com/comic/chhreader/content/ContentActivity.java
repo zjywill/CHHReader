@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.TextView;
@@ -263,6 +264,14 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			if (!Utils.isNetworkAvailable(getBaseContext())) {
+				if (mNetworkDialog == null) {
+					mNetworkDialog = new NetworkDialog(mCtx, R.style.Theme_dialog);
+					mNetworkDialog.show();
+				} else {
+					Toast.makeText(mCtx, R.string.no_network, Toast.LENGTH_SHORT).show();
+				}
+			}
 			if (mListAdapter.getCount() == 0) {
 				mLoadMoreView.setVisibility(View.GONE);
 			} else {
@@ -273,60 +282,66 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
+			if (Utils.isNetworkAvailable(getBaseContext())) {
+				String loadingUrl = null;
+				if (params != null && params.length > 0) {
+					loadingUrl = params[0];
+				}
+				if (loadingUrl == null) {
+					return "fail";
+				}
+				Loge.i("loading URL = " + loadingUrl);
 
-			String loadingUrl = null;
-			if (params != null && params.length > 0) {
-				loadingUrl = params[0];
-			}
-			if (loadingUrl == null) {
-				return "fail";
-			}
-			Loge.i("loading URL = " + loadingUrl);
+				ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
 
-			ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
-
-			for (int i = 0; i < 30; i++) {
-				ContentData item = new ContentData();
-				item.mContentTitle = "venue8pro简单评测——从metro应用看windows平板";
-				item.mContentPic = "http://www.chiphell.com/data/attachment/portal/201403/11/194032o30h6opcpy6defep.jpg";
-				item.mContentURL = "http://www.chiphell.com/thread-986442-1-1.html";
-				item.mContentShortcut = "venue8pro简单评测 ——从metro应用看windows平板 正题之前，首先说一下自己的移动电子产品吧：一台nexus4手机，一台mx3手机，一台X220笔记本，一个LG的蓝牙耳机。以前买过一个昂达的7寸平板，一 ...";
-				item.mContentPostDate = i * 1000;
-				item.mContentType = "content";
-				tempListData.add(item);
-			}
-
-			if (mContentResolver == null) {
-				mContentResolver = getContentResolver();
-			}
-			// save data and update data
-			if (tempListData.size() > 0) {
-				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
-
-				for (ContentData item : tempListData) {
-					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mContentTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mContentPic).withValue(DataProvider.KEY_MAIN_CATEGORY, mCategory).withValue(DataProvider.KEY_MAIN_SHORTCUT, item.mContentShortcut).withValue(DataProvider.KEY_MAIN_URL, item.mContentURL).withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mContentPostDate).withValue(DataProvider.KEY_MAIN_TYPE, item.mContentType);
-					opertions.add(builder.build());
+				for (int i = 0; i < 30; i++) {
+					ContentData item = new ContentData();
+					item.mContentTitle = "venue8pro简单评测——从metro应用看windows平板";
+					item.mContentPic = "http://www.chiphell.com/data/attachment/portal/201403/11/194032o30h6opcpy6defep.jpg";
+					item.mContentURL = "http://www.chiphell.com/thread-986442-1-1.html";
+					item.mContentShortcut = "venue8pro简单评测 ——从metro应用看windows平板 正题之前，首先说一下自己的移动电子产品吧：一台nexus4手机，一台mx3手机，一台X220笔记本，一个LG的蓝牙耳机。以前买过一个昂达的7寸平板，一 ...";
+					item.mContentPostDate = i * 1000;
+					item.mContentType = "content";
+					tempListData.add(item);
 				}
 
-				try {
-					mContentResolver.applyBatch(DataProvider.DB_AUTHOR, opertions);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				} catch (OperationApplicationException e) {
-					e.printStackTrace();
+				if (mContentResolver == null) {
+					mContentResolver = getContentResolver();
 				}
+				// save data and update data
+				if (tempListData.size() > 0) {
+					ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 
+					for (ContentData item : tempListData) {
+						ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mContentTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mContentPic).withValue(DataProvider.KEY_MAIN_CATEGORY, mCategory).withValue(DataProvider.KEY_MAIN_SHORTCUT, item.mContentShortcut).withValue(DataProvider.KEY_MAIN_URL, item.mContentURL).withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mContentPostDate).withValue(DataProvider.KEY_MAIN_TYPE, item.mContentType);
+						opertions.add(builder.build());
+					}
+
+					try {
+						mContentResolver.applyBatch(DataProvider.DB_AUTHOR, opertions);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					} catch (OperationApplicationException e) {
+						e.printStackTrace();
+					}
+
+				}
+				return "success";
 			}
-			return "success";
+			return "fail";
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				mListView.onRefreshComplete();
 				new LocalDataFetch().execute();
+			} else {
+				mLoadMoreView.setVisibility(View.VISIBLE);
+				mLoadMoreBtn.setClickable(true);
+				mLoadMoreBtn.setText(R.string.load_more);
 			}
+			mListView.onRefreshComplete();
 		}
 	};
 }
