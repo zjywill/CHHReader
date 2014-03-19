@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
@@ -29,7 +31,8 @@ public class DetailActivity extends Activity {
 		mWebView = (WebView) findViewById(R.id.detail_web);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
 
-		mWebView.setWebChromeClient(new DetailWebViewClient());
+		mWebView.setWebChromeClient(new DetailWebChromeClient());
+		mWebView.setWebViewClient(new DetailWebViewClient());
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.getSettings().setSupportZoom(false);
 
@@ -38,6 +41,8 @@ public class DetailActivity extends Activity {
 		mMainUrl = dataIntent.getStringExtra("url");
 
 		initActionBar();
+
+		mWebView.loadUrl(mMainUrl);
 	}
 
 	void initActionBar() {
@@ -52,8 +57,13 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home :
-				finish();
+			case android.R.id.home : {
+				if (mWebView.getUrl().contains("album")) {
+					mWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
+			}
 				break;
 			default :
 				break;
@@ -64,7 +74,6 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mWebView.loadUrl(mMainUrl);
 	}
 
 	@Override
@@ -79,8 +88,32 @@ public class DetailActivity extends Activity {
 		mWebView.destroy();
 	}
 
-	private class DetailWebViewClient extends WebChromeClient {
+	@Override
+	public void onBackPressed() {
+		String url = mWebView.getUrl();
+		Loge.i("onBackPressed url =" + url);
+		if (url.contains("album")) {
+			mWebView.loadUrl(mMainUrl);
+		} else {
+			finish();
+		}
+	}
 
+	private class DetailWebViewClient extends WebViewClient {
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			Loge.i("new url = " + url);
+			if (url.contains("album")) {
+				return false;
+			} else if (url.equals(mMainUrl)) {
+				return false;
+			}
+			Toast.makeText(getBaseContext(), R.string.not_support, Toast.LENGTH_SHORT).show();
+			return true;
+		}
+	}
+
+	private class DetailWebChromeClient extends WebChromeClient {
 		@Override
 		public void onProgressChanged(WebView view, int newProgress) {
 			super.onProgressChanged(view, newProgress);
