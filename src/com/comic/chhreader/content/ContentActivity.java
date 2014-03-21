@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -49,6 +50,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	private View mLoadingView;
 	private TextView mLoadingText;
+	private ProgressBar mLoadingProgress;
 	private View mLoadMoreView;
 	private Button mLoadMoreBtn;
 
@@ -104,6 +106,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 		mLoadingView = (View) findViewById(R.id.user_empty_view);
 		mLoadingText = (TextView) findViewById(R.id.user_empty_text);
+		mLoadingProgress = (ProgressBar) findViewById(R.id.user_loading_progress);
 
 		mLoadingText.setText(R.string.loading);
 
@@ -141,6 +144,9 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			Loge.i("Net unavilable not show loadmore");
 			mLoadMoreView.setVisibility(View.GONE);
 		}
+
+		mListView.setVisibility(View.GONE);
+		mLoadingView.setVisibility(View.VISIBLE);
 
 		new LocalDataFetch().execute();
 	}
@@ -247,6 +253,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 					new NetDataFetch().execute("13241");
 				} else {
 					mListAdapter.swapCursor(cursor);
+					mListView.setVisibility(View.VISIBLE);
+					mLoadingText.setText(R.string.loading);
 					mLoadingView.setVisibility(View.GONE);
 
 					mLoadMoreView.setVisibility(View.VISIBLE);
@@ -340,6 +348,13 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 				mLoadMoreView.setVisibility(View.VISIBLE);
 				mLoadMoreBtn.setClickable(true);
 				mLoadMoreBtn.setText(R.string.load_more);
+				if (mListAdapter.getCount() == 0) {
+					mLoadingProgress.setVisibility(View.GONE);
+					mLoadingText.setText(R.string.empty_text);
+					mListView.setVisibility(View.GONE);
+					mListView.setVisibility(View.VISIBLE);
+					mLoadMoreView.setVisibility(View.GONE);
+				}
 			}
 			mListView.onRefreshComplete();
 		}
