@@ -8,10 +8,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -35,11 +38,13 @@ import com.comic.chhreader.provider.DataProvider;
 import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 
-public class MainActivity extends Activity implements OnItemClickListener {
+public class MainActivity extends Activity
+		implements
+			OnItemClickListener,
+			LoaderCallbacks<Cursor> {
 
+	private static final int LOADER_ID_LOACL = 103;
 	private static final String MAIN_DATA_URL = "ABCD";
-
-	private List<MainGridData> mGridData = new ArrayList<MainGridData>();
 
 	private GridView mGrid;
 	private MainGridAdapter mGirdAdapter;
@@ -73,7 +78,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			}
 		});
 
-		new FetchDataTaskLocal().execute();
+		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
+
+		// new FetchDataTaskLocal().execute();
 	}
 
 	void initActionBar() {
@@ -136,6 +143,54 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 	};
 
+	@Override
+	public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
+		Loge.i("onCreateLoader");
+		switch (loaderID) {
+			case LOADER_ID_LOACL : {
+				String[] projection = new String[5];
+				projection[0] = DataProvider.KEY_MAIN_ID;
+				projection[1] = DataProvider.KEY_MAIN_TITLE;
+				projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+				projection[3] = DataProvider.KEY_MAIN_TYPE;
+				projection[4] = DataProvider.KEY_MAIN_CATEGORY;
+
+				String selection = DataProvider.KEY_MAIN_TYPE + "='" + "main" + "'";
+				Loge.d("selection = " + selection);
+				return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, null);
+			}
+			default :
+				break;
+		}
+		return null;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
+		Loge.i("onLoadFinished id: " + loader.getId());
+		switch (loader.getId()) {
+			case LOADER_ID_LOACL : {
+				if (cur != null && cur.getCount() > 0) {
+					Loge.i("get data from local count = " + cur.getCount());
+					mGirdAdapter.swapCursor(cur);
+					mGirdAdapter.notifyDataSetChanged();
+				} else {
+					Loge.i("Cursor is null or count == 0");
+					new FetchDataTaskNet().execute();
+				}
+			}
+				break;
+
+			default :
+				break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+
+	}
+
 	private void showContentOrLoadingIndicator(boolean contentLoaded) {
 		// Decide which view to hide and which to show.
 		final View showView = contentLoaded ? mLoadingProgress : mRefreshBtn;
@@ -172,46 +227,47 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			}
 		});
 	}
-
-	class FetchDataTaskLocal extends AsyncTask<Void, Void, Cursor> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Cursor doInBackground(Void... params) {
-			mGridData.clear();
-			ContentResolver cr = getContentResolver();
-
-			// get data from local
-			String[] projection = new String[5];
-			projection[0] = DataProvider.KEY_MAIN_ID;
-			projection[1] = DataProvider.KEY_MAIN_TITLE;
-			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
-			projection[3] = DataProvider.KEY_MAIN_TYPE;
-			projection[4] = DataProvider.KEY_MAIN_CATEGORY;
-
-			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "main" + "'";
-			Loge.d("selection = " + selection);
-			Cursor cur = cr.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, null);
-			return cur;
-		}
-
-		@Override
-		protected void onPostExecute(Cursor cur) {
-			super.onPostExecute(cur);
-			if (cur != null && cur.getCount() > 0) {
-				Loge.i("get data from local count = " + cur.getCount());
-				mGirdAdapter.swapCursor(cur);
-				mGirdAdapter.notifyDataSetChanged();
-			} else {
-				Loge.i("Cursor is null or count == 0");
-				new FetchDataTaskNet().execute();
-			}
-		}
-	}
+	//
+	// class FetchDataTaskLocal extends AsyncTask<Void, Void, Cursor> {
+	//
+	// @Override
+	// protected void onPreExecute() {
+	// super.onPreExecute();
+	// }
+	//
+	// @Override
+	// protected Cursor doInBackground(Void... params) {
+	// mGridData.clear();
+	// ContentResolver cr = getContentResolver();
+	//
+	// // get data from local
+	// String[] projection = new String[5];
+	// projection[0] = DataProvider.KEY_MAIN_ID;
+	// projection[1] = DataProvider.KEY_MAIN_TITLE;
+	// projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+	// projection[3] = DataProvider.KEY_MAIN_TYPE;
+	// projection[4] = DataProvider.KEY_MAIN_CATEGORY;
+	//
+	// String selection = DataProvider.KEY_MAIN_TYPE + "='" + "main" + "'";
+	// Loge.d("selection = " + selection);
+	// Cursor cur = cr.query(DataProvider.CONTENT_URI_MAIN_DATA, projection,
+	// selection, null, null);
+	// return cur;
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(Cursor cur) {
+	// super.onPostExecute(cur);
+	// if (cur != null && cur.getCount() > 0) {
+	// Loge.i("get data from local count = " + cur.getCount());
+	// mGirdAdapter.swapCursor(cur);
+	// mGirdAdapter.notifyDataSetChanged();
+	// } else {
+	// Loge.i("Cursor is null or count == 0");
+	// new FetchDataTaskNet().execute();
+	// }
+	// }
+	// }
 
 	class FetchDataTaskNet extends AsyncTask<Void, Void, String> {
 
@@ -223,7 +279,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				if (mNetworkDialog == null) {
 					mNetworkDialog = new NetworkDialog(mContext, R.style.Theme_dialog);
 					mNetworkDialog.show();
-				}else{
+				} else {
 					Toast.makeText(mContext, R.string.no_network, Toast.LENGTH_SHORT).show();
 				}
 			}
@@ -275,7 +331,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			super.onPostExecute(result);
 			showContentOrLoadingIndicator(false);
 			if (result.equals("success")) {
-				new FetchDataTaskLocal().execute();
+				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 			}
 		}
 
