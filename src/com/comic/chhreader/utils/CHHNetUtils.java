@@ -1,16 +1,10 @@
 package com.comic.chhreader.utils;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +28,6 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -47,15 +40,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 
 import com.comic.chhreader.Loge;
-//import com.comic.seexian.history.UserHistoryData;
-//import com.comic.seexian.sinaauth.AccessTokenKeeper;
-//import com.comic.seexian.sinaauth.ConstantsSina;
-//import com.comic.seexian.sinaauth.SinaPoisData;
-//import com.weibo.sdk.android.Oauth2AccessToken;
 
 public class CHHNetUtils {
 
@@ -63,16 +49,14 @@ public class CHHNetUtils {
 
 	public static final int HTTP_TIMEOUT = 60000;
 
-	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android "
-			+ android.os.Build.VERSION.RELEASE + ";"
-			+ Locale.getDefault().toString() + "; " + android.os.Build.DEVICE
-			+ "/" + android.os.Build.ID + ")";
+	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android " + android.os.Build.VERSION.RELEASE + ";" + Locale.getDefault().toString() + "; " + android.os.Build.DEVICE + "/" + android.os.Build.ID + ")";
 
 	public static Object postResult(String api_url,
 			HashMap<String, Object> params, String access_token) {
 		final HttpPost post = new HttpPost(api_url);
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-		params.put("access_token", access_token);
+		if (access_token != null)
+			params.put("access_token", access_token);
 		String queryParams = buildParams(params, "&");
 		final String entityString = queryParams;
 		Loge.d("postResult entityString: " + entityString);
@@ -126,14 +110,12 @@ public class CHHNetUtils {
 		HttpConnectionParams.setSoTimeout(params, HTTP_TIMEOUT);
 
 		final SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory
-				.getSocketFactory(), 80));
+		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 		SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
 		sslSocketFactory.setHostnameVerifier(new AllowAllHostnameVerifier());
 		registry.register(new Scheme("https", sslSocketFactory, 443));
 
-		final ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(
-				params, registry);
+		final ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
 
 		sHttpClient = new DefaultHttpClient(manager, params);
 	}
@@ -154,8 +136,7 @@ public class CHHNetUtils {
 		final int status = r.getStatusLine().getStatusCode();
 		Loge.d("status=" + status);
 
-		if (status != HttpURLConnection.HTTP_OK
-				&& status != HttpURLConnection.HTTP_CREATED) {
+		if (status != HttpURLConnection.HTTP_OK && status != HttpURLConnection.HTTP_CREATED) {
 			String content = getResponse(r.getEntity());
 			if (status == HttpURLConnection.HTTP_UNAUTHORIZED) {
 				if (isRefreshTokenExpired(content)) {
@@ -168,7 +149,7 @@ public class CHHNetUtils {
 		}
 		String content = getResponse(r.getEntity());
 
-		Loge.d("getParseResult " + content);
+		// Loge.d("getParseResult " + content);
 
 		if ("{}".equals(content)) {
 			return null;
@@ -206,10 +187,8 @@ public class CHHNetUtils {
 		StringBuffer sb = new StringBuffer(length);
 		InputStreamReader isr;
 
-		if (entity.getContentEncoding() != null
-				&& entity.getContentEncoding().getValue().equals("gzip")) {
-			isr = new InputStreamReader(
-					new GZIPInputStream(entity.getContent()), "UTF-8");
+		if (entity.getContentEncoding() != null && entity.getContentEncoding().getValue().equals("gzip")) {
+			isr = new InputStreamReader(new GZIPInputStream(entity.getContent()), "UTF-8");
 		} else {
 			isr = new InputStreamReader(entity.getContent(), "UTF-8");
 		}
@@ -242,198 +221,6 @@ public class CHHNetUtils {
 		return false;
 	}
 
-	public static Object uploadPhoto(Context context, String api_url,
-			Uri filePath, String access_token) {
-		FileInputStream fileInputStream = null;
-		int length = 0;
-		Loge.d("uploadPhoto path = " + filePath.toString());
-		File file = null;
-		try {
-			file = new File(filePath.toString());
-			ParcelFileDescriptor is = ParcelFileDescriptor.open(file,
-					ParcelFileDescriptor.MODE_READ_ONLY);
-			fileInputStream = new FileInputStream(is.getFileDescriptor());
-			length = fileInputStream.available();
-		} catch (Exception ex) {
-			Loge.e("file error");
-			return null;
-		}
-
-		byte buffer[] = new byte[length];
-		try {
-			fileInputStream.read(buffer);
-		} catch (IOException ex) {
-			Loge.e("file error");
-			try {
-				fileInputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-		try {
-			fileInputStream.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		Loge.d("photo size = " + length);
-
-		final HttpPost post = new HttpPost(api_url);
-
-		post.setHeader("Content-Type", "multipart/form-data");
-
-		if (sHttpClient == null) {
-			initHttpClient();
-		}
-
-		ByteArrayEntity entity = null;
-
-		try {
-			entity = new ByteArrayEntity(buffer);
-			post.setEntity(entity);
-			final HttpResponse r = sHttpClient.execute(post);
-			return getParseResult(r);
-		} catch (UnknownHostException e) {
-		} catch (ClientProtocolException e) {
-		} catch (IOException e) {
-		} catch (ConcurrentModificationException e) {
-		} catch (JSONException e) {
-		}
-
-		return null;
-	}
-
-	public static String uploadPhoto(Context context, String api_url,
-			HashMap<String, Object> params, Uri filePath, String access_token) {
-
-		try {
-			URL url = new URL(api_url);
-			HttpURLConnection httpConn = (HttpURLConnection) url
-					.openConnection();
-			httpConn.setDoOutput(true);
-			httpConn.setDoInput(true);
-			httpConn.setUseCaches(false);
-			httpConn.setRequestMethod("POST");
-
-			String BOUNDARY = "----------------------------8933e7b00565";
-
-			// add Token
-			StringBuffer stringBuffer = new StringBuffer();
-
-			// Add access Token
-			stringBuffer.append("--");
-			stringBuffer.append(BOUNDARY);
-			stringBuffer.append("\r\n");
-			stringBuffer
-					.append("Content-Disposition: form-data; name=\"access_token\"\r\n\r\n");
-			stringBuffer.append(access_token + "\r\n");
-
-			if (params != null) {
-				Iterator<String> itrs = params.keySet().iterator();
-				List<String> sortKeyList = new ArrayList<String>();
-				while (itrs.hasNext()) {
-					sortKeyList.add(itrs.next());
-				}
-				Collections.sort(sortKeyList);
-				for (String key : sortKeyList) {
-					String value = params.get(key).toString();
-					Loge.i("key = " + key + " value = " + value);
-					stringBuffer.append("--");
-					stringBuffer.append(BOUNDARY);
-					stringBuffer.append("\r\n");
-					stringBuffer
-							.append("Content-Disposition: form-data; name=\""
-									+ key + "\"\r\n\r\n");
-					stringBuffer.append(value + "\r\n");
-
-				}
-			}
-
-			stringBuffer.append("--");
-			stringBuffer.append(BOUNDARY);
-			stringBuffer.append("\r\n");
-			stringBuffer
-					.append("Content-Disposition: form-data; name=\"pic\"; filename=\"pic.jpg\"\r\n");
-			stringBuffer.append("Content-Type: image/jpeg\r\n\r\n");
-
-			Loge.i("Content = " + stringBuffer.toString());
-
-			byte[] data = stringBuffer.toString().getBytes("utf-8");
-			byte[] end_data = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
-
-			httpConn.setRequestProperty("Content-Type",
-					"multipart/form-data; boundary=" + BOUNDARY);
-
-			OutputStream os = httpConn.getOutputStream();
-			os.write(data);
-
-			FileInputStream fileInputStream = null;
-			int length = 0;
-			Loge.d("uploadPhoto path = " + filePath.toString());
-			File file = null;
-			try {
-				file = new File(filePath.toString());
-				ParcelFileDescriptor is = ParcelFileDescriptor.open(file,
-						ParcelFileDescriptor.MODE_READ_ONLY);
-				fileInputStream = new FileInputStream(is.getFileDescriptor());
-				length = fileInputStream.available();
-			} catch (Exception ex) {
-				Loge.e("file error");
-				return null;
-			}
-
-			Loge.d("uploadPhoto length = " + length);
-
-			byte buffer[] = new byte[length];
-			try {
-				fileInputStream.read(buffer);
-			} catch (IOException ex) {
-				Loge.e("file error");
-				try {
-					fileInputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return null;
-			}
-			try {
-				fileInputStream.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			os.write(buffer, 0, length);
-
-			os.write(end_data);
-			os.flush();
-			os.close();
-			fileInputStream.close();
-
-			int code = httpConn.getResponseCode();
-			InputStream is = null;
-
-			if (200 == code) {
-				is = httpConn.getInputStream();
-			} else {
-				is = httpConn.getErrorStream();
-			}
-
-			BufferedReader br = new BufferedReader(new InputStreamReader(is,
-					"utf-8"));
-			String str = null;
-			StringBuffer strBuf = new StringBuffer("");
-			while ((str = br.readLine()) != null) {
-				strBuf.append(str);
-			}
-			return strBuf.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
 	public static Object getResult(String api_url,
 			HashMap<String, Object> params, String access_token) {
 
@@ -442,7 +229,7 @@ public class CHHNetUtils {
 		if (params == null) {
 			params = new HashMap<String, Object>();
 		}
-		if(access_token != null){
+		if (access_token != null) {
 			params.put("access_token", access_token);
 		}
 
@@ -455,7 +242,6 @@ public class CHHNetUtils {
 			requestUrl.append(entityString);
 		}
 
-
 		Loge.d("requestUrl = " + requestUrl.toString());
 
 		HttpGet get = new HttpGet(requestUrl.toString());
@@ -464,7 +250,6 @@ public class CHHNetUtils {
 			initHttpClient();
 		}
 		try {
-			Loge.d("Do get weibo");
 			final HttpResponse r = sHttpClient.execute(get);
 			return getParseResult(r);
 		} catch (UnknownHostException e) {
@@ -476,150 +261,205 @@ public class CHHNetUtils {
 		return null;
 	}
 
-//	public static String reissueAccessToken(Context context, String code) {
-//		Loge.d("reissueAccessToken");
-//		Loge.d("code = " + code);
-//		HashMap<String, Object> params = new HashMap<String, Object>();
-//		params.put("client_id", ConstantsSina.APP_KEY);
-//		params.put("client_secret", ConstantsSina.APP_SECRET);
-//		params.put("grant_type", "authorization_code");
-//		params.put("code", code);
-//		params.put("redirect_uri", ConstantsSina.REDIRECT_URL);
-//
-//		Object obj = postResult("https://api.weibo.com/oauth2/access_token",
-//				params, null);
-//
-//		String token = null;
-//		String expireTime = null;
-//
-//		if (obj instanceof JSONObject) {
-//			JSONObject jsonObj = (JSONObject) obj;
-//
-//			try {
-//				if (!jsonObj.isNull("access_token")) {
-//					token = jsonObj.getString("access_token");
-//				}
-//				if (!jsonObj.isNull("expires_in")) {
-//					expireTime = jsonObj.getString("expires_in");
-//				}
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		if (token != null && expireTime != null) {
-//			Loge.d("token = " + token);
-//			Loge.d("expires_in = " + expireTime);
-//			Oauth2AccessToken oToken = new Oauth2AccessToken(token, expireTime);
-//			AccessTokenKeeper.keepAccessToken(context, oToken);
-//		}
-//
-//		return token;
-//	}
-//
-//	public static Object getLocationPoint() {
-//		return null;
-//	}
-//
-//	public static String getAccessToken(Context context) {
-//		Oauth2AccessToken token = AccessTokenKeeper.readAccessToken(context
-//				.getApplicationContext());
-//		Loge.d("getAccessToken Token = " + token.getToken());
-//		Loge.d("getAccessToken ExpiresTime = " + token.getExpiresTime());
-//
-//		String acctoken = token.getToken();
-//
-//		if (acctoken == null || acctoken.isEmpty()) {
-//			String code = AccessTokenKeeper.readAccessCode(context
-//					.getApplicationContext());
-//
-//			Loge.d("getAccessToken code = " + code);
-//			if (code != null && !code.isEmpty()) {
-//				acctoken = CHHNetUtils.reissueAccessToken(
-//						context.getApplicationContext(), code);
-//			}
-//
-//		}
-//
-//		if (acctoken == null || acctoken.isEmpty()) {
-//			return null;
-//		}
-//		return acctoken;
-//	}
-//
-//	public static ArrayList<SinaPoisData> getLocationPoisData(Object oPoisData) {
-//		ArrayList<SinaPoisData> locationListData = new ArrayList<SinaPoisData>();
-//
-//		try {
-//			JSONObject jPoisData = new JSONObject(oPoisData.toString());
-//			JSONArray jPois = jPoisData.getJSONArray("pois");
-//
-//			Loge.i("JSONArray length = " + jPois.length());
-//			for (int i = 0; i < jPois.length(); i++) {
-//				JSONObject jPoisItem = jPois.getJSONObject(i);
-//
-//				SinaPoisData item = new SinaPoisData();
-//				item.mPoiid = jPoisItem.getString("poiid");
-//				item.mAddress = jPoisItem.getString("address");
-//				item.mTitle = jPoisItem.getString("title");
-//				item.mLat = jPoisItem.getString("lat");
-//				item.mLong = jPoisItem.getString("lon");
-//
-//				Loge.i("Item Address = " + item.mAddress);
-//				Loge.i("Item Lat = " + item.mLat + " Lon = " + item.mLong);
-//
-//				locationListData.add(item);
-//			}
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//
-//		return locationListData;
-//	}
-//
-//	public static ArrayList<UserHistoryData> getUserHistoryData(Object oData) {
-//		ArrayList<UserHistoryData> userHistoryDataList = new ArrayList<UserHistoryData>();
-//
-//		try {
-//			JSONObject jUserData = new JSONObject(oData.toString());
-//			JSONArray jPosts = jUserData.getJSONArray("statuses");
-//			Loge.i("JSONArray length = " + jPosts.length());
-//			for (int i = 0; i < jPosts.length(); i++) {
-//				JSONObject jPostItem = jPosts.getJSONObject(i);
-//
-//				UserHistoryData item = new UserHistoryData();
-//				item.mTime = jPostItem.getString("created_at");
-//				item.mPostId = jPostItem.getString("idstr");
-//				if (jPostItem.has("text"))
-//					item.mText = jPostItem.getString("text");
-//				if (jPostItem.has("source"))
-//					item.mSource = jPostItem.getString("source");
-//				if (jPostItem.has("thumbnail_pic"))
-//					item.mThumbPic = jPostItem.getString("thumbnail_pic");
-//				if (jPostItem.has("original_pic"))
-//					item.mOriPic = jPostItem.getString("original_pic");
-//
-//				try {
-//					JSONObject jGeoItem = jPostItem.getJSONObject("geo");
-//					String geoPo = jGeoItem.getString("coordinates");
-//					/*
-//					 * GEO data format: [31.1999323,121.6044558]
-//					 */
-//					geoPo = geoPo.substring(1, geoPo.length() - 1);
-//					String[] pos = geoPo.split(",");
-//					item.mLat = pos[0];
-//					item.mLng = pos[1];
-//
-//				} catch (JSONException e) {
-//					Loge.w("NOT GEO DATA");
-//				}
-//				userHistoryDataList.add(item);
-//
-//			}
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//
-//		return userHistoryDataList;
-//	}
+	public static String getTopicsDate(Context context) {
+
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/topics", null, null);
+
+		Loge.d("getTopicsDate = " + obj);
+
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					String pk = itemObject.getString("pk");
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String name = fieldsObject.getString("name");
+					Loge.d("getTopicsDate pk = " + pk + "  name = " + name);
+
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return "";
+	}
+
+	public static String getSubItemsDate(Context context, int pknum) {
+
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("t", pknum);
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/items", params, null);
+		Loge.d("getSubItemsDate = " + obj);
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					String pk = itemObject.getString("pk");
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String name = fieldsObject.getString("name");
+					String sourcelink = fieldsObject.getString("sourcelink");
+					String topic = fieldsObject.getString("topic");
+					Loge.d("getSubItemsDate pk = " + pk + "  name = " + name);
+					Loge.d("getSubItemsDate sourcelink = " + sourcelink + "  topic = " + topic);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return "";
+	}
+
+	// public static String reissueAccessToken(Context context, String code) {
+	// Loge.d("reissueAccessToken");
+	// Loge.d("code = " + code);
+	// HashMap<String, Object> params = new HashMap<String, Object>();
+	// params.put("client_id", ConstantsSina.APP_KEY);
+	// params.put("client_secret", ConstantsSina.APP_SECRET);
+	// params.put("grant_type", "authorization_code");
+	// params.put("code", code);
+	// params.put("redirect_uri", ConstantsSina.REDIRECT_URL);
+	//
+	// Object obj = postResult("https://api.weibo.com/oauth2/access_token",
+	// params, null);
+	//
+	// String token = null;
+	// String expireTime = null;
+	//
+	// if (obj instanceof JSONObject) {
+	// JSONObject jsonObj = (JSONObject) obj;
+	//
+	// try {
+	// if (!jsonObj.isNull("access_token")) {
+	// token = jsonObj.getString("access_token");
+	// }
+	// if (!jsonObj.isNull("expires_in")) {
+	// expireTime = jsonObj.getString("expires_in");
+	// }
+	// } catch (JSONException e) {
+	// e.printStackTrace();
+	// }
+	// }
+	// if (token != null && expireTime != null) {
+	// Loge.d("token = " + token);
+	// Loge.d("expires_in = " + expireTime);
+	// Oauth2AccessToken oToken = new Oauth2AccessToken(token, expireTime);
+	// AccessTokenKeeper.keepAccessToken(context, oToken);
+	// }
+	//
+	// return token;
+	// }
+	//
+	// public static Object getLocationPoint() {
+	// return null;
+	// }
+	//
+	// public static String getAccessToken(Context context) {
+	// Oauth2AccessToken token = AccessTokenKeeper.readAccessToken(context
+	// .getApplicationContext());
+	// Loge.d("getAccessToken Token = " + token.getToken());
+	// Loge.d("getAccessToken ExpiresTime = " + token.getExpiresTime());
+	//
+	// String acctoken = token.getToken();
+	//
+	// if (acctoken == null || acctoken.isEmpty()) {
+	// String code = AccessTokenKeeper.readAccessCode(context
+	// .getApplicationContext());
+	//
+	// Loge.d("getAccessToken code = " + code);
+	// if (code != null && !code.isEmpty()) {
+	// acctoken = CHHNetUtils.reissueAccessToken(
+	// context.getApplicationContext(), code);
+	// }
+	//
+	// }
+	//
+	// if (acctoken == null || acctoken.isEmpty()) {
+	// return null;
+	// }
+	// return acctoken;
+	// }
+	//
+	// public static ArrayList<SinaPoisData> getLocationPoisData(Object
+	// oPoisData) {
+	// ArrayList<SinaPoisData> locationListData = new ArrayList<SinaPoisData>();
+	//
+	// try {
+	// JSONObject jPoisData = new JSONObject(oPoisData.toString());
+	// JSONArray jPois = jPoisData.getJSONArray("pois");
+	//
+	// Loge.i("JSONArray length = " + jPois.length());
+	// for (int i = 0; i < jPois.length(); i++) {
+	// JSONObject jPoisItem = jPois.getJSONObject(i);
+	//
+	// SinaPoisData item = new SinaPoisData();
+	// item.mPoiid = jPoisItem.getString("poiid");
+	// item.mAddress = jPoisItem.getString("address");
+	// item.mTitle = jPoisItem.getString("title");
+	// item.mLat = jPoisItem.getString("lat");
+	// item.mLong = jPoisItem.getString("lon");
+	//
+	// Loge.i("Item Address = " + item.mAddress);
+	// Loge.i("Item Lat = " + item.mLat + " Lon = " + item.mLong);
+	//
+	// locationListData.add(item);
+	// }
+	// } catch (JSONException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// return locationListData;
+	// }
+	//
+	// public static ArrayList<UserHistoryData> getUserHistoryData(Object oData)
+	// {
+	// ArrayList<UserHistoryData> userHistoryDataList = new
+	// ArrayList<UserHistoryData>();
+	//
+	// try {
+	// JSONObject jUserData = new JSONObject(oData.toString());
+	// JSONArray jPosts = jUserData.getJSONArray("statuses");
+	// Loge.i("JSONArray length = " + jPosts.length());
+	// for (int i = 0; i < jPosts.length(); i++) {
+	// JSONObject jPostItem = jPosts.getJSONObject(i);
+	//
+	// UserHistoryData item = new UserHistoryData();
+	// item.mTime = jPostItem.getString("created_at");
+	// item.mPostId = jPostItem.getString("idstr");
+	// if (jPostItem.has("text"))
+	// item.mText = jPostItem.getString("text");
+	// if (jPostItem.has("source"))
+	// item.mSource = jPostItem.getString("source");
+	// if (jPostItem.has("thumbnail_pic"))
+	// item.mThumbPic = jPostItem.getString("thumbnail_pic");
+	// if (jPostItem.has("original_pic"))
+	// item.mOriPic = jPostItem.getString("original_pic");
+	//
+	// try {
+	// JSONObject jGeoItem = jPostItem.getJSONObject("geo");
+	// String geoPo = jGeoItem.getString("coordinates");
+	// /*
+	// * GEO data format: [31.1999323,121.6044558]
+	// */
+	// geoPo = geoPo.substring(1, geoPo.length() - 1);
+	// String[] pos = geoPo.split(",");
+	// item.mLat = pos[0];
+	// item.mLng = pos[1];
+	//
+	// } catch (JSONException e) {
+	// Loge.w("NOT GEO DATA");
+	// }
+	// userHistoryDataList.add(item);
+	//
+	// }
+	// } catch (JSONException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// return userHistoryDataList;
+	// }
 
 }

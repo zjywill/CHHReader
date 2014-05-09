@@ -35,13 +35,11 @@ import android.widget.Toast;
 import com.comic.chhreader.content.ContentActivity;
 import com.comic.chhreader.data.MainGridData;
 import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 
-public class MainActivity extends Activity
-		implements
-			OnItemClickListener,
-			LoaderCallbacks<Cursor> {
+public class MainActivity extends Activity implements OnItemClickListener, LoaderCallbacks<Cursor> {
 
 	private static final int LOADER_ID_LOACL = 103;
 	private static final String MAIN_DATA_URL = "ABCD";
@@ -113,12 +111,12 @@ public class MainActivity extends Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_settings : {
-				Loge.i("Options Selected = settings");
-			}
-				break;
-			default :
-				break;
+		case R.id.action_settings: {
+			Loge.i("Options Selected = settings");
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -147,20 +145,20 @@ public class MainActivity extends Activity
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
 		Loge.i("onCreateLoader");
 		switch (loaderID) {
-			case LOADER_ID_LOACL : {
-				String[] projection = new String[5];
-				projection[0] = DataProvider.KEY_MAIN_ID;
-				projection[1] = DataProvider.KEY_MAIN_TITLE;
-				projection[2] = DataProvider.KEY_MAIN_PIC_URL;
-				projection[3] = DataProvider.KEY_MAIN_TYPE;
-				projection[4] = DataProvider.KEY_MAIN_CATEGORY;
+		case LOADER_ID_LOACL: {
+			String[] projection = new String[5];
+			projection[0] = DataProvider.KEY_MAIN_ID;
+			projection[1] = DataProvider.KEY_MAIN_TITLE;
+			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+			projection[3] = DataProvider.KEY_MAIN_TYPE;
+			projection[4] = DataProvider.KEY_MAIN_CATEGORY;
 
-				String selection = DataProvider.KEY_MAIN_TYPE + "='" + "main" + "'";
-				Loge.d("selection = " + selection);
-				return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, null);
-			}
-			default :
-				break;
+			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "main" + "'";
+			Loge.d("selection = " + selection);
+			return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, null);
+		}
+		default:
+			break;
 		}
 		return null;
 	}
@@ -169,20 +167,20 @@ public class MainActivity extends Activity
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		Loge.i("onLoadFinished id: " + loader.getId());
 		switch (loader.getId()) {
-			case LOADER_ID_LOACL : {
-				if (cur != null && cur.getCount() > 0) {
-					Loge.i("get data from local count = " + cur.getCount());
-					mGirdAdapter.swapCursor(cur);
-					mGirdAdapter.notifyDataSetChanged();
-				} else {
-					Loge.i("Cursor is null or count == 0");
-					new FetchDataTaskNet().execute();
-				}
+		case LOADER_ID_LOACL: {
+			if (cur != null && cur.getCount() > 0) {
+				Loge.i("get data from local count = " + cur.getCount());
+				mGirdAdapter.swapCursor(cur);
+				mGirdAdapter.notifyDataSetChanged();
+			} else {
+				Loge.i("Cursor is null or count == 0");
+				new FetchDataTaskNet().execute();
 			}
-				break;
+		}
+			break;
 
-			default :
-				break;
+		default:
+			break;
 		}
 	}
 
@@ -227,6 +225,7 @@ public class MainActivity extends Activity
 			}
 		});
 	}
+
 	//
 	// class FetchDataTaskLocal extends AsyncTask<Void, Void, Cursor> {
 	//
@@ -292,6 +291,12 @@ public class MainActivity extends Activity
 
 				List<MainGridData> tempGridData = new ArrayList<MainGridData>();
 
+				CHHNetUtils.getTopicsDate(mContext);
+
+				for (int i = 0; i < 8; i++) {
+					CHHNetUtils.getSubItemsDate(mContext, i);
+				}
+
 				// get data from net
 				String[] titles = getResources().getStringArray(R.array.main_title_array);
 				String[] types = getResources().getStringArray(R.array.main_type_array);
@@ -299,7 +304,7 @@ public class MainActivity extends Activity
 				for (String title : titles) {
 					MainGridData data = new MainGridData();
 					data.mTitle = title;
-					data.mPictureUrl = "http://www.chiphell.com/data/attachment/block/9b/9beb2354162c5327d1369ed31b3b7fae.jpg";
+					data.mPictureUrl = "http://www.chiphell.com/data/attachment/portal/201404/11/120705xe97lrraey60z99r.jpg";
 					data.mType = "main";
 					data.mCategory = types[i];
 					i++;
