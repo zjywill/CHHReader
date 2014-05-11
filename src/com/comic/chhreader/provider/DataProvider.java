@@ -21,7 +21,28 @@ public class DataProvider extends ContentProvider {
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
+	public static final Uri CONTENT_URI_TOPIC_DATA = Uri.parse("content://com.comic.chhreader/topic");
+	public static final Uri CONTENT_URI_SUBITEM_DATA = Uri.parse("content://com.comic.chhreader/subitem");
 	public static final Uri CONTENT_URI_MAIN_DATA = Uri.parse("content://com.comic.chhreader/main");
+
+	// Name of table in the database
+	private static final String DB_TABLE_TOPIC_DATA = "topic";
+
+	// main table topic keys
+	public static final String KEY_TOPIC_ID = "_id";
+	public static final String KEY_TOPIC_NAME = "name";
+	public static final String KEY_TOPIC_IMAGE_URL = "imageurl";
+	public static final String KEY_TOPIC_PK = "pk";
+
+	// Name of table in the database
+	private static final String DB_TABLE_SUBITEM_DATA = "subitem";
+
+	// main table topic keys
+	public static final String KEY_SUBITEM_ID = "_id";
+	public static final String KEY_SUBITEM_NAME = "name";
+	public static final String KEY_SUBITEM_PK = "pk";
+	public static final String KEY_SUBITEM_TOPIC_PK = "topic";
+	public static final String KEY_SUBITEM_URL = "url";
 
 	// Name of table in the database
 	private static final String DB_TABLE_MAIN_DATA = "main";
@@ -30,9 +51,8 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_MAIN_ID = "_id";
 	public static final String KEY_MAIN_TITLE = "title";
 	public static final String KEY_MAIN_PIC_URL = "picture";
-	public static final String KEY_MAIN_TYPE = "type";
-	public static final String KEY_MAIN_CATEGORY = "category";
-	public static final String KEY_MAIN_SHORTCUT = "shortcut";
+	public static final String KEY_MAIN_TOPIC_PK = "topicpk";
+	public static final String KEY_MAIN_SUB_PK = "subitempk";
 	public static final String KEY_MAIN_POSTER = "poster";
 	public static final String KEY_MAIN_CONTENT = "content";
 	public static final String KEY_MAIN_URL = "url";
@@ -57,7 +77,7 @@ public class DataProvider extends ContentProvider {
 		qb.setTables(getTable(uri));
 
 		String orderBy;
-		if (TextUtils.isEmpty(sortOrder)) {
+		if (uri.equals(CONTENT_URI_MAIN_DATA) && TextUtils.isEmpty(sortOrder)) {
 			orderBy = KEY_MAIN_PUBLISH_DATE;
 		} else {
 			orderBy = sortOrder;
@@ -83,9 +103,8 @@ public class DataProvider extends ContentProvider {
 
 		String table_name = getTable(uri);
 
-		long rowID = 0;
 		try {
-			rowID = db.insert(table_name, KEY_MAIN_CONTENT, values);
+			db.insert(table_name, KEY_MAIN_CONTENT, values);
 		} catch (SQLiteDiskIOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -119,15 +138,18 @@ public class DataProvider extends ContentProvider {
 
 		String table_name = getTable(uri);
 
-		int count = 0;
+		long count = 0;
 		try {
 			count = db.update(table_name, values, selection, selectionArgs);
+			if (count <= 0) {
+				count = db.insert(table_name, KEY_MAIN_CONTENT, values);
+			}
 		} catch (SQLiteDiskIOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return count;
+		return (int) count;
 	}
 
 	@Override
@@ -139,6 +161,10 @@ public class DataProvider extends ContentProvider {
 		String sUri = uri.toString();
 		if (sUri.equals(CONTENT_URI_MAIN_DATA.toString())) {
 			return DB_TABLE_MAIN_DATA;
+		} else if (sUri.equals(CONTENT_URI_TOPIC_DATA.toString())) {
+			return DB_TABLE_TOPIC_DATA;
+		} else if (sUri.equals(CONTENT_URI_SUBITEM_DATA.toString())) {
+			return DB_TABLE_SUBITEM_DATA;
 		}
 		return "";
 	}
@@ -151,12 +177,32 @@ public class DataProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			String commandMain = "create table " + DB_TABLE_MAIN_DATA + " (" + KEY_MAIN_ID + " integer primary key autoincrement, " + KEY_MAIN_TITLE + " TEXT," + KEY_MAIN_PIC_URL + " TEXT," + KEY_MAIN_TYPE + " TEXT," + KEY_MAIN_CATEGORY + " TEXT," + KEY_MAIN_SHORTCUT + " TEXT, " + KEY_MAIN_POSTER + " TEXT, " + KEY_MAIN_CONTENT + " TEXT, " + KEY_MAIN_URL + " TEXT, " + KEY_MAIN_EXTEND_DATA1 + " TEXT, " + KEY_MAIN_EXTEND_DATA2 + " TEXT, " + KEY_MAIN_PUBLISH_DATE + " INTEGER );";
+			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
+					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
+					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
+					+ KEY_TOPIC_PK + " INTEGER );";
+			String commandSubitem = "create table " + DB_TABLE_SUBITEM_DATA //
+					+ " (" + KEY_SUBITEM_ID + " integer primary key autoincrement, " //
+					+ KEY_SUBITEM_NAME + " TEXT," + KEY_SUBITEM_URL + " TEXT," //
+					+ KEY_SUBITEM_TOPIC_PK + " INTEGER," + KEY_SUBITEM_PK + " INTEGER );";
+			String commandMain = "create table " + DB_TABLE_MAIN_DATA //
+					+ " (" + KEY_MAIN_ID + " integer primary key autoincrement, " //
+					+ KEY_MAIN_TITLE + " TEXT," + KEY_MAIN_PIC_URL + " TEXT," //
+					+ KEY_MAIN_TOPIC_PK + " INTEGER,"//
+					+ KEY_MAIN_SUB_PK + " INTEGER," + KEY_MAIN_POSTER + " TEXT, " //
+					+ KEY_MAIN_CONTENT + " TEXT, " + KEY_MAIN_URL + " TEXT, " //
+					+ KEY_MAIN_EXTEND_DATA1 + " TEXT, " + KEY_MAIN_EXTEND_DATA2 + " TEXT, " //
+					+ KEY_MAIN_PUBLISH_DATE + " INTEGER );";
+
+			db.execSQL(commandTopic);
+			db.execSQL(commandSubitem);
 			db.execSQL(commandMain);
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
+			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
 			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
 		}
 

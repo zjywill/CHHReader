@@ -29,11 +29,15 @@ import com.comic.chhreader.Constants;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.utils.CHHNetUtils;
+import com.comic.chhreader.utils.DataBaseUtils;
 import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 import com.comic.chhreader.view.PullDownRefreashListView;
+
 /*import com.comic.seexian.detail.DetailActivity;
  import com.comic.seexian.utils.SeeXianNetUtils;
  import com.comic.seexian.utils.SeeXianUtils;*/
@@ -59,7 +63,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	private NetworkDialog mNetworkDialog = null;
 
 	private String mMainTitle;
-	private String mCategory;
+	private int mCategory;
 
 	// ------------------------------------------------------------------
 
@@ -69,31 +73,12 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	// ------------------------------------------------------------------
 
-	private String mLatestId;
+	private int mLatestId;
 
 	private int mSelectedItem;
 
-	private Handler mMessageHandler = new Handler(new Handler.Callback() {
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-				case MSG_GET_LOCAL_DATA_FINISH : {
-					mLoadingView.setVisibility(View.GONE);
-				}
-					break;
-				case Constants.MESSAGE_NETWORK_ERROR : {
-					if (mNetworkDialog == null) {
-						mNetworkDialog = new NetworkDialog(mCtx, R.style.Theme_dialog);
-					}
-					mNetworkDialog.show();
-				}
-					break;
-				default :
-					break;
-			}
-			return false;
-		}
-	});
+	private ContentData mFirstItem;
+	private ContentData mLastItem;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +100,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mRefreshHorizontalProgress = (View) findViewById(R.id.refreash_header_progress_a);
 
 		mListView.setDivider(null);
-		mListAdapter = new ContentAdapter(this, null);
+		mListAdapter = new ContentAdapter(this);
 		mListView.setAdapter(mListAdapter);
 		mListView.setOnItemClickListener(this);
 		mListView.addCustomView(mRefreshViewInside, mRefreshHorizontalImage, mRefreshHorizontalProgress);
@@ -129,14 +114,14 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 		Intent infointent = getIntent();
 		mMainTitle = infointent.getStringExtra("title");
-		mCategory = infointent.getStringExtra("category");
+		mCategory = infointent.getIntExtra("category", -1);
 
 		intActionBar();
 
 		mListView.setOnRefreshListener(new PullDownRefreashListView.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				new NetDataFetch().execute("1213");
+				new NetDataFetch().execute("update");
 			}
 		});
 
@@ -150,9 +135,11 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 		new LocalDataFetch().execute();
 	}
+
 	void intActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
+			actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
 			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setTitle(mMainTitle);
 			actionBar.setIcon(R.drawable.chh_icon);
@@ -162,11 +149,11 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home :
-				finish();
-				break;
-			default :
-				break;
+		case android.R.id.home:
+			finish();
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -203,7 +190,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		public void onClick(View v) {
 			Loge.i("Load more clicked");
-			new NetDataFetch().execute("13241");// TODO
+			new NetDataFetch().execute("more");
 		}
 	};
 
@@ -219,6 +206,10 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	protected void onDestroy() {
+		Cursor cursor = mListAdapter.getCursor();
+		if (cursor != null) {
+			cursor.close();
+		}
 		super.onDestroy();
 	}
 
@@ -234,14 +225,30 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			projection[0] = DataProvider.KEY_MAIN_ID;
 			projection[1] = DataProvider.KEY_MAIN_TITLE;
 			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
-			projection[3] = DataProvider.KEY_MAIN_SHORTCUT;
+			projection[3] = DataProvider.KEY_MAIN_CONTENT;
 			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
 			projection[5] = DataProvider.KEY_MAIN_URL;
 
-			String selection = DataProvider.KEY_MAIN_TYPE + "='" + "content" + "'" + " AND " + DataProvider.KEY_MAIN_CATEGORY + "='" + mCategory + "'";
+			String selection = DataProvider.KEY_MAIN_TOPIC_PK + "='" + mCategory + "'";
 			Loge.i("selection = " + selection);
 
 			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
+
+			if (cursor != null) {
+				mLatestId = cursor.getCount();
+				if (cursor.moveToFirst()) {
+					if (mFirstItem == null) {
+						mFirstItem = new ContentData();
+					}
+					mFirstItem.mLink = cursor.getString(5);
+				}
+				if (cursor.moveToLast()) {
+					if (mLastItem == null) {
+						mLastItem = new ContentData();
+					}
+					mLastItem.mLink = cursor.getString(5);
+				}
+			}
 			return cursor;
 		}
 
@@ -250,7 +257,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			if (cursor != null) {
 				Loge.d("cursor count = " + cursor.getCount());
 				if (cursor.getCount() == 0) {
-					new NetDataFetch().execute("13241");
+					new NetDataFetch().execute("update");
 				} else {
 					mListAdapter.swapCursor(cursor);
 					mListView.setVisibility(View.VISIBLE);
@@ -291,50 +298,111 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected String doInBackground(String... params) {
 			if (Utils.isNetworkAvailable(getBaseContext())) {
-				String loadingUrl = null;
+				String loadingWay = null;
 				if (params != null && params.length > 0) {
-					loadingUrl = params[0];
+					loadingWay = params[0];
 				}
-				if (loadingUrl == null) {
+				if (loadingWay == null) {
 					return "fail";
 				}
-				Loge.i("loading URL = " + loadingUrl);
+				Loge.i("loadingWay = " + loadingWay);
+
+				if (mContentResolver == null) {
+					mContentResolver = mCtx.getContentResolver();
+				}
+
+				String[] subItemProjection = new String[1];
+				subItemProjection[0] = DataProvider.KEY_SUBITEM_PK;
+
+				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
+
+				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, subItemProjection, selection, null, null);
+
+				ArrayList<SubItemData> subItemDatas = null;
+				if (subItemCursor != null) {
+					if (subItemCursor.getCount() > 0 && subItemCursor.moveToFirst()) {
+						do {
+							if (subItemDatas == null) {
+								subItemDatas = new ArrayList<SubItemData>();
+							}
+							SubItemData itemData = new SubItemData();
+							itemData.mPk = subItemCursor.getInt(subItemCursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							Loge.d("SubItemData pk: " + itemData.mPk);
+							subItemDatas.add(itemData);
+						} while (subItemCursor.moveToNext());
+					}
+				}
+				if (subItemDatas == null) {
+					return "fail";
+				}
 
 				ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
 
-				for (int i = 0; i < 30; i++) {
-					ContentData item = new ContentData();
-					item.mContentTitle = "venue8pro简单评测——从metro应用看windows平板";
-					item.mContentPic = "http://www.chiphell.com/data/attachment/portal/201403/11/194032o30h6opcpy6defep.jpg";
-					item.mContentURL = "http://www.chiphell.com/thread-986442-1-1.html";
-					item.mContentShortcut = "venue8pro简单评测 ——从metro应用看windows平板 正题之前，首先说一下自己的移动电子产品吧：一台nexus4手机，一台mx3手机，一台X220笔记本，一个LG的蓝牙耳机。以前买过一个昂达的7寸平板，一 ...";
-					item.mContentPostDate = i * 1000;
-					item.mContentType = "content";
-					tempListData.add(item);
+				for (SubItemData itemData : subItemDatas) {
+					int page = 1;
+					if (loadingWay.equals("more")) {
+						page = mLatestId / 10 + 1;
+					}
+					Loge.d("load more page: " + page);
+					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx, mCategory, itemData.mPk, page);
+					if (contentDatasTemp != null) {
+						tempListData.addAll(contentDatasTemp);
+					}
 				}
 
-				if (mContentResolver == null) {
-					mContentResolver = getContentResolver();
-				}
-				// save data and update data
+				boolean updated = true;
 				if (tempListData.size() > 0) {
-					ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
-
-					for (ContentData item : tempListData) {
-						ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_MAIN_DATA).withValue(DataProvider.KEY_MAIN_TITLE, item.mContentTitle).withValue(DataProvider.KEY_MAIN_PIC_URL, item.mContentPic).withValue(DataProvider.KEY_MAIN_CATEGORY, mCategory).withValue(DataProvider.KEY_MAIN_SHORTCUT, item.mContentShortcut).withValue(DataProvider.KEY_MAIN_URL, item.mContentURL).withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mContentPostDate).withValue(DataProvider.KEY_MAIN_TYPE, item.mContentType);
-						opertions.add(builder.build());
+					if (loadingWay.equals("update")) {
+						long postdata = 0;
+						int id = 0;
+						for (int i = 0; i < tempListData.size(); i++) {
+							ContentData itemContent = tempListData.get(i);
+							if (itemContent.mPostDate > postdata) {
+								postdata = itemContent.mPostDate;
+								id = i;
+							}
+						}
+						ContentData first = tempListData.get(id);
+						Loge.d("load more first 1: " + mFirstItem.mLink);
+						Loge.d("load more first 2: " + first.mLink);
+						if (first.mLink.equals(mFirstItem.mLink)) {
+							updated = false;
+						} else {
+							DataBaseUtils.updateTopicImage(mCtx, mCategory, first.mImageUrl);
+						}
+					} else {
+						long postdata = tempListData.get(0).mPostDate;
+						int id = 0;
+						for (int i = 0; i < tempListData.size(); i++) {
+							ContentData itemContent = tempListData.get(i);
+							if (itemContent.mPostDate < postdata) {
+								postdata = itemContent.mPostDate;
+								id = i;
+							}
+						}
+						ContentData last = tempListData.get(id);
+						Loge.d("load more last 1: " + mLastItem.mLink);
+						Loge.d("load more last 2: " + last.mLink);
+						if (last.mLink.equals(mLastItem.mLink)) {
+							updated = false;
+						}
 					}
-
-					try {
-						mContentResolver.applyBatch(DataProvider.DB_AUTHOR, opertions);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					} catch (OperationApplicationException e) {
-						e.printStackTrace();
-					}
-
+				} else {
+					updated = false;
 				}
-				return "success";
+
+				if (updated) {
+					DataBaseUtils.saveContentItemData(mCtx, tempListData);
+				}
+
+				subItemDatas.clear();
+				tempListData.clear();
+
+				if (updated) {
+					return "success";
+				} else {
+					return loadingWay;
+				}
 			}
 			return "fail";
 		}
@@ -345,6 +413,11 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			if (result.equals("success")) {
 				new LocalDataFetch().execute();
 			} else {
+				if (result.equals("update")) {
+					Toast.makeText(mCtx, "暂无更新", Toast.LENGTH_SHORT).show();
+				} else if (result.equals("more")) {
+					Toast.makeText(mCtx, "已经到最后了", Toast.LENGTH_SHORT).show();
+				}
 				mLoadMoreView.setVisibility(View.VISIBLE);
 				mLoadMoreBtn.setClickable(true);
 				mLoadMoreBtn.setText(R.string.load_more);

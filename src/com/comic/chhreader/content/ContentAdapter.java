@@ -26,12 +26,10 @@ public class ContentAdapter extends CursorAdapter {
 
 	private Context mContext;
 
-	private Cursor mCursor;
-
-	ContentAdapter(Context ctx, Cursor cursor) {
-		super(ctx, cursor, 0);
+	ContentAdapter(Context ctx) {
+		super(ctx, null, 0);
 		mContext = ctx;
-		mCursor = cursor;
+
 	}
 
 	void setCursor(Cursor cursor) {
@@ -40,14 +38,15 @@ public class ContentAdapter extends CursorAdapter {
 
 	@Override
 	public Cursor swapCursor(Cursor newCursor) {
-		mCursor = newCursor;
+		Cursor cursor = getCursor();
+		if (cursor != null) {
+			cursor.close();
+		}
 		return super.swapCursor(newCursor);
 	}
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		Loge.d("Create new view");
-
 		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(R.layout.content_list_item, null);
 		final ViewHolder holder = new ViewHolder();
 
@@ -62,28 +61,26 @@ public class ContentAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		Loge.d("Bind view");
-
 		if (cursor != null) {
 
 			final ViewHolder holder = (ViewHolder) view.getTag();
 
 			ContentData data = new ContentData();
 
-			data.mContentTitle = cursor.getString(1);
-			data.mContentPic = cursor.getString(2);
-			data.mContentShortcut = cursor.getString(3);
-			data.mContentPostDate = cursor.getLong(4);
+			data.mTitle = cursor.getString(1);
+			data.mImageUrl = cursor.getString(2);
+			data.mContent = cursor.getString(3);
+			data.mPostDate = cursor.getLong(4);
 
-			holder.title.setText(data.mContentTitle);
-			holder.subcontent.setText(data.mContentShortcut);
+			holder.title.setText(data.mTitle);
+			holder.subcontent.setText(data.mContent);
 
-			if (data.mContentPic == null) {
+			if (data.mImageUrl == null) {
 				return;
 			}
 
 			try {
-				URL localURL = new URL(data.mContentPic);
+				URL localURL = new URL(data.mImageUrl);
 				holder.icon.setImageURL(localURL, true, true, null);
 				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {
@@ -103,11 +100,13 @@ public class ContentAdapter extends CursorAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		if (mCursor != null) {
-			mCursor.moveToPosition(position);
-			return mCursor;
+		Cursor cursor = getCursor();
+		if (cursor != null) {
+			cursor.moveToPosition(position);
+			return cursor;
 		} else {
 			return null;
 		}
 	}
+
 }

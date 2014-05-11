@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import com.comic.chhreader.data.MainGridData;
+import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.image.PhotoView;
 
 public class MainGridAdapter extends CursorAdapter {
@@ -20,7 +20,7 @@ public class MainGridAdapter extends CursorAdapter {
 		TextView title;
 		PhotoView image;
 	}
-	
+
 	private Context mContext;
 	private Cursor mCursor;
 
@@ -63,19 +63,19 @@ public class MainGridAdapter extends CursorAdapter {
 
 			final ViewHolder holder = (ViewHolder) view.getTag();
 
-			MainGridData data = new MainGridData();
+			TopicData data = new TopicData();
 
-			data.mTitle = cursor.getString(1);
-			data.mPictureUrl = cursor.getString(2);
+			data.mName = cursor.getString(1);
+			data.mImageUrl = cursor.getString(2);
 
-			holder.title.setText(data.mTitle);
+			holder.title.setText(data.mName);
 
-			if (data.mPictureUrl == null) {
+			if (data.mImageUrl == null) {
 				return;
 			}
 
 			try {
-				URL localURL = new URL(data.mPictureUrl);
+				URL localURL = new URL(data.mImageUrl);
 				holder.image.setImageURL(localURL, true, true, null);
 				holder.image.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {

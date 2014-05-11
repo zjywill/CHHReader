@@ -41,6 +41,8 @@ public class DetailActivity extends Activity {
 		mMainTitle = dataIntent.getStringExtra("title");
 		mMainUrl = dataIntent.getStringExtra("url");
 
+		Loge.d("MainUrl: " + mMainUrl);
+
 		initActionBar();
 		if (!Utils.isNetworkAvailable(getBaseContext())) {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
@@ -51,6 +53,7 @@ public class DetailActivity extends Activity {
 	void initActionBar() {
 		ActionBar actionbar = getActionBar();
 		if (actionbar != null) {
+			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
 			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
 			actionbar.setIcon(R.drawable.chh_icon);
@@ -60,16 +63,16 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home : {
-				if (mWebView.getUrl().contains("album")) {
-					mWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
+		case android.R.id.home: {
+			if (mWebView.getUrl().contains("album")) {
+				mWebView.loadUrl(mMainUrl);
+			} else {
+				finish();
 			}
-				break;
-			default :
-				break;
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -108,7 +111,7 @@ public class DetailActivity extends Activity {
 			Loge.i("new url = " + url);
 			if (url.contains("album")) {
 				return false;
-			} else if (url.equals(mMainUrl)) {
+			} else if (url.contains("thread-") || url.contains("article-")) {
 				return false;
 			}
 			Toast.makeText(getBaseContext(), R.string.not_support, Toast.LENGTH_SHORT).show();

@@ -42,6 +42,9 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.data.SubItemData;
+import com.comic.chhreader.data.TopicData;
 
 public class CHHNetUtils {
 
@@ -261,12 +264,9 @@ public class CHHNetUtils {
 		return null;
 	}
 
-	public static String getTopicsDate(Context context) {
-
+	public static ArrayList<TopicData> getTopicsDate(Context context) {
+		ArrayList<TopicData> topicsData = null;
 		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/topics", null, null);
-
-		Loge.d("getTopicsDate = " + obj);
-
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -276,22 +276,29 @@ public class CHHNetUtils {
 					JSONObject fieldsObject = itemObject.getJSONObject("fields");
 					String name = fieldsObject.getString("name");
 					Loge.d("getTopicsDate pk = " + pk + "  name = " + name);
-
+					if (topicsData == null) {
+						topicsData = new ArrayList<TopicData>();
+					}
+					TopicData itemData = new TopicData();
+					itemData.mName = name;
+					itemData.mPk = Integer.parseInt(pk);
+					topicsData.add(itemData);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		return "";
+		return topicsData;
 	}
 
-	public static String getSubItemsDate(Context context, int pknum) {
+	public static ArrayList<SubItemData> getSubItemsDate(Context context,
+			int pknum) {
 
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("t", pknum);
 		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/items", params, null);
-		Loge.d("getSubItemsDate = " + obj);
+		ArrayList<SubItemData> subItemDatas = null;
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -303,16 +310,65 @@ public class CHHNetUtils {
 					String sourcelink = fieldsObject.getString("sourcelink");
 					String topic = fieldsObject.getString("topic");
 					Loge.d("getSubItemsDate pk = " + pk + "  name = " + name);
-					Loge.d("getSubItemsDate sourcelink = " + sourcelink + "  topic = " + topic);
+					if (subItemDatas == null) {
+						subItemDatas = new ArrayList<SubItemData>();
+					}
+					SubItemData itemData = new SubItemData();
+					itemData.mName = name;
+					itemData.mUrl = sourcelink;
+					itemData.mPk = Integer.parseInt(pk);
+					itemData.mTopic = Integer.parseInt(topic);
+					subItemDatas.add(itemData);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return subItemDatas;
+	}
+
+	public static ArrayList<ContentData> getContentItemsDate(Context context,
+			int topic, int pknum, int page) {
+
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("i", pknum);
+		params.put("p", page);
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/datas", params, null);
+		ArrayList<ContentData> contentDatas = null;
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String title = fieldsObject.getString("name");
+					String imageurl = fieldsObject.getString("imageurl");
+					String link = fieldsObject.getString("link");
+					String pk = fieldsObject.getString("item");
+					String content = fieldsObject.getString("content");
+					String date = fieldsObject.getString("postdate");
+					Loge.d("getSubItemsDate pk = " + pk + "  title = " + title);
+
+					ContentData itemData = new ContentData();
+					itemData.mTitle = title;
+					itemData.mLink = link;
+					itemData.mImageUrl = imageurl;
+					itemData.mContent = content;
+					itemData.mSubItemType = Integer.parseInt(pk);
+					itemData.mTopicType = topic;
+					itemData.mPostDate = Long.parseLong(date);
+					if (contentDatas == null) {
+						contentDatas = new ArrayList<ContentData>();
+					}
+					contentDatas.add(itemData);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		return "";
+		return contentDatas;
 	}
-
 	// public static String reissueAccessToken(Context context, String code) {
 	// Loge.d("reissueAccessToken");
 	// Loge.d("code = " + code);

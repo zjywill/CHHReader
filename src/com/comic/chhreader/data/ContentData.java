@@ -1,11 +1,12 @@
 package com.comic.chhreader.data;
 
 public class ContentData {
-	public String mContentId;
-	public String mContentTitle;
-	public String mContentPic;
-	public String mContentURL;
-	public String mContentShortcut;
-	public String mContentType;
-	public long mContentPostDate;
+	public String mId;
+	public String mTitle;
+	public String mImageUrl;
+	public String mLink;
+	public String mContent;
+	public int mTopicType;
+	public int mSubItemType;
+	public long mPostDate;
 }
