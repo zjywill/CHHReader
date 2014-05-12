@@ -4,9 +4,11 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -34,9 +36,26 @@ public class DetailActivity extends Activity {
 
 		mWebView.setWebChromeClient(new DetailWebChromeClient());
 		mWebView.setWebViewClient(new DetailWebViewClient());
-		mWebView.getSettings().setJavaScriptEnabled(true);
-		mWebView.getSettings().setSupportZoom(false);
-
+		WebSettings webSettings = mWebView.getSettings();
+		webSettings.setJavaScriptEnabled(true);
+		
+		int screenDensity = getResources().getDisplayMetrics().densityDpi ;   
+		WebSettings.ZoomDensity zoomDensity = WebSettings.ZoomDensity.MEDIUM ;   
+		switch (screenDensity){   
+		case DisplayMetrics.DENSITY_LOW :  
+		    zoomDensity = WebSettings.ZoomDensity.CLOSE;  
+		    break;  
+		case DisplayMetrics.DENSITY_MEDIUM:  
+		    zoomDensity = WebSettings.ZoomDensity.MEDIUM;  
+		    break;  
+		case DisplayMetrics.DENSITY_HIGH:  
+		    zoomDensity = WebSettings.ZoomDensity.FAR;  
+		    break ;  
+		}  
+		webSettings.setDefaultZoom(zoomDensity); 
+		
+		webSettings.setSupportZoom(false);
+		
 		Intent dataIntent = getIntent();
 		mMainTitle = dataIntent.getStringExtra("title");
 		mMainUrl = dataIntent.getStringExtra("url");
@@ -48,6 +67,7 @@ public class DetailActivity extends Activity {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
 		}
 		mWebView.loadUrl(mMainUrl);
+		//mWebView.loadUrl("file:///android_asset/test.html");
 	}
 
 	void initActionBar() {

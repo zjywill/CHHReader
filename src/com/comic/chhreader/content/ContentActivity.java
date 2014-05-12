@@ -4,28 +4,22 @@ import java.util.ArrayList;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.comic.chhreader.Constants;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentData;
@@ -38,15 +32,7 @@ import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 import com.comic.chhreader.view.PullDownRefreashListView;
 
-/*import com.comic.seexian.detail.DetailActivity;
- import com.comic.seexian.utils.SeeXianNetUtils;
- import com.comic.seexian.utils.SeeXianUtils;*/
-
 public class ContentActivity extends Activity implements OnItemClickListener {
-
-	private static final int MSG_GET_LOCAL_DATA_FINISH = 1;
-	private static final int MSG_GET_NET_DATA_FINISH = 2;
-
 	private Context mCtx;
 
 	private PullDownRefreashListView mListView;
@@ -75,10 +61,10 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	private int mLatestId;
 
-	private int mSelectedItem;
-
 	private ContentData mFirstItem;
 	private ContentData mLastItem;
+
+	private boolean updating = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +107,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mListView.setOnRefreshListener(new PullDownRefreashListView.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				new NetDataFetch().execute("update");
+				if (!updating)
+					new NetDataFetch().execute("update");
 			}
 		});
 
@@ -134,6 +121,10 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mLoadingView.setVisibility(View.VISIBLE);
 
 		new LocalDataFetch().execute();
+
+		if (Utils.isWifiAvailable(mCtx) && !updating) {
+			new NetDataFetch().execute("update");
+		}
 	}
 
 	void intActionBar() {
@@ -149,18 +140,17 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			break;
-		default:
-			break;
+			case android.R.id.home:
+				finish();
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(ContentActivity.this, DetailActivity.class);
 		Cursor cur = (Cursor) mListAdapter.getItem(position);
 		if (cur != null) {
@@ -178,8 +168,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		}
 
 		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem,
-				int visibleItemCount, int totalItemCount) {
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
 				Loge.i("Scroll to the end");
 			}
@@ -190,7 +179,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		public void onClick(View v) {
 			Loge.i("Load more clicked");
-			new NetDataFetch().execute("more");
+			if (!updating)
+				new NetDataFetch().execute("more");
 		}
 	};
 
@@ -229,10 +219,12 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
 			projection[5] = DataProvider.KEY_MAIN_URL;
 
-			String selection = DataProvider.KEY_MAIN_TOPIC_PK + "='" + mCategory + "'";
+			String selection = DataProvider.KEY_MAIN_TOPIC_PK + "='" + mCategory + "'"//
+					+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
 			Loge.i("selection = " + selection);
 
-			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
+			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection,
+					null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
 
 			if (cursor != null) {
 				mLatestId = cursor.getCount();
@@ -257,7 +249,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			if (cursor != null) {
 				Loge.d("cursor count = " + cursor.getCount());
 				if (cursor.getCount() == 0) {
-					new NetDataFetch().execute("update");
+					if (!updating)
+						new NetDataFetch().execute("update");
 				} else {
 					mListAdapter.swapCursor(cursor);
 					mListView.setVisibility(View.VISIBLE);
@@ -279,6 +272,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			Loge.d("NetDataFetch begin fetch data");
+			updating = true;
 			if (!Utils.isNetworkAvailable(getBaseContext())) {
 				if (mNetworkDialog == null) {
 					mNetworkDialog = new NetworkDialog(mCtx, R.style.Theme_dialog);
@@ -289,10 +284,9 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			}
 			if (mListAdapter.getCount() == 0) {
 				mLoadMoreView.setVisibility(View.GONE);
-			} else {
-				mLoadMoreBtn.setClickable(false);
-				mLoadMoreBtn.setText(R.string.loading);
 			}
+			mLoadMoreBtn.setClickable(false);
+			mLoadMoreBtn.setText(R.string.loading);
 		}
 
 		@Override
@@ -316,7 +310,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
 
-				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, subItemProjection, selection, null, null);
+				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA,
+						subItemProjection, selection, null, null);
 
 				ArrayList<SubItemData> subItemDatas = null;
 				if (subItemCursor != null) {
@@ -326,7 +321,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 								subItemDatas = new ArrayList<SubItemData>();
 							}
 							SubItemData itemData = new SubItemData();
-							itemData.mPk = subItemCursor.getInt(subItemCursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							itemData.mPk = subItemCursor.getInt(subItemCursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
 							Loge.d("SubItemData pk: " + itemData.mPk);
 							subItemDatas.add(itemData);
 						} while (subItemCursor.moveToNext());
@@ -342,22 +338,31 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 					int page = 1;
 					if (loadingWay.equals("more")) {
 						page = mLatestId / 10 + 1;
+						if (mLatestId < 10) {
+							page = 1;
+						}
 					}
 					Loge.d("load more page: " + page);
-					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx, mCategory, itemData.mPk, page);
+					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx,
+							mCategory, itemData.mPk, page);
 					if (contentDatasTemp != null) {
 						tempListData.addAll(contentDatasTemp);
 					}
 				}
 
 				boolean updated = true;
+				boolean no_update = false;
 				if (tempListData.size() > 0) {
 					if (loadingWay.equals("update")) {
 						long postdata = 0;
 						int id = 0;
+						boolean anyInvaild = false;
 						for (int i = 0; i < tempListData.size(); i++) {
 							ContentData itemContent = tempListData.get(i);
-							if (itemContent.mPostDate > postdata) {
+							if (!itemContent.mValid) {
+								anyInvaild = true;
+							}
+							if (itemContent.mValid && itemContent.mPostDate > postdata) {
 								postdata = itemContent.mPostDate;
 								id = i;
 							}
@@ -365,10 +370,14 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 						ContentData first = tempListData.get(id);
 						Loge.d("load more first 1: " + mFirstItem.mLink);
 						Loge.d("load more first 2: " + first.mLink);
-						if (first.mLink.equals(mFirstItem.mLink)) {
-							updated = false;
-						} else {
+						if (!first.mLink.equals(mFirstItem.mLink)) {
 							DataBaseUtils.updateTopicImage(mCtx, mCategory, first.mImageUrl);
+						} else {
+							no_update = true;
+						}
+						if (anyInvaild) {
+							Loge.d("anyInvaild: " + anyInvaild);
+							updated = true;
 						}
 					} else {
 						long postdata = tempListData.get(0).mPostDate;
@@ -398,7 +407,9 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 				subItemDatas.clear();
 				tempListData.clear();
 
-				if (updated) {
+				if (no_update && 10 <= mLatestId) {
+					return loadingWay;
+				} else if (updated) {
 					return "success";
 				} else {
 					return loadingWay;
@@ -410,13 +421,14 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			Loge.d("NetDataFetch result: " + result);
 			if (result.equals("success")) {
 				new LocalDataFetch().execute();
 			} else {
 				if (result.equals("update")) {
-					Toast.makeText(mCtx, "暂无更新", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mCtx, R.string.no_update, Toast.LENGTH_SHORT).show();
 				} else if (result.equals("more")) {
-					Toast.makeText(mCtx, "已经到最后了", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mCtx, R.string.no_more_data, Toast.LENGTH_SHORT).show();
 				}
 				mLoadMoreView.setVisibility(View.VISIBLE);
 				mLoadMoreBtn.setClickable(true);
@@ -430,6 +442,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 				}
 			}
 			mListView.onRefreshComplete();
+			updating = false;
 		}
 	};
 }

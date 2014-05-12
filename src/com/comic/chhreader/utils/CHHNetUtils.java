@@ -52,10 +52,11 @@ public class CHHNetUtils {
 
 	public static final int HTTP_TIMEOUT = 60000;
 
-	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android " + android.os.Build.VERSION.RELEASE + ";" + Locale.getDefault().toString() + "; " + android.os.Build.DEVICE + "/" + android.os.Build.ID + ")";
+	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android "
+			+ android.os.Build.VERSION.RELEASE + ";" + Locale.getDefault().toString() + "; "
+			+ android.os.Build.DEVICE + "/" + android.os.Build.ID + ")";
 
-	public static Object postResult(String api_url,
-			HashMap<String, Object> params, String access_token) {
+	public static Object postResult(String api_url, HashMap<String, Object> params, String access_token) {
 		final HttpPost post = new HttpPost(api_url);
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		if (access_token != null)
@@ -81,8 +82,7 @@ public class CHHNetUtils {
 		return null;
 	}
 
-	public static String buildParams(HashMap<String, Object> params,
-			String splitter) {
+	public static String buildParams(HashMap<String, Object> params, String splitter) {
 		StringBuffer buf = new StringBuffer();
 		if (params == null) {
 			params = new HashMap<String, Object>();
@@ -123,8 +123,7 @@ public class CHHNetUtils {
 		sHttpClient = new DefaultHttpClient(manager, params);
 	}
 
-	public static Object getParseResult(HttpResponse r) throws JSONException,
-			IOException {
+	public static Object getParseResult(HttpResponse r) throws JSONException, IOException {
 		Header header = r.getFirstHeader("WWW-Authenticate");
 		if (header != null) {
 			String value = header.getValue();
@@ -175,9 +174,8 @@ public class CHHNetUtils {
 		return null;
 	}
 
-	private static String getResponse(HttpEntity entity)
-			throws UnsupportedEncodingException, IllegalStateException,
-			IOException {
+	private static String getResponse(HttpEntity entity) throws UnsupportedEncodingException,
+			IllegalStateException, IOException {
 		String response = "";
 
 		int length = (int) entity.getContentLength();
@@ -210,8 +208,7 @@ public class CHHNetUtils {
 		return response;
 	}
 
-	private static boolean isRefreshTokenExpired(String content)
-			throws JSONException {
+	private static boolean isRefreshTokenExpired(String content) throws JSONException {
 		if (content.startsWith("{") && content.endsWith("}")) {
 			final JSONObject obj = new JSONObject(content);
 			if (!obj.isNull("error")) {
@@ -224,8 +221,7 @@ public class CHHNetUtils {
 		return false;
 	}
 
-	public static Object getResult(String api_url,
-			HashMap<String, Object> params, String access_token) {
+	public static Object getResult(String api_url, HashMap<String, Object> params, String access_token) {
 
 		Loge.d("api_url = " + api_url);
 
@@ -263,6 +259,8 @@ public class CHHNetUtils {
 		}
 		return null;
 	}
+	
+	//TODO ----------------------------DIVIDER---------------------------------------------
 
 	public static ArrayList<TopicData> getTopicsDate(Context context) {
 		ArrayList<TopicData> topicsData = null;
@@ -275,7 +273,6 @@ public class CHHNetUtils {
 					String pk = itemObject.getString("pk");
 					JSONObject fieldsObject = itemObject.getJSONObject("fields");
 					String name = fieldsObject.getString("name");
-					Loge.d("getTopicsDate pk = " + pk + "  name = " + name);
 					if (topicsData == null) {
 						topicsData = new ArrayList<TopicData>();
 					}
@@ -288,12 +285,46 @@ public class CHHNetUtils {
 				}
 			}
 		}
-
+		if (topicsData != null && topicsData.size() > 0) {
+			Loge.d("topicsData fetch ok");
+		}
 		return topicsData;
 	}
+	
+	public static ArrayList<SubItemData> getAllSubItemsDate(Context context) {
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/allsubitem", null, null);
+		ArrayList<SubItemData> subItemDatas = null;
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					String pk = itemObject.getString("pk");
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String name = fieldsObject.getString("name");
+					String sourcelink = fieldsObject.getString("sourcelink");
+					String topic = fieldsObject.getString("topic");
+					if (subItemDatas == null) {
+						subItemDatas = new ArrayList<SubItemData>();
+					}
+					SubItemData itemData = new SubItemData();
+					itemData.mName = name;
+					itemData.mUrl = sourcelink;
+					itemData.mPk = Integer.parseInt(pk);
+					itemData.mTopic = Integer.parseInt(topic);
+					subItemDatas.add(itemData);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if (subItemDatas != null && subItemDatas.size() > 0) {
+			Loge.d("subItemsDate fetch ok");
+		}
+		return subItemDatas;
+	}
 
-	public static ArrayList<SubItemData> getSubItemsDate(Context context,
-			int pknum) {
+	public static ArrayList<SubItemData> getSubItemsDate(Context context, int pknum) {
 
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("t", pknum);
@@ -309,7 +340,6 @@ public class CHHNetUtils {
 					String name = fieldsObject.getString("name");
 					String sourcelink = fieldsObject.getString("sourcelink");
 					String topic = fieldsObject.getString("topic");
-					Loge.d("getSubItemsDate pk = " + pk + "  name = " + name);
 					if (subItemDatas == null) {
 						subItemDatas = new ArrayList<SubItemData>();
 					}
@@ -324,11 +354,53 @@ public class CHHNetUtils {
 				}
 			}
 		}
+		if (subItemDatas != null && subItemDatas.size() > 0) {
+			Loge.d("subItemsDate fetch ok");
+		}
 		return subItemDatas;
 	}
+	
+	public static ArrayList<ContentData> getMainContentItemsDate(Context context){
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/maindatas", null, null);
+		ArrayList<ContentData> contentDatas = null;
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String title = fieldsObject.getString("name");
+					String imageurl = fieldsObject.getString("imageurl");
+					String link = fieldsObject.getString("link");
+					String pk = fieldsObject.getString("item");
+					String content = fieldsObject.getString("content");
+					String date = fieldsObject.getString("postdate");
+					boolean valid = fieldsObject.getBoolean("is_valid");
 
-	public static ArrayList<ContentData> getContentItemsDate(Context context,
-			int topic, int pknum, int page) {
+					ContentData itemData = new ContentData();
+					itemData.mTitle = title;
+					itemData.mLink = link;
+					itemData.mImageUrl = imageurl;
+					itemData.mContent = content;
+					itemData.mSubItemType = Integer.parseInt(pk);
+					itemData.mValid = valid;
+					itemData.mPostDate = Long.parseLong(date);
+					if (contentDatas == null) {
+						contentDatas = new ArrayList<ContentData>();
+					}
+					contentDatas.add(itemData);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if (contentDatas != null && contentDatas.size() > 0) {
+			Loge.d("contentDatas fetch ok");
+		}
+		return contentDatas;
+	}
+
+	public static ArrayList<ContentData> getContentItemsDate(Context context, int topic, int pknum, int page) {
 
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("i", pknum);
@@ -347,7 +419,7 @@ public class CHHNetUtils {
 					String pk = fieldsObject.getString("item");
 					String content = fieldsObject.getString("content");
 					String date = fieldsObject.getString("postdate");
-					Loge.d("getSubItemsDate pk = " + pk + "  title = " + title);
+					boolean valid = fieldsObject.getBoolean("is_valid");
 
 					ContentData itemData = new ContentData();
 					itemData.mTitle = title;
@@ -356,6 +428,7 @@ public class CHHNetUtils {
 					itemData.mContent = content;
 					itemData.mSubItemType = Integer.parseInt(pk);
 					itemData.mTopicType = topic;
+					itemData.mValid = valid;
 					itemData.mPostDate = Long.parseLong(date);
 					if (contentDatas == null) {
 						contentDatas = new ArrayList<ContentData>();
@@ -366,156 +439,10 @@ public class CHHNetUtils {
 				}
 			}
 		}
-
+		if (contentDatas != null && contentDatas.size() > 0) {
+			Loge.d("contentDatas fetch ok");
+		}
 		return contentDatas;
 	}
-	// public static String reissueAccessToken(Context context, String code) {
-	// Loge.d("reissueAccessToken");
-	// Loge.d("code = " + code);
-	// HashMap<String, Object> params = new HashMap<String, Object>();
-	// params.put("client_id", ConstantsSina.APP_KEY);
-	// params.put("client_secret", ConstantsSina.APP_SECRET);
-	// params.put("grant_type", "authorization_code");
-	// params.put("code", code);
-	// params.put("redirect_uri", ConstantsSina.REDIRECT_URL);
-	//
-	// Object obj = postResult("https://api.weibo.com/oauth2/access_token",
-	// params, null);
-	//
-	// String token = null;
-	// String expireTime = null;
-	//
-	// if (obj instanceof JSONObject) {
-	// JSONObject jsonObj = (JSONObject) obj;
-	//
-	// try {
-	// if (!jsonObj.isNull("access_token")) {
-	// token = jsonObj.getString("access_token");
-	// }
-	// if (!jsonObj.isNull("expires_in")) {
-	// expireTime = jsonObj.getString("expires_in");
-	// }
-	// } catch (JSONException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// if (token != null && expireTime != null) {
-	// Loge.d("token = " + token);
-	// Loge.d("expires_in = " + expireTime);
-	// Oauth2AccessToken oToken = new Oauth2AccessToken(token, expireTime);
-	// AccessTokenKeeper.keepAccessToken(context, oToken);
-	// }
-	//
-	// return token;
-	// }
-	//
-	// public static Object getLocationPoint() {
-	// return null;
-	// }
-	//
-	// public static String getAccessToken(Context context) {
-	// Oauth2AccessToken token = AccessTokenKeeper.readAccessToken(context
-	// .getApplicationContext());
-	// Loge.d("getAccessToken Token = " + token.getToken());
-	// Loge.d("getAccessToken ExpiresTime = " + token.getExpiresTime());
-	//
-	// String acctoken = token.getToken();
-	//
-	// if (acctoken == null || acctoken.isEmpty()) {
-	// String code = AccessTokenKeeper.readAccessCode(context
-	// .getApplicationContext());
-	//
-	// Loge.d("getAccessToken code = " + code);
-	// if (code != null && !code.isEmpty()) {
-	// acctoken = CHHNetUtils.reissueAccessToken(
-	// context.getApplicationContext(), code);
-	// }
-	//
-	// }
-	//
-	// if (acctoken == null || acctoken.isEmpty()) {
-	// return null;
-	// }
-	// return acctoken;
-	// }
-	//
-	// public static ArrayList<SinaPoisData> getLocationPoisData(Object
-	// oPoisData) {
-	// ArrayList<SinaPoisData> locationListData = new ArrayList<SinaPoisData>();
-	//
-	// try {
-	// JSONObject jPoisData = new JSONObject(oPoisData.toString());
-	// JSONArray jPois = jPoisData.getJSONArray("pois");
-	//
-	// Loge.i("JSONArray length = " + jPois.length());
-	// for (int i = 0; i < jPois.length(); i++) {
-	// JSONObject jPoisItem = jPois.getJSONObject(i);
-	//
-	// SinaPoisData item = new SinaPoisData();
-	// item.mPoiid = jPoisItem.getString("poiid");
-	// item.mAddress = jPoisItem.getString("address");
-	// item.mTitle = jPoisItem.getString("title");
-	// item.mLat = jPoisItem.getString("lat");
-	// item.mLong = jPoisItem.getString("lon");
-	//
-	// Loge.i("Item Address = " + item.mAddress);
-	// Loge.i("Item Lat = " + item.mLat + " Lon = " + item.mLong);
-	//
-	// locationListData.add(item);
-	// }
-	// } catch (JSONException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return locationListData;
-	// }
-	//
-	// public static ArrayList<UserHistoryData> getUserHistoryData(Object oData)
-	// {
-	// ArrayList<UserHistoryData> userHistoryDataList = new
-	// ArrayList<UserHistoryData>();
-	//
-	// try {
-	// JSONObject jUserData = new JSONObject(oData.toString());
-	// JSONArray jPosts = jUserData.getJSONArray("statuses");
-	// Loge.i("JSONArray length = " + jPosts.length());
-	// for (int i = 0; i < jPosts.length(); i++) {
-	// JSONObject jPostItem = jPosts.getJSONObject(i);
-	//
-	// UserHistoryData item = new UserHistoryData();
-	// item.mTime = jPostItem.getString("created_at");
-	// item.mPostId = jPostItem.getString("idstr");
-	// if (jPostItem.has("text"))
-	// item.mText = jPostItem.getString("text");
-	// if (jPostItem.has("source"))
-	// item.mSource = jPostItem.getString("source");
-	// if (jPostItem.has("thumbnail_pic"))
-	// item.mThumbPic = jPostItem.getString("thumbnail_pic");
-	// if (jPostItem.has("original_pic"))
-	// item.mOriPic = jPostItem.getString("original_pic");
-	//
-	// try {
-	// JSONObject jGeoItem = jPostItem.getJSONObject("geo");
-	// String geoPo = jGeoItem.getString("coordinates");
-	// /*
-	// * GEO data format: [31.1999323,121.6044558]
-	// */
-	// geoPo = geoPo.substring(1, geoPo.length() - 1);
-	// String[] pos = geoPo.split(",");
-	// item.mLat = pos[0];
-	// item.mLng = pos[1];
-	//
-	// } catch (JSONException e) {
-	// Loge.w("NOT GEO DATA");
-	// }
-	// userHistoryDataList.add(item);
-	//
-	// }
-	// } catch (JSONException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return userHistoryDataList;
-	// }
 
 }

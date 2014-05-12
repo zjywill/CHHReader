@@ -23,6 +23,15 @@ public class Utils {
 		}
 		return false;
 	}
+	
+	static public boolean isWifiAvailable(Context ctx) {
+		final ConnectivityManager connectivity = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ninfo = connectivity.getActiveNetworkInfo();
+		if (ninfo != null && ninfo.getType() == ConnectivityManager.TYPE_WIFI) {
+			return true;
+		}
+		return false;
+	}
 
 	static public boolean isMobileNetworkAvailable(Context ctx) {
 		final ConnectivityManager connectivity = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);

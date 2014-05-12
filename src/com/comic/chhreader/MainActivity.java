@@ -15,6 +15,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,7 +24,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -34,12 +34,15 @@ import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.provider.DataProvider;
 import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.DataBaseUtils;
+import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 
 public class MainActivity extends Activity implements OnItemClickListener, LoaderCallbacks<Cursor> {
 
 	private static final int LOADER_ID_LOACL = 103;
+
+	private static final long UPGRADE_GAP = DateUtils.DAY_IN_MILLIS;
 
 	private GridView mGrid;
 	private MainGridAdapter mGirdAdapter;
@@ -48,6 +51,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	private Context mContext = this;
 	private NetworkDialog mNetworkDialog = null;
+
+	boolean updating = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +65,6 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		mGrid.setAdapter(mGirdAdapter);
 
 		initActionBar();
-		// mShortAnimationDuration =
-		// getResources().getInteger(android.R.integer.config_shortAnimTime);
 
 		mGrid.setAlpha(0f);
 		mGrid.animate().alpha(1f).setDuration(800).setListener(new AnimatorListenerAdapter() {
@@ -72,6 +75,10 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		});
 
 		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
+
+		if (Utils.isWifiAvailable(mContext) && !updating) {
+			new FetchDataTaskNet().execute();
+		}
 	}
 
 	void initActionBar() {
@@ -83,7 +90,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 			Loge.i("action bar setCustomView");
 			LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View actionbarView = inflator.inflate(R.layout.main_activity_actionbar, null);
-			LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+			LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT,
+					Gravity.RIGHT | Gravity.CENTER_VERTICAL);
 			actionBar.setCustomView(actionbarView, lp);
 			actionBar.setDisplayShowCustomEnabled(true);
 
@@ -101,20 +109,20 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.action_do_refresh: {
-			Loge.i("Options Selected = do_refresh");
-			new FetchDataTaskNet().execute();
-		}
-			break;
-		default:
-			break;
+			case R.id.action_do_refresh: {
+				Loge.i("Options Selected = do_refresh");
+				if (!updating)
+					new FetchDataTaskNet().execute();
+			}
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(MainActivity.this, ContentActivity.class);
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
@@ -123,22 +131,29 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 			startActivity(intent);
 		}
 	};
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
 		Loge.i("onCreateLoader");
 		switch (loaderID) {
-		case LOADER_ID_LOACL: {
-			String[] projection = new String[4];
-			projection[0] = DataProvider.KEY_TOPIC_ID;
-			projection[1] = DataProvider.KEY_TOPIC_NAME;
-			projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
-			projection[3] = DataProvider.KEY_TOPIC_PK;
+			case LOADER_ID_LOACL: {
+				String[] projection = new String[4];
+				projection[0] = DataProvider.KEY_TOPIC_ID;
+				projection[1] = DataProvider.KEY_TOPIC_NAME;
+				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
+				projection[3] = DataProvider.KEY_TOPIC_PK;
 
-			return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, DataProvider.KEY_TOPIC_PK);
-		}
-		default:
-			break;
+				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null,
+						DataProvider.KEY_TOPIC_PK);
+			}
+			default:
+				break;
 		}
 		return null;
 	}
@@ -147,20 +162,21 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		Loge.i("onLoadFinished id: " + loader.getId());
 		switch (loader.getId()) {
-		case LOADER_ID_LOACL: {
-			if (cur != null && cur.getCount() > 0) {
-				Loge.i("get data from local count = " + cur.getCount());
-				mGirdAdapter.swapCursor(cur);
-				mGirdAdapter.notifyDataSetChanged();
-			} else {
-				Loge.i("Cursor is null or count == 0");
-				new FetchDataTaskNet().execute();
+			case LOADER_ID_LOACL: {
+				if (cur != null && cur.getCount() > 0) {
+					Loge.i("get data from local count = " + cur.getCount());
+					mGirdAdapter.swapCursor(cur);
+					mGirdAdapter.notifyDataSetChanged();
+				} else {
+					Loge.i("Cursor is null or count == 0");
+					if (!updating)
+						new FetchDataTaskNet().execute();
+				}
 			}
-		}
-			break;
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -169,52 +185,12 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	}
 
-	private void showContentOrLoadingIndicator(boolean contentLoaded) {
-		// // Decide which view to hide and which to show.
-		// final View showView = contentLoaded ? mLoadingProgress : mRefreshBtn;
-		// final View hideView = contentLoaded ? mRefreshBtn : mLoadingProgress;
-		//
-		// // Set the "show" view to 0% opacity but visible, so that it is
-		// visible
-		// // (but fully transparent) during the animation.
-		// showView.setAlpha(0f);
-		// showView.setVisibility(View.VISIBLE);
-		//
-		// // Animate the "show" view to 100% opacity, and clear any animation
-		// // listener set on
-		// // the view. Remember that listeners are not limited to the specific
-		// // animation
-		// // describes in the chained method calls. Listeners are set on the
-		// // ViewPropertyAnimator object for the view, which persists across
-		// // several
-		// // animations.
-		// showView.animate().alpha(1f).setDuration(mShortAnimationDuration).setListener(new
-		// AnimatorListenerAdapter() {
-		// @Override
-		// public void onAnimationEnd(Animator animation) {
-		// showView.setVisibility(View.VISIBLE);
-		// }
-		// });
-		//
-		// // Animate the "hide" view to 0% opacity. After the animation ends,
-		// set
-		// // its visibility
-		// // to GONE as an optimization step (it won't participate in layout
-		// // passes, etc.)
-		// hideView.animate().alpha(0f).setDuration(mShortAnimationDuration).setListener(new
-		// AnimatorListenerAdapter() {
-		// @Override
-		// public void onAnimationEnd(Animator animation) {
-		// hideView.setVisibility(View.GONE);
-		// }
-		// });
-	}
-
 	class FetchDataTaskNet extends AsyncTask<Void, Void, String> {
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			updating = true;
 			mLoadingProgress.setVisibility(View.VISIBLE);
 			if (!Utils.isNetworkAvailable(getBaseContext())) {
 				if (mNetworkDialog == null) {
@@ -230,36 +206,67 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		protected String doInBackground(Void... params) {
 			if (Utils.isNetworkAvailable(getBaseContext())) {
 
-				ArrayList<TopicData> topicsData = CHHNetUtils.getTopicsDate(mContext);
+				ArrayList<TopicData> topicsData = null;
+				ArrayList<SubItemData> subItemDatas = null;
+
+				boolean fetchNetData = true;
+
+				if (DataBaseUtils.isTopicDataExist(mContext)) {
+					fetchNetData = false;
+					long timeNow = System.currentTimeMillis();
+					if ((timeNow - SharedPreferencesUtils.getUpdateTime(mContext)) > UPGRADE_GAP) {
+						fetchNetData = true;
+					}
+				}
+
+				if (fetchNetData) {
+					topicsData = CHHNetUtils.getTopicsDate(mContext);
+					if (topicsData == null) {
+						return "fail";
+					}
+
+					subItemDatas = CHHNetUtils.getAllSubItemsDate(mContext);
+					if (subItemDatas == null) {
+						return "fail";
+					}
+					DataBaseUtils.deleteAllSubItemData(mContext);
+					DataBaseUtils.saveSubItemData(mContext, subItemDatas);
+
+					SharedPreferencesUtils.saveUpdateTime(mContext, System.currentTimeMillis());
+				} else {
+					topicsData = DataBaseUtils.getTopicData(mContext);
+					subItemDatas = DataBaseUtils.getSubItemData(mContext);
+				}
+
 				if (topicsData == null) {
 					return "fail";
 				}
 
-				ArrayList<SubItemData> subItemDatas = new ArrayList<SubItemData>();
-				for (TopicData itemData : topicsData) {
-					ArrayList<SubItemData> subItemDatasTemp = CHHNetUtils.getSubItemsDate(mContext, itemData.mPk);
-					if (subItemDatasTemp != null) {
-						subItemDatas.addAll(subItemDatasTemp);
-					}
+				if (subItemDatas == null) {
+					return "fail";
 				}
-				if (subItemDatas != null && subItemDatas.size() > 0) {
-					DataBaseUtils.deleteAllSubItemData(mContext);
-				}
-				DataBaseUtils.saveSubItemData(mContext, subItemDatas);
 
-				ArrayList<ContentData> contentDatas = new ArrayList<ContentData>();
-				for (SubItemData itemData : subItemDatas) {
-					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mContext, itemData.mTopic, itemData.mPk, 1);
-					if (contentDatasTemp != null && contentDatasTemp.size() > 0) {
-						for (TopicData tData : topicsData) {
-							if (tData.mPk == itemData.mTopic) {
-								tData.mImageUrl = contentDatasTemp.get(0).mImageUrl;
-								break;
+				ArrayList<ContentData> contentDatas = CHHNetUtils.getMainContentItemsDate(mContext);
+				if (contentDatas == null) {
+					return "fail";
+				}
+
+				Loge.d("doInBackground AAAAAAAAAAAAAAAAAAAAAA");
+				for (int i = contentDatas.size() - 1; i >= 0; i--) {
+					ContentData contentItem = contentDatas.get(i);
+					for (SubItemData subItemData : subItemDatas) {
+						if (contentItem.mSubItemType == subItemData.mPk) {
+							contentItem.mTopicType = subItemData.mTopic;
+							for (TopicData tData : topicsData) {
+								if (tData.mPk == subItemData.mTopic) {
+									tData.mImageUrl = contentItem.mImageUrl;
+									break;
+								}
 							}
 						}
-						contentDatas.addAll(contentDatasTemp);
 					}
 				}
+				Loge.d("doInBackground BBBBBBBBBBBBBBBBBBBBB");
 				DataBaseUtils.saveContentItemData(mContext, contentDatas);
 
 				if (topicsData != null && topicsData.size() > 0) {
@@ -282,8 +289,9 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 			if (result.equals("success")) {
 				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 			} else {
-				Toast.makeText(mContext, "get data failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.no_update, Toast.LENGTH_SHORT).show();
 			}
+			updating = false;
 		}
 
 	}

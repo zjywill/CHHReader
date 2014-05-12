@@ -8,5 +8,6 @@ public class ContentData {
 	public String mContent;
 	public int mTopicType;
 	public int mSubItemType;
+	public boolean mValid;
 	public long mPostDate;
 }

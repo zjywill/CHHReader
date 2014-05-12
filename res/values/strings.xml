@@ -16,5 +16,7 @@
     <string name="loading">Loading&#8230;</string>
     <string name="load_more">Click to load more</string>
     <string name="not_support">Not support yet</string>
+    <string name="no_update">Already the latest</string>
+    <string name="no_more_data">Already reach the end</string>
 
 </resources>
