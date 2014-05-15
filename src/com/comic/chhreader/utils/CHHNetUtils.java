@@ -259,7 +259,7 @@ public class CHHNetUtils {
 		}
 		return null;
 	}
-	
+
 	//TODO ----------------------------DIVIDER---------------------------------------------
 
 	public static ArrayList<TopicData> getTopicsDate(Context context) {
@@ -290,7 +290,7 @@ public class CHHNetUtils {
 		}
 		return topicsData;
 	}
-	
+
 	public static ArrayList<SubItemData> getAllSubItemsDate(Context context) {
 		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/allsubitem", null, null);
 		ArrayList<SubItemData> subItemDatas = null;
@@ -359,8 +359,8 @@ public class CHHNetUtils {
 		}
 		return subItemDatas;
 	}
-	
-	public static ArrayList<ContentData> getMainContentItemsDate(Context context){
+
+	public static ArrayList<ContentData> getMainContentItemsDate(Context context) {
 		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/maindatas", null, null);
 		ArrayList<ContentData> contentDatas = null;
 		if (obj instanceof JSONArray) {
@@ -443,6 +443,26 @@ public class CHHNetUtils {
 			Loge.d("contentDatas fetch ok");
 		}
 		return contentDatas;
+	}
+
+	public static String getContentBody(Context context, String url) {
+		String body = "";
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("link", url);
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/getcontent", params, null);
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					body = fieldsObject.getString("content");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return body;
 	}
 
 }

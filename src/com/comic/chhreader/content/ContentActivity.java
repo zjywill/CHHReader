@@ -65,6 +65,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	private ContentData mLastItem;
 
 	private boolean updating = false;
+	private boolean first = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -282,9 +283,14 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 					Toast.makeText(mCtx, R.string.no_network, Toast.LENGTH_SHORT).show();
 				}
 			}
-			if (mListAdapter.getCount() == 0) {
-				mLoadMoreView.setVisibility(View.GONE);
+			if(first){
+				first = false;
+			}else{
+				if (mListAdapter.getCount() == 0) {
+					mLoadMoreView.setVisibility(View.GONE);
+				}
 			}
+
 			mLoadMoreBtn.setClickable(false);
 			mLoadMoreBtn.setText(R.string.loading);
 		}

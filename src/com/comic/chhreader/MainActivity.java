@@ -131,7 +131,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 			startActivity(intent);
 		}
 	};
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -251,14 +251,13 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 					return "fail";
 				}
 
-				Loge.d("doInBackground AAAAAAAAAAAAAAAAAAAAAA");
 				for (int i = contentDatas.size() - 1; i >= 0; i--) {
 					ContentData contentItem = contentDatas.get(i);
 					for (SubItemData subItemData : subItemDatas) {
 						if (contentItem.mSubItemType == subItemData.mPk) {
 							contentItem.mTopicType = subItemData.mTopic;
 							for (TopicData tData : topicsData) {
-								if (tData.mPk == subItemData.mTopic) {
+								if (tData.mPk == subItemData.mTopic && contentItem.mValid) {
 									tData.mImageUrl = contentItem.mImageUrl;
 									break;
 								}
@@ -266,7 +265,6 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 						}
 					}
 				}
-				Loge.d("doInBackground BBBBBBBBBBBBBBBBBBBBB");
 				DataBaseUtils.saveContentItemData(mContext, contentDatas);
 
 				if (topicsData != null && topicsData.size() > 0) {

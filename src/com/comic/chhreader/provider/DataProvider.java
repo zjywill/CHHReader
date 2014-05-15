@@ -24,6 +24,7 @@ public class DataProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_TOPIC_DATA = Uri.parse("content://com.comic.chhreader/topic");
 	public static final Uri CONTENT_URI_SUBITEM_DATA = Uri.parse("content://com.comic.chhreader/subitem");
 	public static final Uri CONTENT_URI_MAIN_DATA = Uri.parse("content://com.comic.chhreader/main");
+	public static final Uri CONTENT_URI_CONTENT_DATA = Uri.parse("content://com.comic.chhreader/content");
 
 	// Name of table in the database
 	private static final String DB_TABLE_TOPIC_DATA = "topic";
@@ -60,6 +61,16 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_MAIN_EXTEND_DATA2 = "extend2";
 	public static final String KEY_MAIN_VALID = "valid";
 	public static final String KEY_MAIN_PUBLISH_DATE = "date";
+	
+	
+	// Name of table in the database
+	private static final String DB_TABLE_CONTENT_DATA = "content";
+	
+	// content data table
+	public static final String KEY_CONTENT_ID = "_id";
+	public static final String KEY_CONTENT_URL = "url";
+	public static final String KEY_CONTENT_BODY = "body";
+	public static final String KEY_CONTENT_UPLOAD_DATE = "time";
 
 	@Override
 	public boolean onCreate() {
@@ -166,6 +177,9 @@ public class DataProvider extends ContentProvider {
 		} else if (sUri.equals(CONTENT_URI_SUBITEM_DATA.toString())) {
 			return DB_TABLE_SUBITEM_DATA;
 		}
+		 else if (sUri.equals(CONTENT_URI_CONTENT_DATA.toString())) {
+				return DB_TABLE_CONTENT_DATA;
+			}
 		return "";
 	}
 
@@ -200,9 +214,15 @@ public class DataProvider extends ContentProvider {
 					+ "FOREIGN KEY ("+KEY_MAIN_TOPIC_PK+") REFERENCES "+DB_TABLE_TOPIC_DATA+" ("+KEY_TOPIC_PK+"),"//
 					+ "FOREIGN KEY ("+KEY_MAIN_SUB_PK+") REFERENCES "+DB_TABLE_SUBITEM_DATA+" ("+KEY_SUBITEM_PK+"));";
 
+			String commandContent = "create table " + DB_TABLE_CONTENT_DATA //
+					+ " (" + KEY_CONTENT_ID + " integer primary key autoincrement, " //
+					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
+					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER ); ";
+			
 			db.execSQL(commandTopic);
 			db.execSQL(commandSubitem);
 			db.execSQL(commandMain);
+			db.execSQL(commandContent);
 		}
 
 		@Override
@@ -210,6 +230,7 @@ public class DataProvider extends ContentProvider {
 			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
 			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
 			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
+			db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
 		}
 
 	}

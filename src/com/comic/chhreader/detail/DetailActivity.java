@@ -1,61 +1,61 @@
 package com.comic.chhreader.detail;
 
+import java.io.InputStream;
+
+import org.apache.http.util.EncodingUtils;
+
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
+import android.text.format.DateUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
+import com.comic.chhreader.data.ContentDataDetail;
+import com.comic.chhreader.utils.CHHNetUtils;
+import com.comic.chhreader.utils.DataBaseUtils;
 import com.comic.chhreader.utils.Utils;
 
 public class DetailActivity extends Activity {
 
-	private WebView mWebView;
+	private CustomWebView mCustomWebView;
 	private ProgressBar mWebProgress;
 
 	private String mMainTitle;
 	private String mMainUrl;
 
+	private Context mContext;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
+		mContext = this;
+
 		setContentView(R.layout.detail_activity);
 
-		mWebView = (WebView) findViewById(R.id.detail_web);
+		mCustomWebView = (CustomWebView) findViewById(R.id.content);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
 
-		mWebView.setWebChromeClient(new DetailWebChromeClient());
-		mWebView.setWebViewClient(new DetailWebViewClient());
-		WebSettings webSettings = mWebView.getSettings();
-		webSettings.setJavaScriptEnabled(true);
-		
-		int screenDensity = getResources().getDisplayMetrics().densityDpi ;   
-		WebSettings.ZoomDensity zoomDensity = WebSettings.ZoomDensity.MEDIUM ;   
-		switch (screenDensity){   
-		case DisplayMetrics.DENSITY_LOW :  
-		    zoomDensity = WebSettings.ZoomDensity.CLOSE;  
-		    break;  
-		case DisplayMetrics.DENSITY_MEDIUM:  
-		    zoomDensity = WebSettings.ZoomDensity.MEDIUM;  
-		    break;  
-		case DisplayMetrics.DENSITY_HIGH:  
-		    zoomDensity = WebSettings.ZoomDensity.FAR;  
-		    break ;  
-		}  
-		webSettings.setDefaultZoom(zoomDensity); 
-		
-		webSettings.setSupportZoom(false);
-		
+		mCustomWebView.setWebChromeClient(new DetailWebChromeClient());
+		mCustomWebView.setWebViewClient(new DetailWebViewClient());
+
 		Intent dataIntent = getIntent();
 		mMainTitle = dataIntent.getStringExtra("title");
 		mMainUrl = dataIntent.getStringExtra("url");
@@ -66,8 +66,7 @@ public class DetailActivity extends Activity {
 		if (!Utils.isNetworkAvailable(getBaseContext())) {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
 		}
-		mWebView.loadUrl(mMainUrl);
-		//mWebView.loadUrl("file:///android_asset/test.html");
+		new LoadContentAsyncTask().execute(mMainUrl);
 	}
 
 	void initActionBar() {
@@ -79,20 +78,21 @@ public class DetailActivity extends Activity {
 			actionbar.setIcon(R.drawable.chh_icon);
 		}
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home: {
-			if (mWebView.getUrl().contains("album")) {
-				mWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
+			case android.R.id.home: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
 			}
-		}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -105,21 +105,21 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		mWebView.stopLoading();
+		mCustomWebView.stopLoading();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mWebView.destroy();
+		mCustomWebView.destroy();
 	}
 
 	@Override
 	public void onBackPressed() {
-		String url = mWebView.getUrl();
+		String url = mCustomWebView.getUrl();
 		Loge.i("onBackPressed url =" + url);
 		if (url.contains("album")) {
-			mWebView.loadUrl(mMainUrl);
+			mCustomWebView.loadUrl(mMainUrl);
 		} else {
 			finish();
 		}
@@ -148,6 +148,72 @@ public class DetailActivity extends Activity {
 			if (newProgress == 100) {
 				mWebProgress.setVisibility(View.GONE);
 			}
+		}
+	}
+
+	class LoadContentAsyncTask extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			if (params == null) {
+				return "fail";
+			} else {
+				String url = "";
+				if (params.length > 0) {
+					url = params[0];
+				}
+				if (url.isEmpty()) {
+					return "fail";
+				}
+
+				Loge.d("URL:  " + url);
+
+				ContentDataDetail contentData = DataBaseUtils.getContentData(mContext, url);
+
+				if (contentData != null) {
+					long timeGap = System.currentTimeMillis() - contentData.mUpdateDate;
+					if (timeGap < DateUtils.DAY_IN_MILLIS) {
+						return contentData.mBody;
+					}
+				}
+
+				String body = CHHNetUtils.getContentBody(mContext, url);
+
+				if (body.isEmpty()) {
+					return "fail";
+				}
+
+				String result = "";
+				try {
+					InputStream in = getResources().getAssets().open("head.html");
+					int lenght = in.available();
+					byte[] buffer = new byte[lenght];
+					in.read(buffer);
+					result = EncodingUtils.getString(buffer, "utf-8");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				result = result + body;
+
+				DataBaseUtils.updateContentData(mContext, url, result);
+
+				return result;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			if (result.length() > 0 && !result.equals("fail")) {
+				mCustomWebView.loadDataWithBaseURL(mMainUrl, result, "text/html", "utf-8", null);
+			} else {
+				mCustomWebView.loadUrl(mMainUrl);
+			}
+			super.onPostExecute(result);
 		}
 
 	}

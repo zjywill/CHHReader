@@ -12,6 +12,7 @@ import android.os.RemoteException;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.data.ContentDataDetail;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.provider.DataProvider;
@@ -87,21 +88,24 @@ public class DataBaseUtils {
 			Cursor cursor = contentResolver
 					.query(DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, null);
 
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					do {
-						TopicData itemData = new TopicData();
-						itemData.mName = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
-						itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_TOPIC_PK));
-						if (topicData == null) {
-							topicData = new ArrayList<TopicData>();
-						}
-						topicData.add(itemData);
-					} while (cursor.moveToNext());
+			if (cursor != null) {
+				if (cursor.getCount() > 0) {
+					if (cursor.moveToFirst()) {
+						do {
+							TopicData itemData = new TopicData();
+							itemData.mName = cursor.getString(cursor
+									.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
+							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_TOPIC_PK));
+							if (topicData == null) {
+								topicData = new ArrayList<TopicData>();
+							}
+							topicData.add(itemData);
+						} while (cursor.moveToNext());
+					}
 				}
+				cursor.close();
 			}
 
-			cursor.close();
 			return topicData;
 		}
 		return topicData;
@@ -167,25 +171,28 @@ public class DataBaseUtils {
 			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, null, null, null,
 					null);
 
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					do {
-						SubItemData itemData = new SubItemData();
-						itemData.mName = cursor.getString(cursor
-								.getColumnIndex(DataProvider.KEY_SUBITEM_NAME));
-						itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
-						itemData.mTopic = cursor.getInt(cursor
-								.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
-						itemData.mUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_URL));
-						if (subItemDatas == null) {
-							subItemDatas = new ArrayList<SubItemData>();
-						}
-						subItemDatas.add(itemData);
-					} while (cursor.moveToNext());
+			if (cursor != null) {
+				if (cursor.getCount() > 0) {
+					if (cursor.moveToFirst()) {
+						do {
+							SubItemData itemData = new SubItemData();
+							itemData.mName = cursor.getString(cursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_NAME));
+							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							itemData.mTopic = cursor.getInt(cursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
+							itemData.mUrl = cursor.getString(cursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_URL));
+							if (subItemDatas == null) {
+								subItemDatas = new ArrayList<SubItemData>();
+							}
+							subItemDatas.add(itemData);
+						} while (cursor.moveToNext());
+					}
 				}
+				cursor.close();
 			}
 
-			cursor.close();
 			return subItemDatas;
 		}
 		return subItemDatas;
@@ -251,6 +258,49 @@ public class DataBaseUtils {
 			return true;
 		}
 		return false;
+	}
+
+	public static boolean updateContentData(Context context, String url, String body) {
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return false;
+			}
+			ContentValues cv = new ContentValues();
+			cv.put(DataProvider.KEY_CONTENT_URL, url);
+			cv.put(DataProvider.KEY_CONTENT_BODY, body);
+			cv.put(DataProvider.KEY_CONTENT_UPLOAD_DATE, System.currentTimeMillis());
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
+			return true;
+		}
+		return false;
+	}
+
+	public static ContentDataDetail getContentData(Context context, String url) {
+		if (context != null) {
+			ContentDataDetail data = null;
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return data;
+			}
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, null, where, null,
+					null);
+			if (cursor != null) {
+				if (cursor.getCount() > 0) {
+					if (cursor.moveToFirst()) {
+						data = new ContentDataDetail();
+						data.mBody = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_CONTENT_BODY));
+						data.mUpdateDate = cursor.getLong(cursor
+								.getColumnIndex(DataProvider.KEY_CONTENT_UPLOAD_DATE));
+					}
+				}
+				cursor.close();
+			}
+			return data;
+		}
+		return null;
 	}
 
 }
