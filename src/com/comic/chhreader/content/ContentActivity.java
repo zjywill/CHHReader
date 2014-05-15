@@ -141,17 +141,18 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				break;
-			default:
-				break;
+		case android.R.id.home:
+			finish();
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
 		Intent intent = new Intent(ContentActivity.this, DetailActivity.class);
 		Cursor cur = (Cursor) mListAdapter.getItem(position);
 		if (cur != null) {
@@ -169,7 +170,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		}
 
 		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		public void onScroll(AbsListView view, int firstVisibleItem,
+				int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
 				Loge.i("Scroll to the end");
 			}
@@ -224,8 +226,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 					+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
 			Loge.i("selection = " + selection);
 
-			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection,
-					null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
+			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
 
 			if (cursor != null) {
 				mLatestId = cursor.getCount();
@@ -283,9 +284,9 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 					Toast.makeText(mCtx, R.string.no_network, Toast.LENGTH_SHORT).show();
 				}
 			}
-			if(first){
+			if (first) {
 				first = false;
-			}else{
+			} else {
 				if (mListAdapter.getCount() == 0) {
 					mLoadMoreView.setVisibility(View.GONE);
 				}
@@ -316,8 +317,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
 
-				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA,
-						subItemProjection, selection, null, null);
+				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, subItemProjection, selection, null, null);
 
 				ArrayList<SubItemData> subItemDatas = null;
 				if (subItemCursor != null) {
@@ -327,8 +327,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 								subItemDatas = new ArrayList<SubItemData>();
 							}
 							SubItemData itemData = new SubItemData();
-							itemData.mPk = subItemCursor.getInt(subItemCursor
-									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							itemData.mPk = subItemCursor.getInt(subItemCursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
 							Loge.d("SubItemData pk: " + itemData.mPk);
 							subItemDatas.add(itemData);
 						} while (subItemCursor.moveToNext());
@@ -343,14 +342,22 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 				for (SubItemData itemData : subItemDatas) {
 					int page = 1;
 					if (loadingWay.equals("more")) {
+						boolean hasInvalid = false;
+						Loge.d("mLatestId: " + mLatestId);
+						if ((mLatestId % 10) > 5) {
+							hasInvalid = true;
+						}
 						page = mLatestId / 10 + 1;
-						if (mLatestId < 10) {
+						if (hasInvalid) {
+							page++;
+						}
+
+						if (mLatestId <= 5) {
 							page = 1;
 						}
 					}
 					Loge.d("load more page: " + page);
-					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx,
-							mCategory, itemData.mPk, page);
+					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx, mCategory, itemData.mPk, page);
 					if (contentDatasTemp != null) {
 						tempListData.addAll(contentDatasTemp);
 					}

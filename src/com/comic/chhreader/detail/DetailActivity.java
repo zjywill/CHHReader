@@ -78,21 +78,20 @@ public class DetailActivity extends Activity {
 			actionbar.setIcon(R.drawable.chh_icon);
 		}
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home: {
-				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-						&& mCustomWebView.getUrl().contains("album")) {
-					mCustomWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
+		case android.R.id.home: {
+			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
+				mCustomWebView.loadUrl(mMainUrl);
+			} else {
+				finish();
 			}
-				break;
-			default:
-				break;
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -118,7 +117,7 @@ public class DetailActivity extends Activity {
 	public void onBackPressed() {
 		String url = mCustomWebView.getUrl();
 		Loge.i("onBackPressed url =" + url);
-		if (url.contains("album")) {
+		if (url != null && url.contains("album")) {
 			mCustomWebView.loadUrl(mMainUrl);
 		} else {
 			finish();
