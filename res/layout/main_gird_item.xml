@@ -17,14 +17,24 @@
             android:layout_marginLeft="7dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textAppearance="@android:style/TextAppearance.Large.Inverse"
-            android:textColor="#fff0f0f0" />
+            android:textColor="#fff0f0f0"
+            android:textSize="19.33sp" />
 
-        <com.comic.chhreader.image.PhotoView
-            android:id="@+id/gird_image"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:src="@drawable/ic_launcher" />
+            android:layout_height="match_parent" >
+
+            <com.comic.chhreader.image.PhotoView
+                android:id="@+id/gird_image"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#ffbc0000" />
+        </FrameLayout>
     </LinearLayout>
 
 </FrameLayout>

@@ -1,7 +1,11 @@
 package com.comic.chhreader.detail;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.util.EncodingUtils;
+
 import android.content.Context;
-import android.graphics.PointF;
 import android.os.Build.VERSION;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -10,20 +14,18 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 public class CustomWebView extends WebView implements View.OnSystemUiVisibilityChangeListener {
-
-	private TextView mTitleView;
 
 	boolean mNavVisible;
 	int mBaseSystemUiVisibility = SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | SYSTEM_UI_FLAG_LAYOUT_STABLE;
 	int mLastSystemUiVis;
 
-	private boolean isScroll;
-	private PointF startPoint = new PointF();
 	private GestureDetector mGesture = null;
+
+	private String mNightJs;
 
 	Runnable mNavHider = new Runnable() {
 		@Override
@@ -38,15 +40,48 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		setClickable(false);
 
 		WebSettings webSettings = getSettings();
-		webSettings.setJavaScriptEnabled(false);
+		String appCacheDir = context.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
+		webSettings.setAppCachePath(appCacheDir);
 		webSettings.setAppCacheEnabled(true);
-		webSettings.setLoadsImagesAutomatically(true);
+		webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
 		webSettings.setSupportZoom(false);
-		webSettings.setSaveFormData(true);
+		webSettings.setSaveFormData(false);
+		webSettings.setLoadsImagesAutomatically(true);
+
+		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 
 		setOnSystemUiVisibilityChangeListener(this);
 
+		setBackgroundColor(context.getResources().getColor(android.R.color.background_light));
+
 		setNavVisibility(true);
+	}
+
+	public void injectNightCss() {
+		injectNightCss(this);
+	}
+
+	private void injectNightCss(WebView view) {
+		if (mNightJs == null || mNightJs.isEmpty()) {
+			mNightJs = getFromAsset(view.getContext(), "night.js");
+		}
+		view.loadUrl("javascript:" + mNightJs);
+	}
+
+	public static String getFromAsset(Context context, String fileName) {
+		String result = "";
+		try {
+			InputStream in = context.getResources().getAssets().open(fileName);
+			int length = in.available();
+			byte[] buffer = new byte[length];
+			in.read(buffer);
+			result = EncodingUtils.getString(buffer, "utf-8");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	@Override
@@ -96,7 +131,8 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 		int newVis = mBaseSystemUiVisibility;
 		if (!visible) {
-			newVis |= SYSTEM_UI_FLAG_LOW_PROFILE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION | SYSTEM_UI_FLAG_IMMERSIVE;
+			newVis |= SYSTEM_UI_FLAG_LOW_PROFILE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION
+					| SYSTEM_UI_FLAG_IMMERSIVE;
 		}
 		final boolean changed = newVis == getSystemUiVisibility();
 		if (changed || visible) {
@@ -110,15 +146,13 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 			setNavVisibility(false);
 			return true;
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			setNavVisibility(false);
 			return true;
 		}

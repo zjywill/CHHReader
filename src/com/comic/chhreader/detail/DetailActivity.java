@@ -8,20 +8,17 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
@@ -82,16 +79,17 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home: {
-			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
-				mCustomWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
+			case android.R.id.home: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
 			}
-		}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -108,9 +106,15 @@ public class DetailActivity extends Activity {
 	}
 
 	@Override
+	public void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		mCustomWebView.destroy();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mCustomWebView.destroy();
+
 	}
 
 	@Override

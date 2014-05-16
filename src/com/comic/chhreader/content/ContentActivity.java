@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,7 +35,9 @@ import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 import com.comic.chhreader.view.PullDownRefreashListView;
 
-public class ContentActivity extends Activity implements OnItemClickListener {
+public class ContentActivity extends Activity implements LoaderCallbacks<Cursor>, OnItemClickListener {
+	private static final int LOADER_ID_LOACL = 105;
+
 	private Context mCtx;
 
 	private PullDownRefreashListView mListView;
@@ -61,8 +66,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	private int mLatestId;
 
-	private ContentData mFirstItem;
-	private ContentData mLastItem;
+	private ContentData mFirstItem = new ContentData();
+	private ContentData mLastItem = new ContentData();
 
 	private boolean updating = false;
 	private boolean first = true;
@@ -121,7 +126,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		mListView.setVisibility(View.GONE);
 		mLoadingView.setVisibility(View.VISIBLE);
 
-		new LocalDataFetch().execute();
+		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
 
 		if (Utils.isWifiAvailable(mCtx) && !updating) {
 			new NetDataFetch().execute("update");
@@ -139,20 +144,93 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 	}
 
 	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		switch (id) {
+			case LOADER_ID_LOACL: {
+				String[] projection = new String[6];
+				projection[0] = DataProvider.KEY_MAIN_ID;
+				projection[1] = DataProvider.KEY_MAIN_TITLE;
+				projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+				projection[3] = DataProvider.KEY_MAIN_CONTENT;
+				projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
+				projection[5] = DataProvider.KEY_MAIN_URL;
+
+				String selection = DataProvider.KEY_MAIN_TOPIC_PK + "='" + mCategory + "'"//
+						+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
+				Loge.i("selection = " + selection);
+
+				return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection,
+						null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
+			}
+			default:
+				break;
+		}
+		return null;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
+		switch (loader.getId()) {
+			case LOADER_ID_LOACL: {
+				if (cur != null && cur.getCount() > 0) {
+					Loge.i("get data from local count = " + cur.getCount());
+					mListAdapter.swapCursor(cur);
+					mListAdapter.notifyDataSetChanged();
+
+					mListView.setVisibility(View.VISIBLE);
+					mLoadingText.setText(R.string.loading);
+					mLoadingView.setVisibility(View.GONE);
+
+					mLoadMoreView.setVisibility(View.VISIBLE);
+					mLoadMoreBtn.setClickable(true);
+					mLoadMoreBtn.setText(R.string.load_more);
+
+					if (cur != null) {
+						mLatestId = cur.getCount();
+						if (cur.moveToFirst()) {
+							if (mFirstItem == null) {
+								mFirstItem = new ContentData();
+							}
+							mFirstItem.mLink = cur.getString(5);
+						}
+						if (cur.moveToLast()) {
+							if (mLastItem == null) {
+								mLastItem = new ContentData();
+							}
+							mLastItem.mLink = cur.getString(5);
+						}
+					}
+				} else {
+					Loge.i("Cursor is null or count == 0");
+					if (!updating)
+						new NetDataFetch().execute();
+				}
+			}
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+	};
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			break;
-		default:
-			break;
+			case android.R.id.home:
+				finish();
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(ContentActivity.this, DetailActivity.class);
 		Cursor cur = (Cursor) mListAdapter.getItem(position);
 		if (cur != null) {
@@ -170,8 +248,7 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 		}
 
 		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem,
-				int visibleItemCount, int totalItemCount) {
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
 				Loge.i("Scroll to the end");
 			}
@@ -199,75 +276,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	protected void onDestroy() {
-		Cursor cursor = mListAdapter.getCursor();
-		if (cursor != null) {
-			cursor.close();
-		}
 		super.onDestroy();
 	}
-
-	class LocalDataFetch extends AsyncTask<Void, Void, Cursor> {
-
-		@Override
-		protected Cursor doInBackground(Void... params) {
-			// get data from local data base
-			if (mContentResolver == null) {
-				mContentResolver = getContentResolver();
-			}
-			String[] projection = new String[6];
-			projection[0] = DataProvider.KEY_MAIN_ID;
-			projection[1] = DataProvider.KEY_MAIN_TITLE;
-			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
-			projection[3] = DataProvider.KEY_MAIN_CONTENT;
-			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
-			projection[5] = DataProvider.KEY_MAIN_URL;
-
-			String selection = DataProvider.KEY_MAIN_TOPIC_PK + "='" + mCategory + "'"//
-					+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
-			Loge.i("selection = " + selection);
-
-			Cursor cursor = mContentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
-
-			if (cursor != null) {
-				mLatestId = cursor.getCount();
-				if (cursor.moveToFirst()) {
-					if (mFirstItem == null) {
-						mFirstItem = new ContentData();
-					}
-					mFirstItem.mLink = cursor.getString(5);
-				}
-				if (cursor.moveToLast()) {
-					if (mLastItem == null) {
-						mLastItem = new ContentData();
-					}
-					mLastItem.mLink = cursor.getString(5);
-				}
-			}
-			return cursor;
-		}
-
-		@Override
-		protected void onPostExecute(Cursor cursor) {
-			if (cursor != null) {
-				Loge.d("cursor count = " + cursor.getCount());
-				if (cursor.getCount() == 0) {
-					if (!updating)
-						new NetDataFetch().execute("update");
-				} else {
-					mListAdapter.swapCursor(cursor);
-					mListView.setVisibility(View.VISIBLE);
-					mLoadingText.setText(R.string.loading);
-					mLoadingView.setVisibility(View.GONE);
-
-					mLoadMoreView.setVisibility(View.VISIBLE);
-					mLoadMoreBtn.setClickable(true);
-					mLoadMoreBtn.setText(R.string.load_more);
-				}
-			}
-			super.onPostExecute(cursor);
-		}
-
-	};
 
 	class NetDataFetch extends AsyncTask<String, Void, String> {
 
@@ -317,7 +327,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 
 				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
 
-				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, subItemProjection, selection, null, null);
+				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA,
+						subItemProjection, selection, null, null);
 
 				ArrayList<SubItemData> subItemDatas = null;
 				if (subItemCursor != null) {
@@ -327,11 +338,13 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 								subItemDatas = new ArrayList<SubItemData>();
 							}
 							SubItemData itemData = new SubItemData();
-							itemData.mPk = subItemCursor.getInt(subItemCursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							itemData.mPk = subItemCursor.getInt(subItemCursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
 							Loge.d("SubItemData pk: " + itemData.mPk);
 							subItemDatas.add(itemData);
 						} while (subItemCursor.moveToNext());
 					}
+					subItemCursor.close();
 				}
 				if (subItemDatas == null) {
 					return "fail";
@@ -357,7 +370,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 						}
 					}
 					Loge.d("load more page: " + page);
-					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx, mCategory, itemData.mPk, page);
+					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(mCtx,
+							mCategory, itemData.mPk, page);
 					if (contentDatasTemp != null) {
 						tempListData.addAll(contentDatasTemp);
 					}
@@ -436,7 +450,8 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			super.onPostExecute(result);
 			Loge.d("NetDataFetch result: " + result);
 			if (result.equals("success")) {
-				new LocalDataFetch().execute();
+				//				new LocalDataFetch().execute();
+				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, ContentActivity.this);
 			} else {
 				if (result.equals("update")) {
 					Toast.makeText(mCtx, R.string.no_update, Toast.LENGTH_SHORT).show();
@@ -457,5 +472,6 @@ public class ContentActivity extends Activity implements OnItemClickListener {
 			mListView.onRefreshComplete();
 			updating = false;
 		}
-	};
+	}
+
 }

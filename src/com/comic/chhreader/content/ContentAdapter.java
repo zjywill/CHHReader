@@ -38,10 +38,6 @@ public class ContentAdapter extends CursorAdapter {
 
 	@Override
 	public Cursor swapCursor(Cursor newCursor) {
-		Cursor cursor = getCursor();
-		if (cursor != null) {
-			cursor.close();
-		}
 		return super.swapCursor(newCursor);
 	}
 
