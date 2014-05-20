@@ -27,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.comic.chhreader.clean.CleanService;
 import com.comic.chhreader.content.ContentActivity;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
@@ -58,6 +59,10 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		Intent cleanService = new Intent();
+		cleanService.setClass(MainActivity.this, CleanService.class);
+		startService(cleanService);
 
 		mGrid = (GridView) findViewById(R.id.main_gird);
 		mGrid.setOnItemClickListener(this);
