@@ -454,7 +454,7 @@ public class ContentActivity extends Activity implements LoaderCallbacks<Cursor>
 				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, ContentActivity.this);
 			} else {
 				if (result.equals("update")) {
-					Toast.makeText(mCtx, R.string.no_update, Toast.LENGTH_SHORT).show();
+//					Toast.makeText(mCtx, R.string.no_update, Toast.LENGTH_SHORT).show();
 				} else if (result.equals("more")) {
 					Toast.makeText(mCtx, R.string.no_more_data, Toast.LENGTH_SHORT).show();
 				}

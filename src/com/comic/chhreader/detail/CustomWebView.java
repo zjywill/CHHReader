@@ -52,8 +52,6 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 		setOnSystemUiVisibilityChangeListener(this);
 
-		setBackgroundColor(context.getResources().getColor(android.R.color.background_light));
-
 		setNavVisibility(true);
 	}
 

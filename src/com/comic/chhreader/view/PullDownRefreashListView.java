@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 
-public class PullDownRefreashListView extends ListView {
+public class PullDownRefreashListView extends ListView implements AbsListView.OnScrollListener {
 
 	private static final float PULL_RESISTANCE = 1.7f;
 	private static final int BOUNCE_ANIMATION_DURATION = 300;
@@ -27,7 +28,9 @@ public class PullDownRefreashListView extends ListView {
 	private static final float BOUNCE_OVERSHOOT_TENSION = 1.4f;
 
 	private static enum State {
-		PULL_TO_REFRESH, RELEASE_TO_REFRESH, REFRESHING
+		PULL_TO_REFRESH,
+		RELEASE_TO_REFRESH,
+		REFRESHING
 	}
 
 	/**
@@ -81,14 +84,13 @@ public class PullDownRefreashListView extends ListView {
 		init(context);
 	}
 
-	public PullDownRefreashListView(Context context, AttributeSet attrs,
-			int defStyle) {
+	public PullDownRefreashListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context);
 	}
 
-	public void addCustomView(View refreshHorizontalView,
-			View refreshHorizontalImage, View refreshHorizontalProgress) {
+	public void addCustomView(View refreshHorizontalView, View refreshHorizontalImage,
+			View refreshHorizontalProgress) {
 		mRefreshHorizontalView = refreshHorizontalView;
 		mRefreshHorizontalImage = refreshHorizontalImage;
 		mRefreshHorizontalProgress = refreshHorizontalProgress;
@@ -101,8 +103,7 @@ public class PullDownRefreashListView extends ListView {
 	}
 
 	@Override
-	public void setOnItemLongClickListener(
-			OnItemLongClickListener onItemLongClickListener) {
+	public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
 		this.onItemLongClickListener = onItemLongClickListener;
 	}
 
@@ -206,7 +207,8 @@ public class PullDownRefreashListView extends ListView {
 	private void init(Context context) {
 		setVerticalFadingEdgeEnabled(false);
 
-		headerContainer = (View) LayoutInflater.from(getContext()).inflate(R.layout.pull_to_refresh_header, null);
+		headerContainer = (View) LayoutInflater.from(getContext()).inflate(R.layout.pull_to_refresh_header,
+				null);
 		header = (View) headerContainer.findViewById(R.id.ptr_id_header);
 		text = (TextView) header.findViewById(R.id.ptr_id_text);
 		lastUpdatedTextView = (TextView) header.findViewById(R.id.ptr_id_last_updated);
@@ -224,6 +226,7 @@ public class PullDownRefreashListView extends ListView {
 
 		super.setOnItemClickListener(new PTROnItemClickListener());
 		super.setOnItemLongClickListener(new PTROnItemLongClickListener());
+		super.setOnScrollListener(this);
 
 		mHalfSreenWidth = context.getResources().getDisplayMetrics().widthPixels / 2;
 	}
@@ -248,19 +251,21 @@ public class PullDownRefreashListView extends ListView {
 
 			mRefreshHorizontalView.setVisibility(View.VISIBLE);
 			if (!(padding > mHalfSreenWidth)) {
-				mRefreshHorizontalImage.setPadding(mHalfSreenWidth - padding, 0, mHalfSreenWidth - padding, 0);
+				mRefreshHorizontalImage
+						.setPadding(mHalfSreenWidth - padding, 0, mHalfSreenWidth - padding, 0);
 			}
 		}
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (lockScrollWhileRefreshing && (state == State.REFRESHING || getAnimation() != null && !getAnimation().hasEnded())) {
+		if (lockScrollWhileRefreshing
+				&& (state == State.REFRESHING || getAnimation() != null && !getAnimation().hasEnded())) {
 			return true;
 		}
 
 		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN :
+			case MotionEvent.ACTION_DOWN:
 				if (getFirstVisiblePosition() == 0) {
 					previousY = event.getY();
 				} else {
@@ -272,14 +277,14 @@ public class PullDownRefreashListView extends ListView {
 
 				break;
 
-			case MotionEvent.ACTION_UP :
+			case MotionEvent.ACTION_UP:
 				if (previousY != -1 && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
 					switch (state) {
-						case RELEASE_TO_REFRESH :
+						case RELEASE_TO_REFRESH:
 							setState(State.REFRESHING);
 							bounceBackHeader();
 							break;
-						case PULL_TO_REFRESH :
+						case PULL_TO_REFRESH:
 							resetHeader();
 							break;
 					}
@@ -289,8 +294,9 @@ public class PullDownRefreashListView extends ListView {
 				}
 				break;
 
-			case MotionEvent.ACTION_MOVE :
-				if (previousY != -1 && getFirstVisiblePosition() == 0 && Math.abs(mScrollStartY - event.getY()) > IDLE_DISTANCE) {
+			case MotionEvent.ACTION_MOVE:
+				if (previousY != -1 && getFirstVisiblePosition() == 0
+						&& Math.abs(mScrollStartY - event.getY()) > IDLE_DISTANCE) {
 					float y = event.getY();
 					float diff = y - previousY;
 					if (diff > 0)
@@ -320,9 +326,12 @@ public class PullDownRefreashListView extends ListView {
 	}
 
 	private void bounceBackHeader() {
-		int yTranslate = state == State.REFRESHING ? header.getHeight() - headerContainer.getHeight() : -headerContainer.getHeight() - headerContainer.getTop() + getPaddingTop();
+		int yTranslate = state == State.REFRESHING ? header.getHeight() - headerContainer.getHeight()
+				: -headerContainer.getHeight() - headerContainer.getTop() + getPaddingTop();
 
-		TranslateAnimation bounceAnimation = new TranslateAnimation(TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, yTranslate);
+		TranslateAnimation bounceAnimation = new TranslateAnimation(TranslateAnimation.ABSOLUTE, 0,
+				TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE, 0, TranslateAnimation.ABSOLUTE,
+				yTranslate);
 
 		bounceAnimation.setDuration(BOUNCE_ANIMATION_DURATION);
 		bounceAnimation.setFillEnabled(true);
@@ -361,14 +370,14 @@ public class PullDownRefreashListView extends ListView {
 	private void setState(State state) {
 		this.state = state;
 		switch (state) {
-			case PULL_TO_REFRESH :
+			case PULL_TO_REFRESH:
 				text.setText(pullToRefreshText);
 				lastUpdatedTextView.setVisibility(View.VISIBLE);
 				break;
-			case RELEASE_TO_REFRESH :
+			case RELEASE_TO_REFRESH:
 				text.setText(releaseToRefreshText);
 				break;
-			case REFRESHING :
+			case REFRESHING:
 				setUiRefreshing();
 				if (onRefreshListener == null) {
 					setState(State.PULL_TO_REFRESH);
@@ -377,6 +386,24 @@ public class PullDownRefreashListView extends ListView {
 				}
 				break;
 		}
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		int firstItem = firstVisibleItem - 1;
+		if (mRefreshHorizontalView == null) {
+			return;
+		}
+		if (firstItem < 0) {
+			mRefreshHorizontalView.setVisibility(View.VISIBLE);
+		} else {
+			mRefreshHorizontalView.setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+
 	}
 
 	@Override
@@ -417,7 +444,8 @@ public class PullDownRefreashListView extends ListView {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
-			setHeaderPadding(stateAtAnimationStart == State.REFRESHING ? 0 : -measuredHeaderHeight - headerContainer.getTop());
+			setHeaderPadding(stateAtAnimationStart == State.REFRESHING ? 0 : -measuredHeaderHeight
+					- headerContainer.getTop());
 			setSelection(0);
 
 			ViewGroup.LayoutParams lp = getLayoutParams();
@@ -471,8 +499,7 @@ public class PullDownRefreashListView extends ListView {
 	private class PTROnItemClickListener implements OnItemClickListener {
 
 		@Override
-		public void onItemClick(AdapterView<?> adapterView, View view,
-				int position, long id) {
+		public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 			hasResetHeader = false;
 
 			if (onItemClickListener != null && state == State.PULL_TO_REFRESH) {
@@ -486,14 +513,14 @@ public class PullDownRefreashListView extends ListView {
 	private class PTROnItemLongClickListener implements OnItemLongClickListener {
 
 		@Override
-		public boolean onItemLongClick(AdapterView<?> adapterView, View view,
-				int position, long id) {
+		public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
 			hasResetHeader = false;
 
 			if (onItemLongClickListener != null && state == State.PULL_TO_REFRESH) {
 				// Passing up onItemLongClick. Correct position with the number
 				// of header views
-				return onItemLongClickListener.onItemLongClick(adapterView, view, position - getHeaderViewsCount(), id);
+				return onItemLongClickListener.onItemLongClick(adapterView, view, position
+						- getHeaderViewsCount(), id);
 			}
 
 			return false;
