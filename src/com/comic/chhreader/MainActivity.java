@@ -28,7 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.comic.chhreader.clean.CleanService;
-import com.comic.chhreader.content.ContentActivity;
+import com.comic.chhreader.content.PullContentActivity;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
@@ -128,7 +128,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent intent = new Intent(MainActivity.this, ContentActivity.class);
+		Intent intent = new Intent(MainActivity.this, PullContentActivity.class);
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
 			intent.putExtra("title", cur.getString(1));

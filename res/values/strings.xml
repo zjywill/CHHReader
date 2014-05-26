@@ -18,5 +18,7 @@
     <string name="not_support">Not support yet</string>
     <string name="no_update">Already the latest</string>
     <string name="no_more_data">Already reach the end</string>
+    <string name="swipe_down_to_refresh">Swipe down to refresh</string>
+    <string name="refreshing">Refreshing</string>
 
 </resources>
