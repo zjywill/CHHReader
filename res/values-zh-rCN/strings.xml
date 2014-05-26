@@ -18,5 +18,7 @@
     <string name="not_support">暂不支持</string>
     <string name="no_update">暂无更新</string>
     <string name="no_more_data">已经到最后了</string>
+    <string name="swipe_down_to_refresh">下拉刷新</string>
+    <string name="refreshing">@string/loading</string>
 
 </resources>
