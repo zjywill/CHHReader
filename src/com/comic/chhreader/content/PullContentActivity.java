@@ -68,6 +68,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	private boolean updating = false;
 	private boolean first = true;
 	private boolean showToast = false;
+	private boolean nomore = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 		mListView.setAdapter(mListAdapter);
 		mListView.setOnItemClickListener(this);
 		mListView.setOnCreateContextMenuListener(this);
+		mListView.setOnScrollListener(mScrollListener);
 
 		Intent infointent = getIntent();
 		mMainTitle = infointent.getStringExtra("title");
@@ -227,6 +229,9 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
 				Loge.i("Scroll to the end");
+				if (Utils.isWifiAvailable(mCtx) && !updating && !nomore) {
+					new NetDataFetch().execute("more");
+				}
 			}
 		}
 	};
@@ -435,6 +440,8 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 					}
 				} else if (result.equals("more")) {
 					Toast.makeText(mCtx, R.string.no_more_data, Toast.LENGTH_SHORT).show();
+					nomore = true;
+					mListView.removeFooterView(mLoadMoreView);
 				}
 				mLoadMoreView.setVisibility(View.VISIBLE);
 				mLoadMoreBtn.setClickable(true);

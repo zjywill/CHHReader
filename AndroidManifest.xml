@@ -30,12 +30,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.comic.chhreader.content.ContentActivity"
-            android:configChanges="orientation|keyboardHidden|screenLayout"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name="com.comic.chhreader.content.PullContentActivity"
             android:configChanges="orientation|keyboardHidden|screenLayout"
             android:label="@string/app_name"
