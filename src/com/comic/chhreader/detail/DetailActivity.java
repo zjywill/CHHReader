@@ -8,10 +8,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Build.VERSION;
+import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +21,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
@@ -37,8 +38,11 @@ public class DetailActivity extends Activity {
 
 	private String mMainTitle;
 	private String mMainUrl;
+	private String mMainContent;
 
 	private Context mContext;
+
+	private ShareActionProvider mShareActionProvider;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +89,25 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.detail_main, menu);
+
+		MenuItem item = menu.findItem(R.id.action_share);
+		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+		setShareIntent();
+
 		return true;
+	}
+
+	private void setShareIntent() {
+		if (mMainUrl == null || mMainUrl.isEmpty()) {
+			return;
+		}
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND);
+		shareIntent.putExtra(Intent.EXTRA_TEXT, mMainUrl);
+		shareIntent.setType("text/plain");
+		if (mShareActionProvider != null) {
+			mShareActionProvider.setShareIntent(shareIntent);
+		}
 	}
 
 	@Override
@@ -98,6 +120,21 @@ public class DetailActivity extends Activity {
 				} else {
 					finish();
 				}
+			}
+				break;
+			case R.id.action_refresh: {
+				if (mMainContent != null && !mMainContent.isEmpty()) {
+					mCustomWebView
+							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+				} else {
+					mCustomWebView.loadUrl(mMainUrl);
+				}
+			}
+				break;
+			case R.id.action_view_in_browser: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
 			}
 				break;
 			default:
@@ -224,10 +261,12 @@ public class DetailActivity extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 			if (result.length() > 0 && !result.equals("fail")) {
+				mMainContent = result;
 				mCustomWebView.loadDataWithBaseURL(mMainUrl, result, "text/html", "utf-8", null);
 			} else {
 				mCustomWebView.loadUrl(mMainUrl);
 			}
+			setShareIntent();
 			super.onPostExecute(result);
 		}
 
