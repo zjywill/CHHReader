@@ -11,6 +11,6 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textColor="#ffbb0000"
-        android:textSize="17sp" />
+        android:textSize="19sp" />
 
 </FrameLayout>
