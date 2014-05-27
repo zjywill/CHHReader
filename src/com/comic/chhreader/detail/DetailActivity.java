@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Build.VERSION;
 import android.text.format.DateUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -41,7 +43,10 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		int sysVersion = VERSION.SDK_INT;
+		if (sysVersion >= 19) {
+			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		}
 
 		mContext = this;
 
@@ -69,17 +74,24 @@ public class DetailActivity extends Activity {
 	void initActionBar() {
 		ActionBar actionbar = getActionBar();
 		if (actionbar != null) {
-			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
-			actionbar.setDisplayHomeAsUpEnabled(true);
+			//			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
 			actionbar.setIcon(R.drawable.chh_icon);
+			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
+			actionbar.setSplitBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.detail_main, menu);
+		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home: {
+			case R.id.action_back: {
 				if (mCustomWebView != null && mCustomWebView.getUrl() != null
 						&& mCustomWebView.getUrl().contains("album")) {
 					mCustomWebView.loadUrl(mMainUrl);
