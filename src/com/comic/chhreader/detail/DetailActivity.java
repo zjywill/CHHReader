@@ -78,7 +78,7 @@ public class DetailActivity extends Activity {
 	void initActionBar() {
 		ActionBar actionbar = getActionBar();
 		if (actionbar != null) {
-			//			actionbar.setDisplayHomeAsUpEnabled(true);
+			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
 			actionbar.setIcon(R.drawable.chh_icon);
 			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
@@ -113,32 +113,31 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_back: {
-				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-						&& mCustomWebView.getUrl().contains("album")) {
-					mCustomWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
+		case android.R.id.home:
+		case R.id.action_back: {
+			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
+				mCustomWebView.loadUrl(mMainUrl);
+			} else {
+				finish();
 			}
-				break;
-			case R.id.action_refresh: {
-				if (mMainContent != null && !mMainContent.isEmpty()) {
-					mCustomWebView
-							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
-				} else {
-					mCustomWebView.loadUrl(mMainUrl);
-				}
+		}
+			break;
+		case R.id.action_refresh: {
+			if (mMainContent != null && !mMainContent.isEmpty()) {
+				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+			} else {
+				mCustomWebView.loadUrl(mMainUrl);
 			}
-				break;
-			case R.id.action_view_in_browser: {
-				Uri uri = Uri.parse(mMainUrl);
-				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(viewIntent);
-			}
-				break;
-			default:
-				break;
+		}
+			break;
+		case R.id.action_view_in_browser: {
+			Uri uri = Uri.parse(mMainUrl);
+			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+			startActivity(viewIntent);
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
