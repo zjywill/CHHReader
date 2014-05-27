@@ -4,6 +4,9 @@
     <string name="app_name">CHH阅读</string>
     <string name="action_settings">设置</string>
     <string name="action_refresh">刷新</string>
+    <string name="action_back">返回</string>
+    <string name="action_browser">在浏览器中打开</string>
+    <string name="action_share">分享</string>
     <string name="ptr_pull_to_refresh">下拉刷新&#8230;</string>
     <string name="ptr_release_to_refresh">释放并刷新&#8230;</string>
     <string name="ptr_refreshing">加载中</string>
