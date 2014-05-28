@@ -103,7 +103,7 @@ public class DetailActivity extends Activity {
 		}
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.putExtra(Intent.EXTRA_TEXT, mMainUrl);
+		shareIntent.putExtra(Intent.EXTRA_TEXT, mMainTitle+"    "+mMainUrl);
 		shareIntent.setType("text/plain");
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(shareIntent);
