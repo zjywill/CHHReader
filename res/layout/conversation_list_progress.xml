@@ -13,7 +13,8 @@
         android:progressDrawable="@drawable/progressbar_red"
         android:visibility="gone" />
 
-    <com.comic.chhreader.pull2refresh.ButteryProgressBar
+    <!--
+         <com.comic.chhreader.pull2refresh.FlatProgressBar
         android:id="@+id/progress_pull"
         android:layout_width="match_parent"
         android:layout_height="30dp"
@@ -21,5 +22,13 @@
         android:visibility="gone"
         butterbar:barColor="#ffbb0000"
         butterbar:barHeight="2.5dp" />
+    -->
+
+    <com.comic.chhreader.pull2refresh.SmoothProgressBar
+        android:id="@+id/progress_pull"
+        style="@style/GPlusProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:indeterminate="true" />
 
 </merge>
