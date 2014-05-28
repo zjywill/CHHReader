@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		Intent cleanService = new Intent();
 		cleanService.setClass(MainActivity.this, CleanService.class);
 		startService(cleanService);
@@ -89,16 +89,18 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
-			actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
-			actionBar.setIcon(R.drawable.title_icon);
+						actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
+			//			actionBar.setIcon(R.drawable.title_icon);
 
 			Loge.i("action bar setCustomView");
 			LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View actionbarView = inflator.inflate(R.layout.main_activity_actionbar, null);
-			LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT,
+			LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
 					Gravity.RIGHT | Gravity.CENTER_VERTICAL);
 			actionBar.setCustomView(actionbarView, lp);
 			actionBar.setDisplayShowCustomEnabled(true);
+			actionBar.setDisplayUseLogoEnabled(false);
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 			mLoadingProgress = (ProgressBar) actionbarView.findViewById(R.id.action_loading);
 			mLoadingProgress.setVisibility(View.GONE);
