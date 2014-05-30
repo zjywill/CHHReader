@@ -103,7 +103,7 @@ public class DetailActivity extends Activity {
 		}
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.putExtra(Intent.EXTRA_TEXT, mMainTitle+"    "+mMainUrl);
+		shareIntent.putExtra(Intent.EXTRA_TEXT, mMainTitle + "    " + mMainUrl);
 		shareIntent.setType("text/plain");
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(shareIntent);
@@ -113,31 +113,33 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-		case R.id.action_back: {
-			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
-				mCustomWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
+			case android.R.id.home:
+			case R.id.action_back: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
 			}
-		}
-			break;
-		case R.id.action_refresh: {
-			if (mMainContent != null && !mMainContent.isEmpty()) {
-				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
-			} else {
-				mCustomWebView.loadUrl(mMainUrl);
+				break;
+			case R.id.action_refresh: {
+				if (mMainContent != null && !mMainContent.isEmpty()) {
+					mCustomWebView
+							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+				} else {
+					mCustomWebView.loadUrl(mMainUrl);
+				}
 			}
-		}
-			break;
-		case R.id.action_view_in_browser: {
-			Uri uri = Uri.parse(mMainUrl);
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-			startActivity(viewIntent);
-		}
-			break;
-		default:
-			break;
+				break;
+			case R.id.action_view_in_browser: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
+			}
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -226,7 +228,7 @@ public class DetailActivity extends Activity {
 
 				ContentDataDetail contentData = DataBaseUtils.getContentData(mContext, url);
 
-				if (contentData != null) {
+				if (contentData != null && contentData.mBody != null && !contentData.mBody.isEmpty()) {
 					long timeGap = System.currentTimeMillis() - contentData.mUpdateDate;
 					if (timeGap < DateUtils.DAY_IN_MILLIS) {
 						return contentData.mBody;
@@ -259,7 +261,7 @@ public class DetailActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (result.length() > 0 && !result.equals("fail")) {
+			if (result != null && result.length() > 0 && !result.equals("fail")) {
 				mMainContent = result;
 				mCustomWebView.loadDataWithBaseURL(mMainUrl, result, "text/html", "utf-8", null);
 			} else {
