@@ -151,7 +151,13 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		Loge.i("onCreateLoader");
 		switch (loaderID) {
 			case LOADER_ID_LOACL: {
-				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null,
+				String[] projection = new String[5];
+				projection[0] = DataProvider.KEY_TOPIC_ID;
+				projection[1] = DataProvider.KEY_TOPIC_NAME;
+				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
+				projection[3] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
+				projection[4] = DataProvider.KEY_TOPIC_PK;
+				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, projection, null, null,
 						DataProvider.KEY_TOPIC_PK);
 			}
 			default:
