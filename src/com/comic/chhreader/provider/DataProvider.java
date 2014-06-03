@@ -17,7 +17,7 @@ import android.text.TextUtils;
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1001;
+	private static final int DB_VERSION = 1002;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -33,6 +33,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_TOPIC_ID = "_id";
 	public static final String KEY_TOPIC_NAME = "name";
 	public static final String KEY_TOPIC_IMAGE_URL = "imageurl";
+	public static final String KEY_TOPIC_IMAGE_TIME_STAMP = "imagetime";
 	public static final String KEY_TOPIC_PK = "pk";
 
 	// Name of table in the database
@@ -194,6 +195,7 @@ public class DataProvider extends ContentProvider {
 			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
 					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
 					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
+					+ KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
 					+ KEY_TOPIC_PK + " INTEGER );";
 
 			String commandSubitem = "create table " + DB_TABLE_SUBITEM_DATA //

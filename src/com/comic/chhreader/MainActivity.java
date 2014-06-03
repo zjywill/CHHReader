@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
-						actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
+			actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
 			//			actionBar.setIcon(R.drawable.title_icon);
 
 			Loge.i("action bar setCustomView");
@@ -134,7 +134,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
 			intent.putExtra("title", cur.getString(1));
-			intent.putExtra("category", cur.getInt(3));
+			intent.putExtra("imagetimestamp", cur.getLong(3));
+			intent.putExtra("category", cur.getInt(4));
 			startActivity(intent);
 		}
 	};
@@ -150,12 +151,6 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		Loge.i("onCreateLoader");
 		switch (loaderID) {
 			case LOADER_ID_LOACL: {
-				String[] projection = new String[4];
-				projection[0] = DataProvider.KEY_TOPIC_ID;
-				projection[1] = DataProvider.KEY_TOPIC_NAME;
-				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
-				projection[3] = DataProvider.KEY_TOPIC_PK;
-
 				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null,
 						DataProvider.KEY_TOPIC_PK);
 			}
@@ -265,7 +260,11 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 							contentItem.mTopicType = subItemData.mTopic;
 							for (TopicData tData : topicsData) {
 								if (tData.mPk == subItemData.mTopic && contentItem.mValid) {
-									tData.mImageUrl = contentItem.mImageUrl;
+									Loge.d("ImageTimeStamp :" + tData.mImageTimeStamp);
+									if (contentItem.mPostDate > tData.mImageTimeStamp) {
+										tData.mImageUrl = contentItem.mImageUrl;
+										tData.mImageTimeStamp = contentItem.mPostDate;
+									}
 									break;
 								}
 							}

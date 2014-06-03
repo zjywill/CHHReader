@@ -33,6 +33,7 @@ public class DataBaseUtils {
 							.newInsert(DataProvider.CONTENT_URI_TOPIC_DATA)//
 							.withValue(DataProvider.KEY_TOPIC_NAME, item.mName)//
 							.withValue(DataProvider.KEY_TOPIC_IMAGE_URL, item.mImageUrl)//
+							.withValue(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP, item.mImageTimeStamp)//
 							.withValue(DataProvider.KEY_TOPIC_PK, item.mPk);
 					opertions.add(builder.build());
 				}
@@ -96,6 +97,7 @@ public class DataBaseUtils {
 							itemData.mName = cursor.getString(cursor
 									.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
 							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_TOPIC_PK));
+							itemData.mImageTimeStamp = cursor.getLong(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP));
 							if (topicData == null) {
 								topicData = new ArrayList<TopicData>();
 							}

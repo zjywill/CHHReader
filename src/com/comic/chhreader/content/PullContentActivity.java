@@ -61,6 +61,8 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	// ------------------------------------------------------------------
 
 	private int mLatestId;
+	
+	private long mImageTimeStamp;
 
 	private ContentData mFirstItem = new ContentData();
 	private ContentData mLastItem = new ContentData();
@@ -98,6 +100,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 		Intent infointent = getIntent();
 		mMainTitle = infointent.getStringExtra("title");
 		mCategory = infointent.getIntExtra("category", -1);
+		mImageTimeStamp = infointent.getLongExtra("imagetimestamp", 0);
 
 		intActionBar();
 
@@ -378,7 +381,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 						ContentData first = tempListData.get(id);
 						Loge.d("load more first 1: " + mFirstItem.mLink);
 						Loge.d("load more first 2: " + first.mLink);
-						if (!first.mLink.equals(mFirstItem.mLink)) {
+						if (!first.mLink.equals(mFirstItem.mLink) && first.mPostDate > mImageTimeStamp) {
 							DataBaseUtils.updateTopicImage(mCtx, mCategory, first.mImageUrl);
 						} else {
 							no_update = true;
