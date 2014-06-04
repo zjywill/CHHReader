@@ -8,9 +8,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.util.EncodingUtils;
 import org.jsoup.nodes.Document;
 
 import android.app.ActionBar;
@@ -23,7 +23,6 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +37,6 @@ import android.widget.Toast;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentDataDetail;
-import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.DataBaseUtils;
 import com.comic.chhreader.utils.Utils;
 
@@ -58,7 +56,10 @@ public class DetailActivity extends Activity {
 
 	private HtmlParser mParser;
 
-	private boolean mIsLocalData = false;
+	private boolean mDestroyed = false;
+	private boolean mPaused = false;
+	
+	public List<String> mImgUrls = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -133,44 +134,44 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home:
-			case R.id.action_back: {
-				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-						&& mCustomWebView.getUrl().contains("album")) {
-					mCustomWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
+		case android.R.id.home:
+		case R.id.action_back: {
+			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
+				mCustomWebView.loadUrl(mMainUrl);
+			} else {
+				finish();
 			}
-				break;
-			case R.id.action_refresh: {
-				if (mMainContent != null && !mMainContent.isEmpty()) {
-					mCustomWebView
-							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
-				} else {
-					mCustomWebView.loadUrl(mMainUrl);
-				}
+		}
+			break;
+		case R.id.action_refresh: {
+			if (mMainContent != null && !mMainContent.isEmpty()) {
+				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+			} else {
+				mCustomWebView.loadUrl(mMainUrl);
 			}
-				break;
-			case R.id.action_view_in_browser: {
-				Uri uri = Uri.parse(mMainUrl);
-				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(viewIntent);
-			}
-				break;
-			default:
-				break;
+		}
+			break;
+		case R.id.action_view_in_browser: {
+			Uri uri = Uri.parse(mMainUrl);
+			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+			startActivity(viewIntent);
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	protected void onResume() {
+		mPaused = false;
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
+		mPaused = true;
 		super.onPause();
 		mCustomWebView.stopLoading();
 	}
@@ -183,6 +184,7 @@ public class DetailActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
+		mDestroyed = true;
 		super.onDestroy();
 
 	}
@@ -215,9 +217,14 @@ public class DetailActivity extends Activity {
 		public void onPageFinished(WebView view, String url) {
 			if (mMainContent != null && !mMainContent.isEmpty()) {
 				DownloadWebImgTask downloadTask = new DownloadWebImgTask();
-				List<String> urlStrs = mParser.getImgUrls();
-				String urlStrArray[] = new String[urlStrs.size() + 1];
-				urlStrs.toArray(urlStrArray);
+				if (mImgUrls.isEmpty()) {
+					if (mParser != null) {
+						mImgUrls.addAll(mParser.getImgUrls());
+					}
+				}
+				String urlStrArray[] = new String[mImgUrls.size() + 1];
+				mImgUrls.toArray(urlStrArray);
+
 				downloadTask.execute(urlStrArray);
 			}
 		}
@@ -258,33 +265,28 @@ public class DetailActivity extends Activity {
 
 				ContentDataDetail contentData = DataBaseUtils.getContentData(mContext, url);
 
+				if (contentData == null) {
+					return null;
+				}
+
+				if (contentData.mImageSet == null || contentData.mImageSet.isEmpty()) {
+					return null;
+				}
+
+				String[] imageSet = contentData.mImageSet.split("&000&");
+
+				for (String imageurl : imageSet) {
+					mImgUrls.add(imageurl);
+				}
+
 				if (contentData != null && contentData.mBody != null && !contentData.mBody.isEmpty()) {
 					long timeGap = System.currentTimeMillis() - contentData.mUpdateDate;
 					if (timeGap < DateUtils.DAY_IN_MILLIS) {
-						mIsLocalData = true;
 						return contentData.mBody;
 					}
 				}
 
-				String body = CHHNetUtils.getContentBody(mContext, url);
-
-				if (body.isEmpty()) {
-					return "fail";
-				}
-
-				String result = "";
-				try {
-					InputStream in = getResources().getAssets().open("head.html");
-					int lenght = in.available();
-					byte[] buffer = new byte[lenght];
-					in.read(buffer);
-					result = EncodingUtils.getString(buffer, "utf-8");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				result = result + body;
-
-				return result;
+				return null;
 			}
 		}
 
@@ -292,33 +294,34 @@ public class DetailActivity extends Activity {
 		protected void onPostExecute(String result) {
 			if (result != null && result.length() > 0 && !result.equals("fail")) {
 				mMainContent = result;
-				if (mIsLocalData) {
-					mCustomWebView.setVisibility(View.VISIBLE);
-					mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
-					mLoadingView.setVisibility(View.GONE);
+				mCustomWebView.setVisibility(View.VISIBLE);
+				mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
+				mLoadingView.setVisibility(View.GONE);
 
-				} else {
-					if (mParser == null) {
-						mParser = new HtmlParser(mCustomWebView, mMainUrl, mMainContent, mContext) {
-							@Override
-							protected String handleDocument(Document doc) {
-								return doc.html();
-							}
+			} else {
+				if (mParser == null) {
+					mParser = new HtmlParser(mContext, mMainUrl) {
+						@Override
+						protected String handleDocument(Document doc) {
+							return doc.html();
+						}
 
-							@Override
-							protected void excuteEnd(String result) {
+						@Override
+						protected void excuteEnd(String result) {
+							if (result != null && result.length() > 0) {
+								mMainContent = result;
 								mCustomWebView.setVisibility(View.VISIBLE);
 								mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 								mLoadingView.setVisibility(View.GONE);
+							} else {
+								mLoadingView.setVisibility(View.GONE);
+								mCustomWebView.setVisibility(View.VISIBLE);
+								mCustomWebView.loadUrl(mMainUrl);
 							}
-						};
-						mParser.execute();
-					}
+						}
+					};
+					mParser.execute();
 				}
-			} else {
-				mLoadingView.setVisibility(View.GONE);
-				mCustomWebView.setVisibility(View.VISIBLE);
-				mCustomWebView.loadUrl(mMainUrl);
 			}
 			setShareIntent();
 			super.onPostExecute(result);
@@ -326,27 +329,17 @@ public class DetailActivity extends Activity {
 	}
 
 	public class DownloadWebImgTask extends AsyncTask<String, String, Void> {
-
-		public static final String TAG = "DownloadWebImgTask";
-
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
-			mCustomWebView.loadUrl("javascript:(function(){"
-					+ "var objs = document.getElementsByTagName(\"img\"); "
-					+ "for(var i=0;i<objs.length;i++)  " + "{"
-					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-					+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
-					+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+			if (mCustomWebView != null && !mPaused)
+				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \"" + values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			mCustomWebView.loadUrl("javascript:(function(){"
-					+ "var objs = document.getElementsByTagName(\"img\"); "
-					+ "for(var i=0;i<objs.length;i++)  " + "{"
-					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			if (mCustomWebView != null && !mPaused)
+				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			super.onPostExecute(result);
 		}
 
@@ -366,21 +359,17 @@ public class DetailActivity extends Activity {
 			}
 
 			for (String urlStr : params) {
-
+				if (mDestroyed) {
+					return null;
+				}
 				try {
-
 					if (urlStr == null) {
 						break;
 					}
-
-					File tempFile = new File(urlStr);
 					int index = urlStr.lastIndexOf("/");
 					String fileName = urlStr.substring(index + 1, urlStr.length());
-					Log.i(TAG, "file name : " + fileName + " , tempFile name : " + tempFile.getName());
-					Log.i(TAG, " url : " + urlStr);
 
-					File file = new File(Environment.getExternalStorageDirectory().getPath()
-							+ "/ChhReader/Cache/SUB/" + fileName);
+					File file = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + fileName);
 
 					if (file.exists()) {
 						publishProgress(urlStr);
@@ -425,6 +414,7 @@ public class DetailActivity extends Activity {
 					}
 				}
 			}
+
 			return null;
 		}
 

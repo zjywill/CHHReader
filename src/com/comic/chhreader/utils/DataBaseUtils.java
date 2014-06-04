@@ -19,7 +19,8 @@ import com.comic.chhreader.provider.DataProvider;
 
 public class DataBaseUtils {
 
-	public static boolean saveTopicData(Context context, ArrayList<TopicData> topicData) {
+	public static boolean saveTopicData(Context context,
+			ArrayList<TopicData> topicData) {
 		if (context != null && topicData != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver == null) {
@@ -29,12 +30,11 @@ public class DataBaseUtils {
 			if (topicData.size() > 0) {
 				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 				for (TopicData item : topicData) {
-					ContentProviderOperation.Builder builder = ContentProviderOperation
-							.newInsert(DataProvider.CONTENT_URI_TOPIC_DATA)//
-							.withValue(DataProvider.KEY_TOPIC_NAME, item.mName)//
-							.withValue(DataProvider.KEY_TOPIC_IMAGE_URL, item.mImageUrl)//
-							.withValue(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP, item.mImageTimeStamp)//
-							.withValue(DataProvider.KEY_TOPIC_PK, item.mPk);
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_TOPIC_DATA)//
+					.withValue(DataProvider.KEY_TOPIC_NAME, item.mName)//
+					.withValue(DataProvider.KEY_TOPIC_IMAGE_URL, item.mImageUrl)//
+					.withValue(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP, item.mImageTimeStamp)//
+					.withValue(DataProvider.KEY_TOPIC_PK, item.mPk);
 					opertions.add(builder.build());
 				}
 				try {
@@ -50,7 +50,8 @@ public class DataBaseUtils {
 		return false;
 	}
 
-	public static boolean updateTopicImage(Context context, int topic, String imageUrl) {
+	public static boolean updateTopicImage(Context context, int topic,
+			String imageUrl) {
 		if (context != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver == null) {
@@ -86,16 +87,14 @@ public class DataBaseUtils {
 			if (contentResolver == null) {
 				return topicData;
 			}
-			Cursor cursor = contentResolver
-					.query(DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, null);
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, null);
 
 			if (cursor != null) {
 				if (cursor.getCount() > 0) {
 					if (cursor.moveToFirst()) {
 						do {
 							TopicData itemData = new TopicData();
-							itemData.mName = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
+							itemData.mName = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
 							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_TOPIC_PK));
 							itemData.mImageUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_URL));
 							itemData.mImageTimeStamp = cursor.getLong(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP));
@@ -120,8 +119,7 @@ public class DataBaseUtils {
 			if (contentResolver == null) {
 				return false;
 			}
-			Cursor cursor = contentResolver
-					.query(DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, null);
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_TOPIC_DATA, null, null, null, null);
 			if (cursor == null) {
 				return false;
 			}
@@ -133,7 +131,8 @@ public class DataBaseUtils {
 
 	}
 
-	public static boolean saveSubItemData(Context context, ArrayList<SubItemData> subItemDatas) {
+	public static boolean saveSubItemData(Context context,
+			ArrayList<SubItemData> subItemDatas) {
 		if (context != null && subItemDatas != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver == null) {
@@ -143,12 +142,11 @@ public class DataBaseUtils {
 			if (subItemDatas.size() > 0) {
 				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 				for (SubItemData item : subItemDatas) {
-					ContentProviderOperation.Builder builder = ContentProviderOperation
-							.newInsert(DataProvider.CONTENT_URI_SUBITEM_DATA)//
-							.withValue(DataProvider.KEY_SUBITEM_NAME, item.mName)//
-							.withValue(DataProvider.KEY_SUBITEM_URL, item.mUrl)//
-							.withValue(DataProvider.KEY_SUBITEM_PK, item.mPk)//
-							.withValue(DataProvider.KEY_SUBITEM_TOPIC_PK, item.mTopic);
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(DataProvider.CONTENT_URI_SUBITEM_DATA)//
+					.withValue(DataProvider.KEY_SUBITEM_NAME, item.mName)//
+					.withValue(DataProvider.KEY_SUBITEM_URL, item.mUrl)//
+					.withValue(DataProvider.KEY_SUBITEM_PK, item.mPk)//
+					.withValue(DataProvider.KEY_SUBITEM_TOPIC_PK, item.mTopic);
 					opertions.add(builder.build());
 				}
 				try {
@@ -171,21 +169,17 @@ public class DataBaseUtils {
 			if (contentResolver == null) {
 				return subItemDatas;
 			}
-			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, null, null, null,
-					null);
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA, null, null, null, null);
 
 			if (cursor != null) {
 				if (cursor.getCount() > 0) {
 					if (cursor.moveToFirst()) {
 						do {
 							SubItemData itemData = new SubItemData();
-							itemData.mName = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_SUBITEM_NAME));
+							itemData.mName = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_NAME));
 							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
-							itemData.mTopic = cursor.getInt(cursor
-									.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
-							itemData.mUrl = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_SUBITEM_URL));
+							itemData.mTopic = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
+							itemData.mUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_SUBITEM_URL));
 							if (subItemDatas == null) {
 								subItemDatas = new ArrayList<SubItemData>();
 							}
@@ -213,7 +207,8 @@ public class DataBaseUtils {
 		return false;
 	}
 
-	public static boolean saveContentItemData(Context context, ArrayList<ContentData> contentItemDatas) {
+	public static boolean saveContentItemData(Context context,
+			ArrayList<ContentData> contentItemDatas) {
 		if (context != null && contentItemDatas != null) {
 			Loge.d("saveContentItemData size:  " + contentItemDatas.size());
 			ContentResolver contentResolver = context.getContentResolver();
@@ -225,17 +220,16 @@ public class DataBaseUtils {
 				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
 				for (ContentData item : contentItemDatas) {
 					String selection = DataProvider.KEY_MAIN_URL + "='" + item.mLink + "'";
-					ContentProviderOperation.Builder builder = ContentProviderOperation
-							.newUpdate(DataProvider.CONTENT_URI_MAIN_DATA)//
-							.withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle)//
-							.withValue(DataProvider.KEY_MAIN_URL, item.mLink)//
-							.withValue(DataProvider.KEY_MAIN_PIC_URL, item.mImageUrl)//
-							.withValue(DataProvider.KEY_MAIN_SUB_PK, item.mSubItemType)//
-							.withValue(DataProvider.KEY_MAIN_TOPIC_PK, item.mTopicType)//
-							.withValue(DataProvider.KEY_MAIN_CONTENT, item.mContent)//
-							.withValue(DataProvider.KEY_MAIN_VALID, item.mValid ? 1 : 0)//
-							.withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mPostDate)//
-							.withSelection(selection, null);
+					ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(DataProvider.CONTENT_URI_MAIN_DATA)//
+					.withValue(DataProvider.KEY_MAIN_TITLE, item.mTitle)//
+					.withValue(DataProvider.KEY_MAIN_URL, item.mLink)//
+					.withValue(DataProvider.KEY_MAIN_PIC_URL, item.mImageUrl)//
+					.withValue(DataProvider.KEY_MAIN_SUB_PK, item.mSubItemType)//
+					.withValue(DataProvider.KEY_MAIN_TOPIC_PK, item.mTopicType)//
+					.withValue(DataProvider.KEY_MAIN_CONTENT, item.mContent)//
+					.withValue(DataProvider.KEY_MAIN_VALID, item.mValid ? 1 : 0)//
+					.withValue(DataProvider.KEY_MAIN_PUBLISH_DATE, item.mPostDate)//
+					.withSelection(selection, null);
 					opertions.add(builder.build());
 				}
 				try {
@@ -263,7 +257,8 @@ public class DataBaseUtils {
 		return false;
 	}
 
-	public static boolean updateContentData(Context context, String url, String body) {
+	public static boolean updateContentData(Context context, String url,
+			String body, String imageset) {
 		if (context != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver == null) {
@@ -273,6 +268,7 @@ public class DataBaseUtils {
 			cv.put(DataProvider.KEY_CONTENT_URL, url);
 			cv.put(DataProvider.KEY_CONTENT_BODY, body);
 			cv.put(DataProvider.KEY_CONTENT_UPLOAD_DATE, System.currentTimeMillis());
+			cv.put(DataProvider.KEY_CONTENT_IMAGE_SET, imageset);
 			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
 			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
 			return true;
@@ -288,15 +284,14 @@ public class DataBaseUtils {
 				return data;
 			}
 			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
-			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, null, where, null,
-					null);
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, null, where, null, null);
 			if (cursor != null) {
 				if (cursor.getCount() > 0) {
 					if (cursor.moveToFirst()) {
 						data = new ContentDataDetail();
 						data.mBody = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_CONTENT_BODY));
-						data.mUpdateDate = cursor.getLong(cursor
-								.getColumnIndex(DataProvider.KEY_CONTENT_UPLOAD_DATE));
+						data.mImageSet = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_CONTENT_IMAGE_SET));
+						data.mUpdateDate = cursor.getLong(cursor.getColumnIndex(DataProvider.KEY_CONTENT_UPLOAD_DATE));
 					}
 				}
 				cursor.close();

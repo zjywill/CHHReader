@@ -71,6 +71,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_CONTENT_URL = "url";
 	public static final String KEY_CONTENT_BODY = "body";
 	public static final String KEY_CONTENT_UPLOAD_DATE = "time";
+	public static final String KEY_CONTENT_IMAGE_SET = "imageset";
 
 	@Override
 	public boolean onCreate() {
@@ -199,6 +200,8 @@ public class DataProvider extends ContentProvider {
 				case 1002: {
 					addColumn(db, DB_TABLE_TOPIC_DATA, KEY_TOPIC_IMAGE_TIME_STAMP,
 							"INTEGER NOT NULL DEFAULT 0");
+					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_IMAGE_SET,
+							"TEXT");
 				}
 					break;
 				default: {
@@ -245,7 +248,8 @@ public class DataProvider extends ContentProvider {
 			String commandContent = "create table " + DB_TABLE_CONTENT_DATA //
 					+ " (" + KEY_CONTENT_ID + " integer primary key autoincrement, " //
 					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
-					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER ); ";
+					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
+					+ KEY_CONTENT_IMAGE_SET + " TEXT ); ";
 
 			db.execSQL(commandTopic);
 			db.execSQL(commandSubitem);
