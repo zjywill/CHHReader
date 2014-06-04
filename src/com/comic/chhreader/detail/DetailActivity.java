@@ -46,6 +46,7 @@ public class DetailActivity extends Activity {
 
 	private CustomWebView mCustomWebView;
 	private ProgressBar mWebProgress;
+	private View mLoadingView;
 
 	private String mMainTitle;
 	private String mMainUrl;
@@ -56,6 +57,8 @@ public class DetailActivity extends Activity {
 	private ShareActionProvider mShareActionProvider;
 
 	private HtmlParser mParser;
+
+	private boolean mIsLocalData = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,7 @@ public class DetailActivity extends Activity {
 
 		mCustomWebView = (CustomWebView) findViewById(R.id.content);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
+		mLoadingView = (View) findViewById(R.id.web_empty_view);
 
 		mCustomWebView.setWebChromeClient(new DetailWebChromeClient());
 		mCustomWebView.setWebViewClient(new DetailWebViewClient());
@@ -85,6 +89,9 @@ public class DetailActivity extends Activity {
 		if (!Utils.isNetworkAvailable(getBaseContext())) {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
 		}
+		mCustomWebView.setVisibility(View.GONE);
+		mLoadingView.setVisibility(View.VISIBLE);
+
 		new LoadContentAsyncTask().execute(mMainUrl);
 	}
 
@@ -254,6 +261,7 @@ public class DetailActivity extends Activity {
 				if (contentData != null && contentData.mBody != null && !contentData.mBody.isEmpty()) {
 					long timeGap = System.currentTimeMillis() - contentData.mUpdateDate;
 					if (timeGap < DateUtils.DAY_IN_MILLIS) {
+						mIsLocalData = true;
 						return contentData.mBody;
 					}
 				}
@@ -276,8 +284,6 @@ public class DetailActivity extends Activity {
 				}
 				result = result + body;
 
-				DataBaseUtils.updateContentData(mContext, url, result);
-
 				return result;
 			}
 		}
@@ -286,16 +292,32 @@ public class DetailActivity extends Activity {
 		protected void onPostExecute(String result) {
 			if (result != null && result.length() > 0 && !result.equals("fail")) {
 				mMainContent = result;
-				if (mParser == null) {
-					mParser = new HtmlParser(mCustomWebView, mMainContent, mContext) {
-						@Override
-						protected String handleDocument(Document doc) {
-							return doc.html();
-						}
-					};
-					mParser.execute();
+				if (mIsLocalData) {
+					mCustomWebView.setVisibility(View.VISIBLE);
+					mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
+					mLoadingView.setVisibility(View.GONE);
+
+				} else {
+					if (mParser == null) {
+						mParser = new HtmlParser(mCustomWebView, mMainUrl, mMainContent, mContext) {
+							@Override
+							protected String handleDocument(Document doc) {
+								return doc.html();
+							}
+
+							@Override
+							protected void excuteEnd(String result) {
+								mCustomWebView.setVisibility(View.VISIBLE);
+								mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
+								mLoadingView.setVisibility(View.GONE);
+							}
+						};
+						mParser.execute();
+					}
 				}
 			} else {
+				mLoadingView.setVisibility(View.GONE);
+				mCustomWebView.setVisibility(View.VISIBLE);
 				mCustomWebView.loadUrl(mMainUrl);
 			}
 			setShareIntent();

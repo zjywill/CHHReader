@@ -12,21 +12,25 @@ import org.jsoup.select.Elements;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.view.View;
 import android.webkit.WebView;
 
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.utils.DataBaseUtils;
 
 public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	private String mData;
+	private String mUrl;
 	private WebView webView;
 	private Context mContext;
 	public static String Js2JavaInterfaceName = "JsUseJava";
 	public List<String> imgUrls = new ArrayList<String>();
 
-	public HtmlParser(WebView wevView, String data, Context context) {
+	public HtmlParser(WebView wevView, String url, String data, Context context) {
 		this.webView = wevView;
 		mData = data;
+		mUrl = url;
 		mContext = context;
 	}
 
@@ -48,6 +52,8 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 		handleImageClickEvent(doc);
 		removeHyperlinks(doc);
 		String htmlText = handleDocument(doc);
+
+		DataBaseUtils.updateContentData(mContext, mUrl, htmlText);
 
 		return htmlText;
 	}
@@ -89,9 +95,11 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	protected abstract String handleDocument(Document doc);
 
+	protected abstract void excuteEnd(String result);
+
 	@Override
 	protected void onPostExecute(String result) {
-		webView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
+		excuteEnd(result);
 		super.onPostExecute(result);
 	}
 
