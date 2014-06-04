@@ -1,8 +1,17 @@
 package com.comic.chhreader.detail;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 
 import org.apache.http.util.EncodingUtils;
+import org.jsoup.nodes.Document;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -12,7 +21,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +54,8 @@ public class DetailActivity extends Activity {
 	private Context mContext;
 
 	private ShareActionProvider mShareActionProvider;
+
+	private HtmlParser mParser;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -190,13 +203,23 @@ public class DetailActivity extends Activity {
 			Toast.makeText(getBaseContext(), R.string.not_support, Toast.LENGTH_SHORT).show();
 			return true;
 		}
+
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			if (mMainContent != null && !mMainContent.isEmpty()) {
+				DownloadWebImgTask downloadTask = new DownloadWebImgTask();
+				List<String> urlStrs = mParser.getImgUrls();
+				String urlStrArray[] = new String[urlStrs.size() + 1];
+				urlStrs.toArray(urlStrArray);
+				downloadTask.execute(urlStrArray);
+			}
+		}
 	}
 
 	private class DetailWebChromeClient extends WebChromeClient {
 		@Override
 		public void onProgressChanged(WebView view, int newProgress) {
 			super.onProgressChanged(view, newProgress);
-			Loge.i("Load Web progress = " + newProgress);
 			mWebProgress.setProgress(newProgress);
 			if (newProgress == 100) {
 				mWebProgress.setVisibility(View.GONE);
@@ -263,12 +286,124 @@ public class DetailActivity extends Activity {
 		protected void onPostExecute(String result) {
 			if (result != null && result.length() > 0 && !result.equals("fail")) {
 				mMainContent = result;
-				mCustomWebView.loadDataWithBaseURL(mMainUrl, result, "text/html", "utf-8", null);
+				if (mParser == null) {
+					mParser = new HtmlParser(mCustomWebView, mMainContent, mContext) {
+						@Override
+						protected String handleDocument(Document doc) {
+							return doc.html();
+						}
+					};
+					mParser.execute();
+				}
 			} else {
 				mCustomWebView.loadUrl(mMainUrl);
 			}
 			setShareIntent();
 			super.onPostExecute(result);
+		}
+	}
+
+	public class DownloadWebImgTask extends AsyncTask<String, String, Void> {
+
+		public static final String TAG = "DownloadWebImgTask";
+
+		@Override
+		protected void onProgressUpdate(String... values) {
+			super.onProgressUpdate(values);
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
+					+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+			URL url = null;
+			InputStream inputStream = null;
+			OutputStream outputStream = null;
+			HttpURLConnection urlCon = null;
+
+			if (params.length == 0)
+				return null;
+
+			File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/");
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+
+			for (String urlStr : params) {
+
+				try {
+
+					if (urlStr == null) {
+						break;
+					}
+
+					File tempFile = new File(urlStr);
+					int index = urlStr.lastIndexOf("/");
+					String fileName = urlStr.substring(index + 1, urlStr.length());
+					Log.i(TAG, "file name : " + fileName + " , tempFile name : " + tempFile.getName());
+					Log.i(TAG, " url : " + urlStr);
+
+					File file = new File(Environment.getExternalStorageDirectory().getPath()
+							+ "/ChhReader/Cache/SUB/" + fileName);
+
+					if (file.exists()) {
+						publishProgress(urlStr);
+						continue;
+					}
+
+					try {
+						file.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					url = new URL(urlStr);
+					urlCon = (HttpURLConnection) url.openConnection();
+					urlCon.setRequestMethod("GET");
+					urlCon.setDoInput(true);
+					urlCon.connect();
+
+					inputStream = urlCon.getInputStream();
+					outputStream = new FileOutputStream(file);
+					byte buffer[] = new byte[1024];
+					int bufferLength = 0;
+					while ((bufferLength = inputStream.read(buffer)) > 0) {
+						outputStream.write(buffer, 0, bufferLength);
+					}
+					outputStream.flush();
+					publishProgress(urlStr);
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (inputStream != null) {
+							inputStream.close();
+						}
+						if (outputStream != null) {
+							outputStream.close();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			return null;
 		}
 
 	}

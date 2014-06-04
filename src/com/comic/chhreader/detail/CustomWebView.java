@@ -5,10 +5,12 @@ import java.io.InputStream;
 
 import org.apache.http.util.EncodingUtils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -17,6 +19,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 
+@SuppressLint("SetJavaScriptEnabled")
 public class CustomWebView extends WebView implements View.OnSystemUiVisibilityChangeListener {
 
 	boolean mNavVisible;
@@ -47,12 +50,23 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		webSettings.setSupportZoom(false);
 		webSettings.setSaveFormData(false);
 		webSettings.setLoadsImagesAutomatically(true);
-
+		
+		
+		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+		webSettings.setJavaScriptEnabled(true);
 
 		setOnSystemUiVisibilityChangeListener(this);
 
 		setNavVisibility(true);
+	}
+	
+	public class Js2JavaInterface {
+		private Context context;
+		private String TAG = "JsUseJaveInterface";
+		public void setImgSrc(String imgSrc) {
+			Log.i(TAG, "setImgSrc : " + imgSrc);
+		}
 	}
 
 	public void injectNightCss() {
