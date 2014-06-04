@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.image.PhotoView;
+import com.comic.chhreader.provider.DataProvider;
 
 public class MainGridAdapter extends CursorAdapter {
 
@@ -57,7 +58,6 @@ public class MainGridAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		Loge.d("Bind view");
 
 		if (cursor != null) {
 
@@ -65,8 +65,8 @@ public class MainGridAdapter extends CursorAdapter {
 
 			TopicData data = new TopicData();
 
-			data.mName = cursor.getString(1);
-			data.mImageUrl = cursor.getString(2);
+			data.mName = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
+			data.mImageUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_URL));
 
 			holder.title.setText(data.mName);
 

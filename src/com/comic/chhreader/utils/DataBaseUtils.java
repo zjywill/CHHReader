@@ -97,6 +97,7 @@ public class DataBaseUtils {
 							itemData.mName = cursor.getString(cursor
 									.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
 							itemData.mPk = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_TOPIC_PK));
+							itemData.mImageUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_URL));
 							itemData.mImageTimeStamp = cursor.getLong(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP));
 							if (topicData == null) {
 								topicData = new ArrayList<TopicData>();

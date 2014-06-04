@@ -133,9 +133,9 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		Intent intent = new Intent(MainActivity.this, PullContentActivity.class);
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
-			intent.putExtra("title", cur.getString(1));
-			intent.putExtra("imagetimestamp", cur.getLong(3));
-			intent.putExtra("category", cur.getInt(4));
+			intent.putExtra("title", cur.getString(cur.getColumnIndex(DataProvider.KEY_TOPIC_NAME)));
+			intent.putExtra("imagetimestamp", cur.getLong(cur.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP)));
+			intent.putExtra("category", cur.getInt(cur.getColumnIndex(DataProvider.KEY_TOPIC_PK)));
 			startActivity(intent);
 		}
 	};
@@ -155,8 +155,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				projection[0] = DataProvider.KEY_TOPIC_ID;
 				projection[1] = DataProvider.KEY_TOPIC_NAME;
 				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
-				projection[3] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
-				projection[4] = DataProvider.KEY_TOPIC_PK;
+				projection[3] = DataProvider.KEY_TOPIC_PK;
+				projection[4] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
 				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, projection, null, null,
 						DataProvider.KEY_TOPIC_PK);
 			}
@@ -266,7 +266,6 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 							contentItem.mTopicType = subItemData.mTopic;
 							for (TopicData tData : topicsData) {
 								if (tData.mPk == subItemData.mTopic && contentItem.mValid) {
-									Loge.d("ImageTimeStamp :" + tData.mImageTimeStamp);
 									if (contentItem.mPostDate > tData.mImageTimeStamp) {
 										tData.mImageUrl = contentItem.mImageUrl;
 										tData.mImageTimeStamp = contentItem.mPostDate;

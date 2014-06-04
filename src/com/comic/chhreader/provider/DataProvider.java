@@ -217,8 +217,8 @@ public class DataProvider extends ContentProvider {
 			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
 					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
 					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
-					+ KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
-					+ KEY_TOPIC_PK + " INTEGER );";
+					+  KEY_TOPIC_PK+ " INTEGER, "//
+					+  KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER );";
 
 			String commandSubitem = "create table "
 					+ DB_TABLE_SUBITEM_DATA //
