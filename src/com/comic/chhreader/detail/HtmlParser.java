@@ -21,9 +21,13 @@ import com.comic.chhreader.utils.DataBaseUtils;
 
 public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
-	private String mUrl;
-	private Context mContext;
 	public static String Js2JavaInterfaceName = "JsUseJava";
+	public static String IMAGE_BREAK_TAG = "&00000&";
+
+	private String mUrl;
+	private String mThreadId;
+	private Context mContext;
+
 	public List<String> imgUrls = new ArrayList<String>();
 	public String mImageSet;
 
@@ -34,6 +38,8 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected String doInBackground(Void... params) {
+
+		mThreadId = getThreadId(mUrl);
 
 		String body = CHHNetUtils.getContentBody(mContext, mUrl);
 
@@ -73,11 +79,9 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 		for (int i = 0; i < imgUrls.size(); i++) {
 			imageSetBuilder.append(imgUrls.get(i));
 			if (i < (imgUrls.size() - 1)) {
-				imageSetBuilder.append("&000&");
+				imageSetBuilder.append(IMAGE_BREAK_TAG);
 			}
 		}
-		Loge.d("image set: " + imageSetBuilder.toString());
-
 		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString());
 
 		return htmlText;
@@ -85,6 +89,19 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	public List<String> getImgUrls() {
 		return imgUrls;
+	}
+
+	public static String getThreadId(String url) {
+		String threadID = "other";
+		String[] ids = url.split("-");
+
+		if (ids.length == 3) {
+			threadID = ids[1];
+		}
+
+		Loge.d("thread id: " + threadID);
+
+		return threadID;
 	}
 
 	private void handleImageClickEvent(Document doc) {
@@ -100,7 +117,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 			if (imgName.endsWith(".gif")) {
 				e.remove();
 			} else {
-				String filePath = "file://" + Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + imgName;
+				String filePath = "file://" + Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/" + imgName;
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);

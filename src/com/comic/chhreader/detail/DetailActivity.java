@@ -49,6 +49,7 @@ public class DetailActivity extends Activity {
 	private String mMainTitle;
 	private String mMainUrl;
 	private String mMainContent;
+	private String mThreadId;
 
 	private Context mContext;
 
@@ -58,7 +59,7 @@ public class DetailActivity extends Activity {
 
 	private boolean mDestroyed = false;
 	private boolean mPaused = false;
-	
+
 	public List<String> mImgUrls = new ArrayList<String>();
 
 	@Override
@@ -262,6 +263,7 @@ public class DetailActivity extends Activity {
 				}
 
 				Loge.d("URL:  " + url);
+				mThreadId = HtmlParser.getThreadId(url);
 
 				ContentDataDetail contentData = DataBaseUtils.getContentData(mContext, url);
 
@@ -273,7 +275,7 @@ public class DetailActivity extends Activity {
 					return null;
 				}
 
-				String[] imageSet = contentData.mImageSet.split("&000&");
+				String[] imageSet = contentData.mImageSet.split(HtmlParser.IMAGE_BREAK_TAG);
 
 				for (String imageurl : imageSet) {
 					mImgUrls.add(imageurl);
@@ -353,7 +355,7 @@ public class DetailActivity extends Activity {
 			if (params.length == 0)
 				return null;
 
-			File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/");
+			File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/");
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
@@ -369,7 +371,7 @@ public class DetailActivity extends Activity {
 					int index = urlStr.lastIndexOf("/");
 					String fileName = urlStr.substring(index + 1, urlStr.length());
 
-					File file = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + fileName);
+					File file = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/" + fileName);
 
 					if (file.exists()) {
 						publishProgress(urlStr);
