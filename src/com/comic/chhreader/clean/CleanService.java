@@ -89,12 +89,12 @@ public class CleanService extends Service {
 					int leftId = Integer.valueOf(lhs.getName());
 					int rightId = Integer.valueOf(rhs.getName());
 					if (leftId > rightId) {
-						return 1;
-					} else {
 						return -1;
+					} else {
+						return 1;
 					}
 				} catch (NumberFormatException e) {
-					return 1;
+					return -1;
 				}
 			}
 		}
@@ -152,6 +152,7 @@ public class CleanService extends Service {
 						Loge.i("Folder exsist, do delete catch");
 						for (int i = 5; i < filelist.size(); i++) {
 							File subitemfile = new File(filelist.get(i).getPath());
+							Loge.i("Delete Folder: " + filelist.get(i).getPath());
 							FileOperation.deleteDirectory(subitemfile);
 						}
 					}
