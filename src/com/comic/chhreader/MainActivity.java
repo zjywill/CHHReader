@@ -15,6 +15,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -54,7 +55,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	private NetworkDialog mNetworkDialog = null;
 
 	private boolean updating = false;
-	private boolean mNoImage = false;
+	private boolean mNoImage = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,15 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		mGrid = (GridView) findViewById(R.id.main_gird);
 		mGrid.setOnItemClickListener(this);
 		mGirdAdapter = new MainGridAdapter(this, null);
+
+		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
+			mNoImage = true;
+		} else {
+			mNoImage = false;
+		}
+
+		mGirdAdapter.setNoImage(mNoImage);
+
 		mGrid.setAdapter(mGirdAdapter);
 
 		initActionBar();
@@ -155,9 +165,17 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	protected void onResume() {
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
 			mNoImage = true;
+		} else {
+			mNoImage = false;
 		}
 		if (mGirdAdapter != null) {
 			mGirdAdapter.setNoImage(mNoImage);
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					mGirdAdapter.notifyDataSetChanged();
+				}
+			}, 500);
 		}
 		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 		super.onResume();

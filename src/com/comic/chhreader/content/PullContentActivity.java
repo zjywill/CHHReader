@@ -13,6 +13,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -72,7 +73,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	private boolean first = true;
 	private boolean showToast = false;
 	private boolean nomore = false;
-	private boolean mNoImage = false;
+	private boolean mNoImage = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +95,13 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 		mListView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 		mListView.setDivider(null);
 		mListAdapter = new ContentAdapter(this);
+		if (SharedPreferencesUtils.getNoImageMode(mCtx) && !Utils.isWifiAvailable(mCtx)) {
+			mNoImage = true;
+		} else {
+			mNoImage = false;
+		}
+		mListAdapter.setNoImage(mNoImage);
+
 		mListView.setAdapter(mListAdapter);
 		mListView.setOnItemClickListener(this);
 		mListView.setOnCreateContextMenuListener(this);
@@ -254,9 +262,17 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	protected void onResume() {
 		if (SharedPreferencesUtils.getNoImageMode(mCtx) && !Utils.isWifiAvailable(mCtx)) {
 			mNoImage = true;
+		} else {
+			mNoImage = false;
 		}
 		if (mListAdapter != null) {
 			mListAdapter.setNoImage(mNoImage);
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					mListAdapter.notifyDataSetChanged();
+				}
+			}, 500);
 		}
 		super.onResume();
 	}

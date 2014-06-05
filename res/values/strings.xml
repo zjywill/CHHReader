@@ -20,5 +20,6 @@
     <string name="no_more_data">Already reach the end</string>
     <string name="swipe_down_to_refresh">Pull to refresh&#8230;</string>
     <string name="refreshing">@string/loading</string>
-
+	<string name="no_image_mode">Not load image</string>
+	
 </resources>

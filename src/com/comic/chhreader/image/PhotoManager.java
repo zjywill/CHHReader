@@ -51,7 +51,6 @@ import com.comic.chhreader.R;
  * Finally, this class defines a handler that communicates back to the UI thread
  * to change the bitmap to reflect the state.
  */
-@SuppressWarnings("unused")
 public class PhotoManager {
 	/*
 	 * Status indicators
@@ -126,6 +125,7 @@ public class PhotoManager {
 		// Creates a single static instance of PhotoManager
 		sInstance = new PhotoManager();
 	}
+
 	/**
 	 * Constructs the work queues and thread pools used to download and decode
 	 * images.
@@ -156,12 +156,14 @@ public class PhotoManager {
 		/*
 		 * Creates a new pool of Thread objects for the download work queue
 		 */
-		mDownloadThreadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, mDownloadWorkQueue);
+		mDownloadThreadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME,
+				KEEP_ALIVE_TIME_UNIT, mDownloadWorkQueue);
 
 		/*
 		 * Creates a new pool of Thread objects for the decoding work queue
 		 */
-		mDecodeThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, mDecodeWorkQueue);
+		mDecodeThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, KEEP_ALIVE_TIME,
+				KEEP_ALIVE_TIME_UNIT, mDecodeWorkQueue);
 
 		// Instantiates a new cache based on the cache size estimate
 		mPhotoCache = new LruCache<URL, byte[]>(IMAGE_CACHE_SIZE) {
@@ -231,7 +233,7 @@ public class PhotoManager {
 
 						// If the download has started, sets background color to
 						// dark green
-							case DOWNLOAD_STARTED :
+							case DOWNLOAD_STARTED:
 								Loge.i("DOWNLOAD_STARTED");
 								localView.setStatusResource(downloadingImageId);
 								break;
@@ -241,14 +243,14 @@ public class PhotoManager {
 							 * waiting, sets the background color to golden
 							 * yellow
 							 */
-							case DOWNLOAD_COMPLETE :
+							case DOWNLOAD_COMPLETE:
 								// Sets background color to golden yellow
 								Loge.i("DOWNLOAD_COMPLETE");
 								localView.setStatusResource(downloadingImageId);
 								break;
 							// If the decode has started, sets background color
 							// to orange
-							case DECODE_STARTED :
+							case DECODE_STARTED:
 								Loge.i("DECODE_STARTED");
 								localView.setStatusResource(downloadingImageId);
 								break;
@@ -257,21 +259,21 @@ public class PhotoManager {
 							 * ImageView's bitmap to the bitmap in the incoming
 							 * message
 							 */
-							case TASK_COMPLETE :
+							case TASK_COMPLETE:
 								Loge.i("TASK_COMPLETE");
 								localView.setImageBitmap(photoTask.getImage());
 								recycleTask(photoTask);
 								break;
 							// The download failed, sets the background color to
 							// dark red
-							case DOWNLOAD_FAILED :
+							case DOWNLOAD_FAILED:
 								Loge.i("DOWNLOAD_FAILED");
 								localView.setStatusResource(failImageId);
 
 								// Attempts to re-use the Task object
 								recycleTask(photoTask);
 								break;
-							default :
+							default:
 								// Otherwise, calls the super method
 								super.handleMessage(inputMessage);
 						}
@@ -302,7 +304,7 @@ public class PhotoManager {
 		switch (state) {
 
 		// The task finished downloading and decoding the image
-			case TASK_COMPLETE :
+			case TASK_COMPLETE:
 				Loge.i("TASK_COMPLETE");
 				// Puts the image into cache
 				if (photoTask.isCacheEnabled()) {
@@ -319,7 +321,7 @@ public class PhotoManager {
 				break;
 
 			// The task finished downloading the image
-			case DOWNLOAD_COMPLETE :
+			case DOWNLOAD_COMPLETE:
 				Loge.i("DOWNLOAD_COMPLETE");
 				/*
 				 * Decodes the image, by queuing the decoder object to run in
@@ -329,7 +331,7 @@ public class PhotoManager {
 
 				// In all other cases, pass along the message without any other
 				// action.
-			default :
+			default:
 				mHandler.obtainMessage(state, photoTask).sendToTarget();
 				break;
 		}
@@ -418,8 +420,7 @@ public class PhotoManager {
 	 *            Determines if caching should be used
 	 * @return The task instance that will handle the work
 	 */
-	static public PhotoTask startDownload(PhotoView imageView,
-			boolean cacheFlag, boolean asPreview,boolean loadNetImage) {
+	static public PhotoTask startDownload(PhotoView imageView, boolean cacheFlag) {
 
 		/*
 		 * Gets a task from the pool of tasks, returning null if the pool is
@@ -433,7 +434,7 @@ public class PhotoManager {
 		}
 
 		// Initializes the task
-		downloadTask.initializeDownloaderTask(PhotoManager.sInstance, imageView, cacheFlag, asPreview,loadNetImage);
+		downloadTask.initializeDownloaderTask(PhotoManager.sInstance, imageView, cacheFlag);
 
 		/*
 		 * Provides the download task with the cache buffer corresponding to the

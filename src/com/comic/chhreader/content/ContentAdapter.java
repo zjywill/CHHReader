@@ -26,7 +26,7 @@ public class ContentAdapter extends CursorAdapter {
 
 	private Context mContext;
 	
-	private boolean mNoImage = false;
+	private boolean mNoImage = true;
 
 	ContentAdapter(Context ctx) {
 		super(ctx, null, 0);

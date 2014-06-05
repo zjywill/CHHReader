@@ -25,7 +25,7 @@ public class MainGridAdapter extends CursorAdapter {
 	private Context mContext;
 	private Cursor mCursor;
 	
-	private boolean mNoImage = false;
+	private boolean mNoImage = true;
 
 	MainGridAdapter(Context ctx, Cursor cursor) {
 		super(ctx, cursor, 0);

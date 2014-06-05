@@ -189,6 +189,7 @@ public class DetailActivity extends Activity {
 	public void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 		mCustomWebView.destroy();
+		mCustomWebView = null;
 	}
 
 	@Override
@@ -319,6 +320,9 @@ public class DetailActivity extends Activity {
 		protected void onPostExecute(String result) {
 			if (result != null && result.length() > 0 && !result.equals("fail")) {
 				mMainContent = result;
+				if (mCustomWebView == null) {
+					return;
+				}
 				mCustomWebView.setVisibility(View.VISIBLE);
 				mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 				mLoadingView.setVisibility(View.GONE);
@@ -334,12 +338,18 @@ public class DetailActivity extends Activity {
 						@Override
 						protected void excuteEnd(String result) {
 							if (result != null && result.length() > 0) {
+								if (mCustomWebView == null) {
+									return;
+								}
 								mMainContent = result;
 								mCustomWebView.setVisibility(View.VISIBLE);
 								mWebProgress.setVisibility(View.VISIBLE);
 								mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 								mLoadingView.setVisibility(View.GONE);
 							} else {
+								if (mCustomWebView == null) {
+									return;
+								}
 								mLoadingView.setVisibility(View.GONE);
 								mCustomWebView.setVisibility(View.VISIBLE);
 								mWebProgress.setVisibility(View.VISIBLE);
