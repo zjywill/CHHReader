@@ -21,8 +21,10 @@ import com.comic.chhreader.utils.DataBaseUtils;
 
 public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
-	public static String Js2JavaInterfaceName = "JsUseJava";
-	public static String IMAGE_BREAK_TAG = "&00000&";
+	public static final String Js2JavaInterfaceName = "JsUseJava";
+	public static final String IMAGE_BREAK_TAG = "&00000&";
+	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
+			+ "/ChhReader/Cache/SUB/";
 
 	private String mUrl;
 	private String mThreadId;
@@ -117,7 +119,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 			if (imgName.endsWith(".gif")) {
 				e.remove();
 			} else {
-				String filePath = "file://" + Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/" + imgName;
+				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + imgName;
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);

@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -135,31 +134,33 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-		case R.id.action_back: {
-			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
-				mCustomWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
+			case android.R.id.home:
+			case R.id.action_back: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
 			}
-		}
-			break;
-		case R.id.action_refresh: {
-			if (mMainContent != null && !mMainContent.isEmpty()) {
-				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
-			} else {
-				mCustomWebView.loadUrl(mMainUrl);
+				break;
+			case R.id.action_refresh: {
+				if (mMainContent != null && !mMainContent.isEmpty()) {
+					mCustomWebView
+							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+				} else {
+					mCustomWebView.loadUrl(mMainUrl);
+				}
 			}
-		}
-			break;
-		case R.id.action_view_in_browser: {
-			Uri uri = Uri.parse(mMainUrl);
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-			startActivity(viewIntent);
-		}
-			break;
-		default:
-			break;
+				break;
+			case R.id.action_view_in_browser: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
+			}
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -167,6 +168,7 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onResume() {
 		mPaused = false;
+		doImageDownload();
 		super.onResume();
 	}
 
@@ -217,18 +219,25 @@ public class DetailActivity extends Activity {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			if (mMainContent != null && !mMainContent.isEmpty()) {
-				DownloadWebImgTask downloadTask = new DownloadWebImgTask();
-				if (mImgUrls.isEmpty()) {
-					if (mParser != null) {
-						mImgUrls.addAll(mParser.getImgUrls());
-					}
-				}
-				String urlStrArray[] = new String[mImgUrls.size() + 1];
-				mImgUrls.toArray(urlStrArray);
-
-				downloadTask.execute(urlStrArray);
+				doImageDownload();
 			}
 		}
+	}
+
+	private void doImageDownload() {
+		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
+		if (mImgUrls.isEmpty()) {
+			if (mParser != null) {
+				mImgUrls.addAll(mParser.getImgUrls());
+			}
+		}
+		if (mImgUrls.isEmpty()) {
+			return;
+		}
+		String urlStrArray[] = new String[mImgUrls.size() + 1];
+		mImgUrls.toArray(urlStrArray);
+
+		downloadTask.execute(urlStrArray);
 	}
 
 	private class DetailWebChromeClient extends WebChromeClient {
@@ -335,13 +344,22 @@ public class DetailActivity extends Activity {
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \"" + values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
+						+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			super.onPostExecute(result);
 		}
 
@@ -355,7 +373,7 @@ public class DetailActivity extends Activity {
 			if (params.length == 0)
 				return null;
 
-			File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/");
+			File dir = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/");
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
@@ -371,7 +389,7 @@ public class DetailActivity extends Activity {
 					int index = urlStr.lastIndexOf("/");
 					String fileName = urlStr.substring(index + 1, urlStr.length());
 
-					File file = new File(Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/" + mThreadId + "/" + fileName);
+					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + fileName);
 
 					if (file.exists()) {
 						publishProgress(urlStr);
