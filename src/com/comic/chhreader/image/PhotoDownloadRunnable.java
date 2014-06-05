@@ -28,6 +28,8 @@ import java.net.URL;
 import android.os.Environment;
 
 import com.comic.chhreader.image.PhotoDecodeRunnable.TaskRunnableDecodeMethods;
+import com.comic.chhreader.utils.SharedPreferencesUtils;
+import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.Loge;
 
 /**
@@ -106,6 +108,12 @@ class PhotoDownloadRunnable implements Runnable {
 		 * @return The image URL
 		 */
 		URL getImageURL();
+		
+        /**
+         * Get as loading value
+         * @return The as loading value.
+         */
+        boolean getLoadNetImage();
 	}
 
 	/**
@@ -183,6 +191,11 @@ class PhotoDownloadRunnable implements Runnable {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		if(!mPhotoTask.getLoadNetImage()){
+			mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
+			return;
 		}
 
 		/*
@@ -404,22 +417,22 @@ class PhotoDownloadRunnable implements Runnable {
 						}
 					}
 				}
-			}
+				
+				// Save photo to local storage
+				try {
+					String path = IMAGE_CACHE_FOLDER + "/" + photoFileName;
+					Loge.i("Cache photo path = " + path);
+					File tempPhoto = new File(path);
+					if (!tempPhoto.exists()) {
+						tempPhoto.createNewFile();
+					}
 
-			// Save photo to local storage
-			try {
-				String path = IMAGE_CACHE_FOLDER + "/" + photoFileName;
-				Loge.i("Cache photo path = " + path);
-				File tempPhoto = new File(path);
-				if (!tempPhoto.exists()) {
-					tempPhoto.createNewFile();
+					FileOutputStream fos = new FileOutputStream(tempPhoto);
+					fos.write(byteBuffer, 0, byteBuffer.length);
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-
-				FileOutputStream fos = new FileOutputStream(tempPhoto);
-				fos.write(byteBuffer, 0, byteBuffer.length);
-				fos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 
 			/*

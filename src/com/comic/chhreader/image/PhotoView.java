@@ -39,6 +39,8 @@ import com.comic.chhreader.R;
  */
 public class PhotoView extends ImageView {
 	
+    private boolean mLoadNetImage = true;
+	
     private boolean mAsPreview = false;
     
     // Indicates if caching should be used force using cache
@@ -205,7 +207,7 @@ public class PhotoView extends ImageView {
     protected void onDetachedFromWindow() {
         
         // Clears out the image drawable, turns off the cache, disconnects the view from a URL
-		setImageURL(null, false, true, null);
+		setImageURL(null, false, true, false, null);
         
         // Gets the current Drawable, or null if no Drawable is attached
         Drawable localDrawable = getDrawable();
@@ -238,7 +240,7 @@ public class PhotoView extends ImageView {
         if ((!mIsDrawn) && (mImageURL != null)) {
             
             // Starts downloading this View, using the current cache setting
-            mDownloadThread = PhotoManager.startDownload(this, mCacheFlag,mAsPreview);
+            mDownloadThread = PhotoManager.startDownload(this, mCacheFlag,mAsPreview,mLoadNetImage);
             
             // After successfully downloading the image, this marks that it's available.
             mIsDrawn = true;
@@ -317,7 +319,7 @@ public class PhotoView extends ImageView {
      * @param cacheFlag Whether to use caching when doing downloading and decoding
      * @param imageDrawable The Drawable to use for this ImageView
      */
-    public void setImageURL(URL pictureURL, boolean cacheFlag,boolean asPreview, Drawable imageDrawable) {
+    public void setImageURL(URL pictureURL, boolean cacheFlag,boolean asPreview,boolean loadNetImage, Drawable imageDrawable) {
         // If the picture URL for this ImageView is already set
         if (mImageURL != null) {
             
@@ -345,18 +347,18 @@ public class PhotoView extends ImageView {
             // Sets the cache flag
 			mCacheFlag = cacheFlag;
 			mAsPreview = asPreview;
+			mLoadNetImage = loadNetImage;
             /*
              * Starts a download of the picture file. Notice that if caching is on, the picture
              * file's contents may be taken from the cache.
              */
-            mDownloadThread = PhotoManager.startDownload(this, cacheFlag,asPreview);
+            mDownloadThread = PhotoManager.startDownload(this, cacheFlag,asPreview,loadNetImage);
         }
     }
     
     //function do not use preview tag
-	public void setImageURL(URL pictureURL, boolean cacheFlag,
-			Drawable imageDrawable) {
-		setImageURL(pictureURL, cacheFlag, false, imageDrawable);
+	public void setImageURL(URL pictureURL, boolean cacheFlag, Drawable imageDrawable) {
+		setImageURL(pictureURL, cacheFlag, false, true, imageDrawable);
 	}
 
     /**

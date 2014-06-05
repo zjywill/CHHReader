@@ -25,6 +25,8 @@ public class ContentAdapter extends CursorAdapter {
 	}
 
 	private Context mContext;
+	
+	private boolean mNoImage = false;
 
 	ContentAdapter(Context ctx) {
 		super(ctx, null, 0);
@@ -77,7 +79,7 @@ public class ContentAdapter extends CursorAdapter {
 
 			try {
 				URL localURL = new URL(data.mImageUrl);
-				holder.icon.setImageURL(localURL, true, true, null);
+				holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
 				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {
 				localMalformedURLException.printStackTrace();
@@ -104,5 +106,10 @@ public class ContentAdapter extends CursorAdapter {
 			return null;
 		}
 	}
+	
+	public void setNoImage(boolean noimage){
+		mNoImage = noimage;
+	}
+
 
 }

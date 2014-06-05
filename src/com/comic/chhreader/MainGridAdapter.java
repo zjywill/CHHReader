@@ -24,6 +24,8 @@ public class MainGridAdapter extends CursorAdapter {
 
 	private Context mContext;
 	private Cursor mCursor;
+	
+	private boolean mNoImage = false;
 
 	MainGridAdapter(Context ctx, Cursor cursor) {
 		super(ctx, cursor, 0);
@@ -76,7 +78,7 @@ public class MainGridAdapter extends CursorAdapter {
 
 			try {
 				URL localURL = new URL(data.mImageUrl);
-				holder.image.setImageURL(localURL, true, true, null);
+				holder.image.setImageURL(localURL, true, true, !mNoImage, null);
 				holder.image.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {
 				localMalformedURLException.printStackTrace();
@@ -101,6 +103,10 @@ public class MainGridAdapter extends CursorAdapter {
 		} else {
 			return null;
 		}
+	}
+	
+	public void setNoImage(boolean noimage){
+		mNoImage = noimage;
 	}
 
 }

@@ -419,7 +419,7 @@ public class PhotoManager {
 	 * @return The task instance that will handle the work
 	 */
 	static public PhotoTask startDownload(PhotoView imageView,
-			boolean cacheFlag, boolean asPreview) {
+			boolean cacheFlag, boolean asPreview,boolean loadNetImage) {
 
 		/*
 		 * Gets a task from the pool of tasks, returning null if the pool is
@@ -433,7 +433,7 @@ public class PhotoManager {
 		}
 
 		// Initializes the task
-		downloadTask.initializeDownloaderTask(PhotoManager.sInstance, imageView, cacheFlag, asPreview);
+		downloadTask.initializeDownloaderTask(PhotoManager.sInstance, imageView, cacheFlag, asPreview,loadNetImage);
 
 		/*
 		 * Provides the download task with the cache buffer corresponding to the

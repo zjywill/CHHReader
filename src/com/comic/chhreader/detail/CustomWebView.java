@@ -10,7 +10,6 @@ import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -18,6 +17,8 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
+
+import com.comic.chhreader.Loge;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class CustomWebView extends WebView implements View.OnSystemUiVisibilityChangeListener {
@@ -50,8 +51,7 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		webSettings.setSupportZoom(false);
 		webSettings.setSaveFormData(false);
 		webSettings.setLoadsImagesAutomatically(true);
-		
-		
+
 		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 		webSettings.setJavaScriptEnabled(true);
@@ -60,12 +60,11 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 		setNavVisibility(true);
 	}
-	
+
 	public class Js2JavaInterface {
 		private Context context;
-		private String TAG = "JsUseJaveInterface";
 		public void setImgSrc(String imgSrc) {
-			Log.i(TAG, "setImgSrc : " + imgSrc);
+			Loge.i("setImgSrc : " + imgSrc);
 		}
 	}
 

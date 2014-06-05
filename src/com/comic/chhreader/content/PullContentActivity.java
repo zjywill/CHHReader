@@ -32,6 +32,7 @@ import com.comic.chhreader.pull2refresh.PullToRefreshLayout;
 import com.comic.chhreader.pull2refresh.PullToRefreshLayout.OnRefreshListener;
 import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.DataBaseUtils;
+import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 
@@ -61,7 +62,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	// ------------------------------------------------------------------
 
 	private int mLatestId;
-	
+
 	private long mImageTimeStamp;
 
 	private ContentData mFirstItem = new ContentData();
@@ -71,6 +72,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 	private boolean first = true;
 	private boolean showToast = false;
 	private boolean nomore = false;
+	private boolean mNoImage = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -250,6 +252,12 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 
 	@Override
 	protected void onResume() {
+		if (SharedPreferencesUtils.getNoImageMode(mCtx) && !Utils.isWifiAvailable(mCtx)) {
+			mNoImage = true;
+		}
+		if (mListAdapter != null) {
+			mListAdapter.setNoImage(mNoImage);
+		}
 		super.onResume();
 	}
 

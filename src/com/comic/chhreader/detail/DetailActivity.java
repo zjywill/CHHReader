@@ -37,6 +37,7 @@ import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentDataDetail;
 import com.comic.chhreader.utils.DataBaseUtils;
+import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
 
 public class DetailActivity extends Activity {
@@ -58,6 +59,7 @@ public class DetailActivity extends Activity {
 
 	private boolean mDestroyed = false;
 	private boolean mPaused = false;
+	private boolean mNoImage = false;
 
 	public List<String> mImgUrls = new ArrayList<String>();
 
@@ -91,6 +93,7 @@ public class DetailActivity extends Activity {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
 		}
 		mCustomWebView.setVisibility(View.GONE);
+		mWebProgress.setVisibility(View.GONE);
 		mLoadingView.setVisibility(View.VISIBLE);
 
 		new LoadContentAsyncTask().execute(mMainUrl);
@@ -168,6 +171,9 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onResume() {
 		mPaused = false;
+		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
+			mNoImage = true;
+		}
 		doImageDownload();
 		super.onResume();
 	}
@@ -225,6 +231,14 @@ public class DetailActivity extends Activity {
 	}
 
 	private void doImageDownload() {
+		if (mNoImage) {
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			return;
+		}
 		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
 		if (mImgUrls.isEmpty()) {
 			if (mParser != null) {
@@ -322,11 +336,13 @@ public class DetailActivity extends Activity {
 							if (result != null && result.length() > 0) {
 								mMainContent = result;
 								mCustomWebView.setVisibility(View.VISIBLE);
+								mWebProgress.setVisibility(View.VISIBLE);
 								mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 								mLoadingView.setVisibility(View.GONE);
 							} else {
 								mLoadingView.setVisibility(View.GONE);
 								mCustomWebView.setVisibility(View.VISIBLE);
+								mWebProgress.setVisibility(View.VISIBLE);
 								mCustomWebView.loadUrl(mMainUrl);
 							}
 						}
@@ -380,6 +396,7 @@ public class DetailActivity extends Activity {
 
 			for (String urlStr : params) {
 				if (mDestroyed) {
+					Loge.d("DownloadWebImgTask Destroyed stop loading AAA");
 					return null;
 				}
 				try {
@@ -403,19 +420,27 @@ public class DetailActivity extends Activity {
 					}
 
 					url = new URL(urlStr);
+					Loge.d("DownloadWebImgTask openConnection A");
 					urlCon = (HttpURLConnection) url.openConnection();
+					Loge.d("DownloadWebImgTask openConnection B");
 					urlCon.setRequestMethod("GET");
+					urlCon.setReadTimeout(5000);
 					urlCon.setDoInput(true);
 					urlCon.connect();
 
 					inputStream = urlCon.getInputStream();
 					outputStream = new FileOutputStream(file);
-					byte buffer[] = new byte[1024];
+					byte buffer[] = new byte[100];
 					int bufferLength = 0;
-					while ((bufferLength = inputStream.read(buffer)) > 0) {
+					while ((bufferLength = inputStream.read(buffer)) > 0 && !mDestroyed) {
 						outputStream.write(buffer, 0, bufferLength);
 					}
 					outputStream.flush();
+					if (mDestroyed) {
+						Loge.d("DownloadWebImgTask Destroyed stop loading BBB");
+						file.delete();
+						urlCon.disconnect();
+					}
 					publishProgress(urlStr);
 				} catch (MalformedURLException e) {
 					e.printStackTrace();

@@ -61,6 +61,8 @@ public class PhotoTask implements TaskRunnableDownloadMethods,
     private boolean mCacheEnabled;
     
     private boolean mAsPreview = false;
+    
+    private boolean mLoadNetImage = true;
 
     /*
      * Field containing the Thread this task is running on.
@@ -109,7 +111,7 @@ public class PhotoTask implements TaskRunnableDownloadMethods,
      *            Whether caching is enabled
      */
     void initializeDownloaderTask(PhotoManager photoManager,
-	    PhotoView photoView, boolean cacheFlag,boolean asPreview) {
+	    PhotoView photoView, boolean cacheFlag,boolean asPreview,boolean loadNetImage) {
 	// Sets this object's ThreadPool field to be the input argument
 	sPhotoManager = photoManager;
 
@@ -123,6 +125,8 @@ public class PhotoTask implements TaskRunnableDownloadMethods,
 	mCacheEnabled = cacheFlag;
 	
 	mAsPreview = asPreview;
+	
+	mLoadNetImage = loadNetImage;
 
 	// Gets the width and height of the provided ImageView
 	mTargetWidth = photoView.getWidth();
@@ -251,6 +255,12 @@ public class PhotoTask implements TaskRunnableDownloadMethods,
     public boolean getAsPreviewTag() {
     	return mAsPreview;
     }
+    
+    @Override
+    public boolean getLoadNetImage() {
+    	return mLoadNetImage;
+    }
+
 
     // Implements PhotoDownloadRunnable.setHTTPDownloadThread(). Calls
     // setCurrentThread().

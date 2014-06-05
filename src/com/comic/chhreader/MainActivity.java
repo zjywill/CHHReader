@@ -53,7 +53,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	private Context mContext = this;
 	private NetworkDialog mNetworkDialog = null;
 
-	boolean updating = false;
+	private boolean updating = false;
+	private boolean mNoImage = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +111,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
+		MenuItem no_image = menu.findItem(R.id.action_no_image);
+		no_image.setChecked(SharedPreferencesUtils.getNoImageMode(mContext));
 		return true;
 	}
 
@@ -120,6 +123,13 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				Loge.i("Options Selected = do_refresh");
 				if (!updating)
 					new FetchDataTaskNet().execute();
+			}
+				break;
+			case R.id.action_no_image: {
+				Loge.i("Options Selected = no_image");
+				boolean state = SharedPreferencesUtils.getNoImageMode(mContext);
+				item.setChecked(!state);
+				SharedPreferencesUtils.saveNoImageMode(mContext, !state);
 			}
 				break;
 			default:
@@ -134,7 +144,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
 			intent.putExtra("title", cur.getString(cur.getColumnIndex(DataProvider.KEY_TOPIC_NAME)));
-			intent.putExtra("imagetimestamp", cur.getLong(cur.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP)));
+			intent.putExtra("imagetimestamp",
+					cur.getLong(cur.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP)));
 			intent.putExtra("category", cur.getInt(cur.getColumnIndex(DataProvider.KEY_TOPIC_PK)));
 			startActivity(intent);
 		}
@@ -142,8 +153,14 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	@Override
 	protected void onResume() {
-		super.onResume();
+		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
+			mNoImage = true;
+		}
+		if (mGirdAdapter != null) {
+			mGirdAdapter.setNoImage(mNoImage);
+		}
 		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
+		super.onResume();
 	}
 
 	@Override
