@@ -37,6 +37,7 @@ import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentDataDetail;
 import com.comic.chhreader.utils.DataBaseUtils;
+import com.comic.chhreader.utils.FileOperation;
 import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
 
@@ -137,33 +138,27 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home:
-			case R.id.action_back: {
-				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-						&& mCustomWebView.getUrl().contains("album")) {
-					mCustomWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
+		case android.R.id.home:
+		case R.id.action_back: {
+			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
+				mCustomWebView.loadUrl(mMainUrl);
+			} else {
+				finish();
 			}
-				break;
-			case R.id.action_refresh: {
-				if (mMainContent != null && !mMainContent.isEmpty()) {
-					mCustomWebView
-							.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
-				} else {
-					mCustomWebView.loadUrl(mMainUrl);
-				}
-			}
-				break;
-			case R.id.action_view_in_browser: {
-				Uri uri = Uri.parse(mMainUrl);
-				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(viewIntent);
-			}
-				break;
-			default:
-				break;
+		}
+			break;
+		case R.id.action_refresh: {
+			new DeleteLocalPhotoTask().execute();
+		}
+			break;
+		case R.id.action_view_in_browser: {
+			Uri uri = Uri.parse(mMainUrl);
+			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+			startActivity(viewIntent);
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -233,11 +228,7 @@ public class DetailActivity extends Activity {
 
 	private void doImageDownload() {
 		if (mNoImage) {
-			mCustomWebView.loadUrl("javascript:(function(){"
-					+ "var objs = document.getElementsByTagName(\"img\"); "
-					+ "for(var i=0;i<objs.length;i++)  " + "{"
-					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			return;
 		}
 		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
@@ -370,22 +361,13 @@ public class DetailActivity extends Activity {
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){"
-						+ "var objs = document.getElementsByTagName(\"img\"); "
-						+ "for(var i=0;i<objs.length;i++)  " + "{"
-						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-						+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
-						+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \"" + values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){"
-						+ "var objs = document.getElementsByTagName(\"img\"); "
-						+ "for(var i=0;i<objs.length;i++)  " + "{"
-						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-						+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			super.onPostExecute(result);
 		}
 
@@ -422,7 +404,7 @@ public class DetailActivity extends Activity {
 						publishProgress(urlStr);
 						continue;
 					}
-					
+
 					if (file.length() == 0) {
 						file.delete();
 					}
@@ -482,6 +464,30 @@ public class DetailActivity extends Activity {
 			}
 
 			return null;
+		}
+	}
+
+	private class DeleteLocalPhotoTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			if (mThreadId != null && mThreadId.length() > 0) {
+				File dir = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/");
+				if (dir.exists()) {
+					FileOperation.deleteDirectory(dir);
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			if (mMainContent != null && !mMainContent.isEmpty()) {
+				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
+			} else {
+				mCustomWebView.loadUrl(mMainUrl);
+			}
+			super.onPostExecute(result);
 		}
 
 	}
