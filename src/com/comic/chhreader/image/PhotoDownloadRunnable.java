@@ -43,8 +43,7 @@ import com.comic.chhreader.image.PhotoDecodeRunnable.TaskRunnableDecodeMethods;
  */
 class PhotoDownloadRunnable implements Runnable {
 	// Sets the image cache folder in external storage
-	private static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache";
+	private static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache";
 
 	// Sets the size for each read action (bytes)
 	private static final int READ_SIZE = 1024;
@@ -153,8 +152,7 @@ class PhotoDownloadRunnable implements Runnable {
 		String[] photoFileNameArray = mPhotoTask.getImageURL().toString().split("/");
 		String photoFileName = null;
 		if (photoFileNameArray.length > 2) {
-			photoFileName = photoFileNameArray[photoFileNameArray.length - 2]
-					+ photoFileNameArray[photoFileNameArray.length - 1];
+			photoFileName = photoFileNameArray[photoFileNameArray.length - 2] + photoFileNameArray[photoFileNameArray.length - 1];
 		} else {
 			photoFileName = photoFileNameArray[photoFileNameArray.length - 1];
 		}
@@ -178,22 +176,26 @@ class PhotoDownloadRunnable implements Runnable {
 					if (photoFile.exists()) {
 						Loge.i("Photo file exsist, get photo from local cache");
 						FileInputStream fis = new FileInputStream(photoFile);
-						byteBuffer = new byte[fis.available()];
-						int result = fis.read(byteBuffer);
-						fis.close();
-						if (result == 0) {
-							Loge.i("read error = " + result);
-							byteBuffer = null;
+						if (fis.available() != 0) {
+							byteBuffer = new byte[fis.available()];
+							int result = fis.read(byteBuffer);
+							if (result == 0) {
+								Loge.i("read error = " + result);
+								byteBuffer = null;
+								photoFile.delete();
+							}
+						} else {
 							photoFile.delete();
 						}
+						fis.close();
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		
-		if(byteBuffer == null){
+
+		if (byteBuffer == null) {
 			Loge.d("no local data, load fail");
 		}
 
@@ -204,15 +206,16 @@ class PhotoDownloadRunnable implements Runnable {
 		// Tries to download the picture from Picasa
 		try {
 			if (byteBuffer == null) {
-				
+
 				Loge.d("LoadNetImage: " + mPhotoTask.getLoadNetImage());
 				if (!mPhotoTask.getLoadNetImage()) {
-//					mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
+					// mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
 					return;
 				}
-				
+
 				try {
-					// Before continuing, checks to see that the Thread hasn't been
+					// Before continuing, checks to see that the Thread hasn't
+					// been
 					// interrupted
 					if (Thread.interrupted()) {
 						throw new InterruptedException();
@@ -256,6 +259,8 @@ class PhotoDownloadRunnable implements Runnable {
 					File tempPhoto = new File(path);
 					OutputStream outputStream = new FileOutputStream(tempPhoto);
 
+					int contentSize = httpConn.getContentLength();
+
 					byte buffer[] = new byte[READ_SIZE];
 					int bufferLength = 0;
 					while ((bufferLength = byteStream.read(buffer)) > 0) {
@@ -272,6 +277,11 @@ class PhotoDownloadRunnable implements Runnable {
 					if (tempPhoto.exists()) {
 						Loge.i("Photo file exsist, get photo from local cache");
 						FileInputStream fis = new FileInputStream(tempPhoto);
+						if (fis.available() < contentSize || fis.available() == 0) {
+							Loge.i("Photo file not complete, delete local file");
+							fis.close();
+							tempPhoto.delete();
+						}
 						byteBuffer = new byte[fis.available()];
 						int result = fis.read(byteBuffer);
 						fis.close();

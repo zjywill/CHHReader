@@ -418,9 +418,13 @@ public class DetailActivity extends Activity {
 
 					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + fileName);
 
-					if (file.exists()) {
+					if (file.exists() && file.length() != 0) {
 						publishProgress(urlStr);
 						continue;
+					}
+					
+					if (file.length() == 0) {
+						file.delete();
 					}
 
 					try {
@@ -438,6 +442,8 @@ public class DetailActivity extends Activity {
 					urlCon.setDoInput(true);
 					urlCon.connect();
 
+					int contentSize = urlCon.getContentLength();
+
 					inputStream = urlCon.getInputStream();
 					outputStream = new FileOutputStream(file);
 					byte buffer[] = new byte[100];
@@ -446,6 +452,11 @@ public class DetailActivity extends Activity {
 						outputStream.write(buffer, 0, bufferLength);
 					}
 					outputStream.flush();
+
+					if (file.length() < contentSize || file.length() == 0) {
+						file.delete();
+					}
+
 					if (mDestroyed) {
 						Loge.d("DownloadWebImgTask Destroyed stop loading BBB");
 						file.delete();
