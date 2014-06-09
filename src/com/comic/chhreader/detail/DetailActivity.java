@@ -420,6 +420,7 @@ public class DetailActivity extends Activity {
 					urlCon = (HttpURLConnection) url.openConnection();
 					Loge.d("DownloadWebImgTask openConnection B");
 					urlCon.setRequestMethod("GET");
+					urlCon.setRequestProperty("Accept-Encoding", "identity"); 
 					urlCon.setReadTimeout(5000);
 					urlCon.setDoInput(true);
 					urlCon.connect();

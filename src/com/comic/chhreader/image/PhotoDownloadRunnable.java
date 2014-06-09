@@ -239,6 +239,7 @@ class PhotoDownloadRunnable implements Runnable {
 
 					// Sets the user agent to report to the server
 					httpConn.setRequestProperty("User-Agent", PhotoConstants.USER_AGENT);
+					httpConn.setRequestProperty("Accept-Encoding", "identity"); 
 					httpConn.setRequestMethod("GET");
 					httpConn.setReadTimeout(5000);
 					httpConn.setDoInput(true);
