@@ -202,6 +202,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 			default:
 				break;
 		}
+		updating = false;
 	}
 
 	@Override
@@ -480,7 +481,6 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 				}
 			}
 			mPullToRefreshLayout.onSyncFinished();
-			updating = false;
 			showToast = false;
 		}
 	}
