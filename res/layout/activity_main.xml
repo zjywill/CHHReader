@@ -3,12 +3,17 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#ff222222"
+    android:orientation="vertical"
     tools:context=".MainActivity" >
+
+    <com.comic.chhreader.gallery.GalleryRootView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 
     <GridView
         android:id="@+id/main_gird"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         android:layout_marginTop="3dp"
         android:horizontalSpacing="0dp"

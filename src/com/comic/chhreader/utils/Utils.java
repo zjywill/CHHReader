@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.DisplayMetrics;
 
 public class Utils {
 	static public boolean isLocationProvideOn(Context ctx) {
@@ -14,7 +15,8 @@ public class Utils {
 	};
 
 	static public boolean isNetworkAvailable(Context ctx) {
-		final ConnectivityManager connectivity = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final ConnectivityManager connectivity = (ConnectivityManager) ctx
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (connectivity != null) {
 			final NetworkInfo info = connectivity.getActiveNetworkInfo();
 			if (info != null) {
@@ -23,9 +25,10 @@ public class Utils {
 		}
 		return false;
 	}
-	
+
 	static public boolean isWifiAvailable(Context ctx) {
-		final ConnectivityManager connectivity = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final ConnectivityManager connectivity = (ConnectivityManager) ctx
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo ninfo = connectivity.getActiveNetworkInfo();
 		if (ninfo != null && ninfo.getType() == ConnectivityManager.TYPE_WIFI) {
 			return true;
@@ -34,11 +37,17 @@ public class Utils {
 	}
 
 	static public boolean isMobileNetworkAvailable(Context ctx) {
-		final ConnectivityManager connectivity = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final ConnectivityManager connectivity = (ConnectivityManager) ctx
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo ninfo = connectivity.getActiveNetworkInfo();
 		if (ninfo != null && ninfo.getType() == ConnectivityManager.TYPE_MOBILE) {
 			return true;
 		}
 		return false;
+	}
+
+	static public int dipToPx(Context context, int dimen) {
+		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return ((int) (dimen * dm.density));
 	}
 }

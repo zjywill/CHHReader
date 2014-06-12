@@ -33,6 +33,7 @@ import com.comic.chhreader.content.PullContentActivity;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
+import com.comic.chhreader.gallery.GalleryRootView;
 import com.comic.chhreader.provider.DataProvider;
 import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.DataBaseUtils;
@@ -46,6 +47,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	private static final long UPGRADE_GAP = DateUtils.DAY_IN_MILLIS;
 
+	private GalleryRootView mGalleryRootView;
+	
 	private GridView mGrid;
 	private MainGridAdapter mGirdAdapter;
 
@@ -68,6 +71,11 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 		mGrid = (GridView) findViewById(R.id.main_gird);
 		mGrid.setOnItemClickListener(this);
+		
+//		mGalleryRootView = new GalleryRootView(this);
+//		
+//		mGrid.addView(mGalleryRootView);
+		
 		mGirdAdapter = new MainGridAdapter(this, null);
 
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
