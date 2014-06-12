@@ -16,7 +16,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
 
-        <GridView
+        <com.comic.chhreader.CustomGridView
             android:id="@+id/main_gird"
             android:layout_width="fill_parent"
             android:layout_height="890dp"
