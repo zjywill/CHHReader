@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.comic.chhreader.clean.CleanService;
@@ -47,8 +48,9 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	private static final long UPGRADE_GAP = DateUtils.DAY_IN_MILLIS;
 
+	private ScrollView mScrollView;
 	private GalleryRootView mGalleryRootView;
-	
+
 	private GridView mGrid;
 	private MainGridAdapter mGirdAdapter;
 
@@ -69,13 +71,12 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		cleanService.setClass(MainActivity.this, CleanService.class);
 		startService(cleanService);
 
-		mGrid = (GridView) findViewById(R.id.main_gird);
+		mScrollView = (ScrollView) findViewById(R.id.scroll_view);
+		mGalleryRootView = (GalleryRootView) findViewById(R.id.news);
+
+		mGrid = (CustomGridView) findViewById(R.id.main_gird);
 		mGrid.setOnItemClickListener(this);
-		
-//		mGalleryRootView = new GalleryRootView(this);
-//		
-//		mGrid.addView(mGalleryRootView);
-		
+
 		mGirdAdapter = new MainGridAdapter(this, null);
 
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
@@ -103,19 +104,19 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		if (Utils.isWifiAvailable(mContext) && !updating) {
 			new FetchDataTaskNet().execute();
 		}
+		mScrollView.scrollTo(0, 0);
 	}
 
 	void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
 			actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
-			//			actionBar.setIcon(R.drawable.title_icon);
+			// actionBar.setIcon(R.drawable.title_icon);
 
 			Loge.i("action bar setCustomView");
 			LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View actionbarView = inflator.inflate(R.layout.main_activity_actionbar, null);
-			LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
-					Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+			LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.RIGHT | Gravity.CENTER_VERTICAL);
 			actionBar.setCustomView(actionbarView, lp);
 			actionBar.setDisplayShowCustomEnabled(true);
 			actionBar.setDisplayUseLogoEnabled(false);
@@ -137,33 +138,33 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_do_refresh: {
-				Loge.i("Options Selected = do_refresh");
-				if (!updating)
-					new FetchDataTaskNet().execute();
-			}
-				break;
-			case R.id.action_no_image: {
-				Loge.i("Options Selected = no_image");
-				boolean state = SharedPreferencesUtils.getNoImageMode(mContext);
-				item.setChecked(!state);
-				SharedPreferencesUtils.saveNoImageMode(mContext, !state);
-			}
-				break;
-			default:
-				break;
+		case R.id.action_do_refresh: {
+			Loge.i("Options Selected = do_refresh");
+			if (!updating)
+				new FetchDataTaskNet().execute();
+		}
+			break;
+		case R.id.action_no_image: {
+			Loge.i("Options Selected = no_image");
+			boolean state = SharedPreferencesUtils.getNoImageMode(mContext);
+			item.setChecked(!state);
+			SharedPreferencesUtils.saveNoImageMode(mContext, !state);
+		}
+			break;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
 		Intent intent = new Intent(MainActivity.this, PullContentActivity.class);
 		Cursor cur = (Cursor) mGirdAdapter.getItem(position);
 		if (cur != null) {
 			intent.putExtra("title", cur.getString(cur.getColumnIndex(DataProvider.KEY_TOPIC_NAME)));
-			intent.putExtra("imagetimestamp",
-					cur.getLong(cur.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP)));
+			intent.putExtra("imagetimestamp", cur.getLong(cur.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP)));
 			intent.putExtra("category", cur.getInt(cur.getColumnIndex(DataProvider.KEY_TOPIC_PK)));
 			startActivity(intent);
 		}
@@ -171,6 +172,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	@Override
 	protected void onResume() {
+		mScrollView.scrollTo(0, 0);
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
 			mNoImage = true;
 		} else {
@@ -193,18 +195,17 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
 		Loge.i("onCreateLoader");
 		switch (loaderID) {
-			case LOADER_ID_LOACL: {
-				String[] projection = new String[5];
-				projection[0] = DataProvider.KEY_TOPIC_ID;
-				projection[1] = DataProvider.KEY_TOPIC_NAME;
-				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
-				projection[3] = DataProvider.KEY_TOPIC_PK;
-				projection[4] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
-				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, projection, null, null,
-						DataProvider.KEY_TOPIC_PK);
-			}
-			default:
-				break;
+		case LOADER_ID_LOACL: {
+			String[] projection = new String[5];
+			projection[0] = DataProvider.KEY_TOPIC_ID;
+			projection[1] = DataProvider.KEY_TOPIC_NAME;
+			projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
+			projection[3] = DataProvider.KEY_TOPIC_PK;
+			projection[4] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
+			return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, projection, null, null, DataProvider.KEY_TOPIC_PK);
+		}
+		default:
+			break;
 		}
 		return null;
 	}
@@ -213,21 +214,22 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		Loge.i("onLoadFinished id: " + loader.getId());
 		switch (loader.getId()) {
-			case LOADER_ID_LOACL: {
-				if (cur != null && cur.getCount() > 0) {
-					Loge.i("get data from local count = " + cur.getCount());
-					mGirdAdapter.swapCursor(cur);
-					mGirdAdapter.notifyDataSetChanged();
-				} else {
-					Loge.i("Cursor is null or count == 0");
-					if (!updating)
-						new FetchDataTaskNet().execute();
-				}
+		case LOADER_ID_LOACL: {
+			if (cur != null && cur.getCount() > 0) {
+				Loge.i("get data from local count = " + cur.getCount());
+				mGirdAdapter.swapCursor(cur);
+				mGirdAdapter.notifyDataSetChanged();
+				mScrollView.scrollTo(0, 0);
+			} else {
+				Loge.i("Cursor is null or count == 0");
+				if (!updating)
+					new FetchDataTaskNet().execute();
 			}
-				break;
+		}
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 

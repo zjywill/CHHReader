@@ -101,6 +101,10 @@ public class GalleryRootView extends FrameLayout {
 				break;
 			case MotionEvent.ACTION_MOVE: {
 				mVelocityTracker.addMovement(event);
+				int yMove = (int) (mCurrentPoint.y - mStartPoint.y);
+				if(yMove>0){
+					return true;
+				}
 				int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
 				takeMove(xMove - mViewWidth * mPageCurrent);
 			}

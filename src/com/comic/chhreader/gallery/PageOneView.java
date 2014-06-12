@@ -19,7 +19,7 @@ public class PageOneView extends RelativeLayout {
 	private void initView() {
 		mImageView = new ImageView(getContext());
 		mImageView.setImageResource(R.drawable.ic_launcher);
-		mImageView.setScaleType(ImageView.ScaleType.CENTER);
+		mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 		imageParams.addRule(RelativeLayout.CENTER_IN_PARENT);
