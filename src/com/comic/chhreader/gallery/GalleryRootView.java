@@ -3,10 +3,11 @@ package com.comic.chhreader.gallery;
 import android.content.Context;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
@@ -14,7 +15,7 @@ import android.widget.Scroller;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.utils.Utils;
 
-public class GalleryRootView extends FrameLayout implements View.OnClickListener {
+public class GalleryRootView extends FrameLayout {
 
 	public static final int GALLERY_HEIGHT = 180;
 
@@ -38,6 +39,8 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 	private boolean onAnimation = false;
 	private boolean bounceBack = false;
 
+	private GestureDetector mGestureDetector;
+
 	public GalleryRootView(Context context) {
 		super(context);
 		initView();
@@ -51,22 +54,21 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 	private void initView() {
 		mHeight = Utils.dipToPx(getContext(), GALLERY_HEIGHT);
 
+		mGestureDetector = new GestureDetector(getContext(), new TapGesture());
+
 		mScroller = new Scroller(getContext(), mInterpolator);
 
 		mIntroTextGroup = new IntroTextGroup(getContext(), mPageCount, 0);
-		FrameLayout.LayoutParams introTextParams = new FrameLayout.LayoutParams(
-				FrameLayout.LayoutParams.MATCH_PARENT, mHeight / 3);
+		FrameLayout.LayoutParams introTextParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight / 3);
 		introTextParams.gravity = Gravity.BOTTOM;
 		mIntroTextGroup.setLayoutParams(introTextParams);
 
 		mCenterCorssFadeView = new CenterCorssFadeView(getContext(), mPageCount);
-		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(
-				FrameLayout.LayoutParams.MATCH_PARENT, mHeight);
+		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight);
 		mCenterCorssFadeView.setLayoutParams(centerParams);
 
 		mPageIndecator = new PageIndecator(getContext(), mPageCount);
-		FrameLayout.LayoutParams indecatorParams = new FrameLayout.LayoutParams(
-				FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+		FrameLayout.LayoutParams indecatorParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 		indecatorParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;
 		mPageIndecator.setLayoutParams(indecatorParams);
 
@@ -74,11 +76,6 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 		addView(mIntroTextGroup);
 		addView(mPageIndecator);
 	}
-
-	@Override
-	public void onClick(View arg0) {
-
-	};
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -97,36 +94,33 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 			mCurrentPoint = new PointF();
 		}
 		mCurrentPoint.set(event.getX(), event.getY());
-
-		Loge.d("GalleryRootView onTouchEvent action: " + action);
-
 		switch (action) {
-			case MotionEvent.ACTION_DOWN: {
-				if (mVelocityTracker == null) {
-					mVelocityTracker = VelocityTracker.obtain();
-				}
-				mVelocityTracker.addMovement(event);
+		case MotionEvent.ACTION_DOWN: {
+			if (mVelocityTracker == null) {
+				mVelocityTracker = VelocityTracker.obtain();
 			}
-				break;
-			case MotionEvent.ACTION_MOVE: {
-				mVelocityTracker.addMovement(event);
-				int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
-				takeMove(xMove - mViewWidth * mPageCurrent);
-			}
-				break;
-			case MotionEvent.ACTION_CANCEL:
-			case MotionEvent.ACTION_UP: {
-				mVelocityTracker.addMovement(event);
-				moveToNextPage();
-				mVelocityTracker.recycle();
-				mVelocityTracker = null;
-				mStartPoint = null;
-				return true;
-			}
-
-			default:
-				break;
+			mVelocityTracker.addMovement(event);
 		}
+			break;
+		case MotionEvent.ACTION_MOVE: {
+			mVelocityTracker.addMovement(event);
+			int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
+			takeMove(xMove - mViewWidth * mPageCurrent);
+		}
+			break;
+		case MotionEvent.ACTION_CANCEL:
+		case MotionEvent.ACTION_UP: {
+			mVelocityTracker.addMovement(event);
+			moveToNextPage();
+			mVelocityTracker.recycle();
+			mVelocityTracker = null;
+			mStartPoint = null;
+		}
+
+		default:
+			break;
+		}
+		mGestureDetector.onTouchEvent(event);
 		return true;
 	}
 
@@ -148,7 +142,7 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 			return;
 		}
 
-		if (Math.abs(movePercent) > 0.1f || Math.abs(moveXSpeed) > 0) {
+		if (Math.abs(movePercent) > 0.3f || Math.abs(moveXSpeed) > 200) {
 			bounceBack = false;
 
 			int pagenow = 0;
@@ -168,7 +162,7 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 
 			if (mPageCurrent == 0 && mUpDistance > 0) {
 				return;
-				//scrollToNext(0, mUpDistance);
+				// scrollToNext(0, mUpDistance);
 			} else {
 				int remainX = mViewWidth - Math.abs(xMove);
 				scrollToNext(0, remainX);
@@ -184,8 +178,7 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 	}
 
 	private void takeMove(int moveX) {
-		if ((mPageCurrent == 0 && moveX > 0)
-				|| (moveX < (-mViewWidth * (mPageCount - 1)) && mPageCurrent == (mPageCount - 1))) {
+		if ((mPageCurrent == 0 && moveX > 0) || (moveX < (-mViewWidth * (mPageCount - 1)) && mPageCurrent == (mPageCount - 1))) {
 			return;
 		}
 		float movePercent = moveX / (1.0F * mViewWidth);
@@ -241,5 +234,15 @@ public class GalleryRootView extends FrameLayout implements View.OnClickListener
 			takeMove(distanceX);
 			post(new AnimateRunnable());
 		}
+	}
+
+	private class TapGesture extends SimpleOnGestureListener {
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			Loge.d("GalleryRootView onClick mPageCurrent: " + mPageCurrent);
+			return true;
+		}
+
 	}
 }

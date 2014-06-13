@@ -9,10 +9,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 
 @SuppressLint("NewApi")
-public class CenterCorssFadeView extends FrameLayout {
+public class CenterCorssFadeView extends FrameLayout{
 
 	private int mPageCount;
 
@@ -36,26 +37,26 @@ public class CenterCorssFadeView extends FrameLayout {
 
 		PageOneView view1 = new PageOneView(getContext());
 		mCenterLayoutList.add(view1);
-		view1.setImage(R.drawable.news_01);
 
 		PageOneView view2 = new PageOneView(getContext());
 		mCenterLayoutList.add(view2);
-		view2.setImage(R.drawable.news_02);
 
 		PageOneView view3 = new PageOneView(getContext());
 		mCenterLayoutList.add(view3);
-		view3.setImage(R.drawable.news_03);
 
 		PageOneView view4 = new PageOneView(getContext());
 		mCenterLayoutList.add(view4);
-		view4.setImage(R.drawable.news_04);
 
 		PageOneView view5 = new PageOneView(getContext());
 		mCenterLayoutList.add(view5);
+		
+		view1.setImage(R.drawable.news_01);
+		view2.setImage(R.drawable.news_02);
+		view3.setImage(R.drawable.news_03);
+		view4.setImage(R.drawable.news_04);
 		view5.setImage(R.drawable.news_05);
 
-		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(
-				FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
 		addView(view1, centerParams);
 		addView(view2, centerParams);
