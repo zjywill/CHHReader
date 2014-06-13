@@ -1,4 +1,4 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.comic.chhreader.CustomScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
     android:layout_width="fill_parent"
@@ -16,7 +16,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
 
-        <com.comic.chhreader.CustomGridView
+        <GridView
             android:id="@+id/main_gird"
             android:layout_width="fill_parent"
             android:layout_height="890dp"
@@ -30,4 +30,4 @@
             android:verticalSpacing="0dp" />
     </LinearLayout>
 
-</ScrollView>
+</com.comic.chhreader.CustomScrollView>

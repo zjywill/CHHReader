@@ -101,10 +101,10 @@ public class GalleryRootView extends FrameLayout {
 				break;
 			case MotionEvent.ACTION_MOVE: {
 				mVelocityTracker.addMovement(event);
-				int yMove = (int) (mCurrentPoint.y - mStartPoint.y);
-				if(yMove>0){
-					return true;
-				}
+				//				int yMove = (int) (mCurrentPoint.y - mStartPoint.y);
+				//				if (yMove > 0) {
+				//					return false;
+				//				}
 				int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
 				takeMove(xMove - mViewWidth * mPageCurrent);
 			}
@@ -144,7 +144,7 @@ public class GalleryRootView extends FrameLayout {
 			return;
 		}
 
-		if (Math.abs(movePercent) > 0.3f || Math.abs(moveXSpeed) > 200) {
+		if (Math.abs(movePercent) > 0.1f || Math.abs(moveXSpeed) > 0) {
 			bounceBack = false;
 
 			int pagenow = 0;

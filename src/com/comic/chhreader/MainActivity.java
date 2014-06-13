@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	private static final long UPGRADE_GAP = DateUtils.DAY_IN_MILLIS;
 
-	private ScrollView mScrollView;
+	private CustomScrollView mScrollView;
 	private GalleryRootView mGalleryRootView;
 
 	private GridView mGrid;
@@ -71,10 +71,10 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		cleanService.setClass(MainActivity.this, CleanService.class);
 		startService(cleanService);
 
-		mScrollView = (ScrollView) findViewById(R.id.scroll_view);
+		mScrollView = (CustomScrollView) findViewById(R.id.scroll_view);
 		mGalleryRootView = (GalleryRootView) findViewById(R.id.news);
 
-		mGrid = (CustomGridView) findViewById(R.id.main_gird);
+		mGrid = (GridView) findViewById(R.id.main_gird);
 		mGrid.setOnItemClickListener(this);
 
 		mGirdAdapter = new MainGridAdapter(this, null);
