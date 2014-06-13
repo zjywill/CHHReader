@@ -361,8 +361,8 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 
 				ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
 
+				int page = 1;
 				for (SubItemData itemData : subItemDatas) {
-					int page = 1;
 					if (loadingWay.equals("more")) {
 						boolean hasInvalid = false;
 						Loge.d("mLatestId: " + mLatestId);
@@ -429,7 +429,9 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 						Loge.d("load more last 1: " + mLastItem.mLink);
 						Loge.d("load more last 2: " + last.mLink);
 						if (last.mLink.equals(mLastItem.mLink)) {
-							updated = false;
+							if (page != 1) {
+								updated = false;
+							}
 						}
 					}
 				} else {

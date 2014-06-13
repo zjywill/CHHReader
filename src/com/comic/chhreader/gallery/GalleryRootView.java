@@ -1,18 +1,20 @@
 package com.comic.chhreader.gallery;
 
-import com.comic.chhreader.utils.Utils;
-
 import android.content.Context;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
+import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
-public class GalleryRootView extends FrameLayout {
+import com.comic.chhreader.Loge;
+import com.comic.chhreader.utils.Utils;
+
+public class GalleryRootView extends FrameLayout implements View.OnClickListener {
 
 	public static final int GALLERY_HEIGHT = 180;
 
@@ -74,6 +76,11 @@ public class GalleryRootView extends FrameLayout {
 	}
 
 	@Override
+	public void onClick(View arg0) {
+
+	};
+
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (onAnimation) {
 			return false;
@@ -91,6 +98,8 @@ public class GalleryRootView extends FrameLayout {
 		}
 		mCurrentPoint.set(event.getX(), event.getY());
 
+		Loge.d("GalleryRootView onTouchEvent action: " + action);
+
 		switch (action) {
 			case MotionEvent.ACTION_DOWN: {
 				if (mVelocityTracker == null) {
@@ -101,14 +110,11 @@ public class GalleryRootView extends FrameLayout {
 				break;
 			case MotionEvent.ACTION_MOVE: {
 				mVelocityTracker.addMovement(event);
-				//				int yMove = (int) (mCurrentPoint.y - mStartPoint.y);
-				//				if (yMove > 0) {
-				//					return false;
-				//				}
 				int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
 				takeMove(xMove - mViewWidth * mPageCurrent);
 			}
 				break;
+			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP: {
 				mVelocityTracker.addMovement(event);
 				moveToNextPage();
@@ -117,9 +123,7 @@ public class GalleryRootView extends FrameLayout {
 				mStartPoint = null;
 				return true;
 			}
-			case MotionEvent.ACTION_CANCEL: {
-				return true;
-			}
+
 			default:
 				break;
 		}
@@ -237,5 +241,5 @@ public class GalleryRootView extends FrameLayout {
 			takeMove(distanceX);
 			post(new AnimateRunnable());
 		}
-	};
+	}
 }
