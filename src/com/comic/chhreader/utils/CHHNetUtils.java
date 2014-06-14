@@ -43,6 +43,7 @@ import android.content.Context;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.data.RssNews;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
 
@@ -52,11 +53,10 @@ public class CHHNetUtils {
 
 	public static final int HTTP_TIMEOUT = 60000;
 
-	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android "
-			+ android.os.Build.VERSION.RELEASE + ";" + Locale.getDefault().toString() + "; "
-			+ android.os.Build.DEVICE + "/" + android.os.Build.ID + ")";
+	public static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android " + android.os.Build.VERSION.RELEASE + ";" + Locale.getDefault().toString() + "; " + android.os.Build.DEVICE + "/" + android.os.Build.ID + ")";
 
-	public static Object postResult(String api_url, HashMap<String, Object> params, String access_token) {
+	public static Object postResult(String api_url,
+			HashMap<String, Object> params, String access_token) {
 		final HttpPost post = new HttpPost(api_url);
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		if (access_token != null)
@@ -82,7 +82,8 @@ public class CHHNetUtils {
 		return null;
 	}
 
-	public static String buildParams(HashMap<String, Object> params, String splitter) {
+	public static String buildParams(HashMap<String, Object> params,
+			String splitter) {
 		StringBuffer buf = new StringBuffer();
 		if (params == null) {
 			params = new HashMap<String, Object>();
@@ -123,7 +124,8 @@ public class CHHNetUtils {
 		sHttpClient = new DefaultHttpClient(manager, params);
 	}
 
-	public static Object getParseResult(HttpResponse r) throws JSONException, IOException {
+	public static Object getParseResult(HttpResponse r) throws JSONException,
+			IOException {
 		Header header = r.getFirstHeader("WWW-Authenticate");
 		if (header != null) {
 			String value = header.getValue();
@@ -162,20 +164,20 @@ public class CHHNetUtils {
 		} else if (content.startsWith("[") && content.endsWith("]")) {
 			Loge.d("return JSONArray");
 			return new JSONArray(content);
-		} else if (content.startsWith("<") && content.endsWith(">"))
-			Loge.e("service not available");
-		else if (content.startsWith("\"") && content.endsWith("\"")) {
+		} else if (content.startsWith("<") && content.endsWith(">")) {
+			return content;
+		} else if (content.startsWith("\"") && content.endsWith("\"")) {
 			Loge.d("return String");
 			content = content.substring(1, content.length() - 1);
 			return content;
 		} else {
 			return content;
 		}
-		return null;
 	}
 
-	private static String getResponse(HttpEntity entity) throws UnsupportedEncodingException,
-			IllegalStateException, IOException {
+	private static String getResponse(HttpEntity entity)
+			throws UnsupportedEncodingException, IllegalStateException,
+			IOException {
 		String response = "";
 
 		int length = (int) entity.getContentLength();
@@ -208,7 +210,8 @@ public class CHHNetUtils {
 		return response;
 	}
 
-	private static boolean isRefreshTokenExpired(String content) throws JSONException {
+	private static boolean isRefreshTokenExpired(String content)
+			throws JSONException {
 		if (content.startsWith("{") && content.endsWith("}")) {
 			final JSONObject obj = new JSONObject(content);
 			if (!obj.isNull("error")) {
@@ -221,7 +224,8 @@ public class CHHNetUtils {
 		return false;
 	}
 
-	public static Object getResult(String api_url, HashMap<String, Object> params, String access_token) {
+	public static Object getResult(String api_url,
+			HashMap<String, Object> params, String access_token) {
 
 		Loge.d("api_url = " + api_url);
 
@@ -260,7 +264,8 @@ public class CHHNetUtils {
 		return null;
 	}
 
-	//TODO ----------------------------DIVIDER---------------------------------------------
+	// TODO
+	// ----------------------------DIVIDER---------------------------------------------
 
 	public static ArrayList<TopicData> getTopicsDate(Context context) {
 		ArrayList<TopicData> topicsData = null;
@@ -324,7 +329,8 @@ public class CHHNetUtils {
 		return subItemDatas;
 	}
 
-	public static ArrayList<SubItemData> getSubItemsDate(Context context, int pknum) {
+	public static ArrayList<SubItemData> getSubItemsDate(Context context,
+			int pknum) {
 
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("t", pknum);
@@ -400,7 +406,8 @@ public class CHHNetUtils {
 		return contentDatas;
 	}
 
-	public static ArrayList<ContentData> getContentItemsDate(Context context, int topic, int pknum, int page) {
+	public static ArrayList<ContentData> getContentItemsDate(Context context,
+			int topic, int pknum, int page) {
 
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("i", pknum);
@@ -463,6 +470,16 @@ public class CHHNetUtils {
 			}
 		}
 		return body;
+	}
+
+	public static List<RssNews> getEngadgetNews(Context context) {
+		Object obj = getResult("http://cn.engadget.com/rss.xml", null, null);
+		if (obj == null) {
+			return null;
+		}
+		String data = obj.toString();
+		FileOperation.savaDataToLocalCatch(context, "rss.xml", data);
+		return RssNews.getRssNews(data);
 	}
 
 }

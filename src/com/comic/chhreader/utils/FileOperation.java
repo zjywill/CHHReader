@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import android.content.Context;
 import android.os.Environment;
@@ -13,8 +14,59 @@ import com.comic.chhreader.Loge;
 
 public class FileOperation {
 
-	FileOperation(Context context) {
+	public static String getLocalFileData(Context context, String fileName) {
+		String folderPath = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Data/";
+		String filePath = folderPath + fileName;
+		File catchFile = new File(filePath);
+		InputStream catchFileIs = null;
 
+		StringBuffer data = new StringBuffer("");
+		try {
+			if (catchFile.exists() && catchFile.isFile()) {
+				Loge.d("FileOperation get Catch file");
+				catchFileIs = new FileInputStream(catchFile);
+			} else {
+				Loge.d("FileOperation get Assets");
+				catchFileIs = context.getResources().getAssets().open(fileName);
+			}
+
+			int n = 0;
+			int blockSize = 1000;
+			byte[] byteBuffer = new byte[blockSize];
+			while ((n = catchFileIs.read(byteBuffer)) != -1) {
+				data.append(new String(byteBuffer, 0, n));
+			}
+
+			catchFileIs.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return data.toString();
+	}
+
+	public static void savaDataToLocalCatch(Context context, String fileName,
+			String data) {
+		String folderPath = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Data/";
+		String filePath = folderPath + fileName;
+		File catchFile = new File(filePath);
+		try {
+			File parentFolder = new File(folderPath);
+			if (!parentFolder.exists()) {
+				parentFolder.mkdirs();
+			}
+			if (!catchFile.exists()) {
+				catchFile.createNewFile();
+			} else {
+				catchFile.delete();
+				catchFile.createNewFile();
+			}
+			FileOutputStream fos = new FileOutputStream(catchFile);
+			byte[] byteBuffer = data.getBytes();
+			fos.write(byteBuffer);
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static String copyFileToSDcard(Context context, File originFile) {
