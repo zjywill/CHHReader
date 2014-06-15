@@ -1,6 +1,10 @@
 package com.comic.chhreader.gallery;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -13,6 +17,9 @@ import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.content.PullContentActivity;
+import com.comic.chhreader.data.RssNews;
+import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.utils.Utils;
 
 public class GalleryRootView extends FrameLayout {
@@ -41,6 +48,8 @@ public class GalleryRootView extends FrameLayout {
 
 	private GestureDetector mGestureDetector;
 
+	public List<RssNews> mENews = new ArrayList<RssNews>();
+
 	public GalleryRootView(Context context) {
 		super(context);
 		initView();
@@ -58,12 +67,12 @@ public class GalleryRootView extends FrameLayout {
 
 		mScroller = new Scroller(getContext(), mInterpolator);
 
-		mIntroTextGroup = new IntroTextGroup(getContext(), mPageCount, 0);
+		mIntroTextGroup = new IntroTextGroup(getContext(), this, mPageCount);
 		FrameLayout.LayoutParams introTextParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight / 3);
 		introTextParams.gravity = Gravity.BOTTOM;
 		mIntroTextGroup.setLayoutParams(introTextParams);
 
-		mCenterCorssFadeView = new CenterCorssFadeView(getContext(), mPageCount);
+		mCenterCorssFadeView = new CenterCorssFadeView(getContext(), this, mPageCount);
 		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight);
 		mCenterCorssFadeView.setLayoutParams(centerParams);
 
@@ -75,6 +84,17 @@ public class GalleryRootView extends FrameLayout {
 		addView(mCenterCorssFadeView);
 		addView(mIntroTextGroup);
 		addView(mPageIndecator);
+	}
+
+	public void setNews(List<RssNews> eNews) {
+		mENews.clear();
+		mENews.addAll(eNews);
+		if (mIntroTextGroup != null) {
+			mIntroTextGroup.invalidate();
+		}
+		if (mCenterCorssFadeView != null) {
+			mCenterCorssFadeView.invalidate();
+		}
 	}
 
 	@Override
@@ -237,10 +257,14 @@ public class GalleryRootView extends FrameLayout {
 	}
 
 	private class TapGesture extends SimpleOnGestureListener {
-
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			Loge.d("GalleryRootView onClick mPageCurrent: " + mPageCurrent);
+			if (mENews.size() >= 5) {
+				Intent intent = new Intent(getContext(), DetailActivity.class);
+				intent.putExtra("title", mENews.get(mPageCurrent).title);
+				intent.putExtra("url", mENews.get(mPageCurrent).link);
+				getContext().startActivity(intent);
+			}
 			return true;
 		}
 

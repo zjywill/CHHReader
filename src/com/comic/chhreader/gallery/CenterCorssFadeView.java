@@ -1,73 +1,57 @@
 package com.comic.chhreader.gallery;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
+import com.comic.chhreader.image.PhotoView;
 
 @SuppressLint("NewApi")
-public class CenterCorssFadeView extends FrameLayout{
+public class CenterCorssFadeView extends FrameLayout {
 
 	private int mPageCount;
 
 	private float mFormerAlpha = 0;
 
-	private List<RelativeLayout> mCenterLayoutList = null;
+	private List<PhotoView> mCenterLayoutList = null;
 
-	View mCurrentView = null;
-	View mNextView = null;
+	private GalleryRootView mRootView;
 
-	public CenterCorssFadeView(Context context, int pagecount) {
+	private Drawable mLogoDrawable;
+
+	public CenterCorssFadeView(Context context, GalleryRootView rootView,
+			int pagecount) {
 		super(context);
 		mPageCount = pagecount;
+		mRootView = rootView;
 		initView();
 	}
 
 	private void initView() {
+		mLogoDrawable = getContext().getResources().getDrawable(R.drawable.feedlogo);
 		if (mCenterLayoutList == null) {
-			mCenterLayoutList = new ArrayList<RelativeLayout>(mPageCount);
+			mCenterLayoutList = new ArrayList<PhotoView>(mPageCount);
 		}
-
-		PageOneView view1 = new PageOneView(getContext());
-		mCenterLayoutList.add(view1);
-
-		PageOneView view2 = new PageOneView(getContext());
-		mCenterLayoutList.add(view2);
-
-		PageOneView view3 = new PageOneView(getContext());
-		mCenterLayoutList.add(view3);
-
-		PageOneView view4 = new PageOneView(getContext());
-		mCenterLayoutList.add(view4);
-
-		PageOneView view5 = new PageOneView(getContext());
-		mCenterLayoutList.add(view5);
-		
-		view1.setImage(R.drawable.news_01);
-		view2.setImage(R.drawable.news_02);
-		view3.setImage(R.drawable.news_03);
-		view4.setImage(R.drawable.news_04);
-		view5.setImage(R.drawable.news_05);
 
 		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
-		addView(view1, centerParams);
-		addView(view2, centerParams);
-		addView(view3, centerParams);
-		addView(view4, centerParams);
-		addView(view5, centerParams);
-
-		view2.setVisibility(View.GONE);
-		view3.setVisibility(View.GONE);
-		view4.setVisibility(View.GONE);
-		view5.setVisibility(View.GONE);
+		for (int i = 0; i < 5; i++) {
+			PhotoView view = new PhotoView(getContext());
+			mCenterLayoutList.add(view);
+			addView(view, centerParams);
+			if (i > 0) {
+				view.setVisibility(View.GONE);
+			}
+		}
 	}
 
 	public void swepToFade(float offsetPercent) {
@@ -90,7 +74,23 @@ public class CenterCorssFadeView extends FrameLayout{
 				mFormerAlpha = alpha;
 			}
 		}
-
 	}
 
+	@Override
+	public void invalidate() {
+		if (mCenterLayoutList != null && mCenterLayoutList.size() > 0) {
+			if (mRootView.mENews.size() > 5) {
+				for (int i = 0; i < mCenterLayoutList.size(); i++) {
+					String imageUrl = mRootView.mENews.get(i).imageurl;
+					Loge.d("CenterCorssFadeView invalidate: " + imageUrl);
+					try {
+						mCenterLayoutList.get(i).setImageURL(new URL(imageUrl), true, true, true, mLogoDrawable);
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		super.invalidate();
+	}
 }

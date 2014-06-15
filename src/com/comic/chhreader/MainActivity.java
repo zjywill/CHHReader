@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 	private boolean updating = false;
 	private boolean mNoImage = true;
 
-	List<RssNews> mENews = new ArrayList<RssNews>();;
+	private List<RssNews> mENews = new ArrayList<RssNews>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +115,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		if (Utils.isWifiAvailable(mContext) && !updating) {
 			new FetchDataTaskNet().execute();
 		}
-		new FetchNewsTaskNetAndLocal().execute();
+		new FetchNewsTaskLocal().execute();
 	}
 
 	void initActionBar() {
@@ -249,20 +249,46 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	}
 
-	class FetchNewsTaskNetAndLocal extends AsyncTask<Void, Void, String> {
+	class FetchNewsTaskLocal extends AsyncTask<Void, Void, String> {
+
+		@Override
+		protected String doInBackground(Void... params) {
+			mENews.clear();
+			String data = FileOperation.getLocalFileData(mContext, "rss.xml");
+			List<RssNews> eNews = RssNews.getRssNews(data);
+			if (eNews != null && eNews.size() > 0) {
+				mENews.addAll(eNews);
+				eNews.clear();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			if (mENews.size() > 0) {
+				if (mGalleryRootView != null) {
+					mGalleryRootView.setNews(mENews);
+				}
+			}
+			new Handler(getMainLooper()).postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					new FetchNewsTaskNet().execute();
+				}
+			}, 500);
+			super.onPostExecute(result);
+		}
+
+	}
+
+	class FetchNewsTaskNet extends AsyncTask<Void, Void, String> {
 
 		@Override
 		protected String doInBackground(Void... params) {
 			mENews.clear();
 			if (Utils.isNetworkAvailable(getBaseContext())) {
 				List<RssNews> eNews = CHHNetUtils.getEngadgetNews(mContext);
-				if (eNews != null && eNews.size() > 0) {
-					mENews.addAll(eNews);
-					eNews.clear();
-				}
-			} else {
-				String data = FileOperation.getLocalFileData(mContext, "rss.xml");
-				List<RssNews> eNews = RssNews.getRssNews(data);
 				if (eNews != null && eNews.size() > 0) {
 					mENews.addAll(eNews);
 					eNews.clear();
@@ -274,7 +300,9 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		@Override
 		protected void onPostExecute(String result) {
 			if (mENews.size() > 0) {
-
+				if (mGalleryRootView != null) {
+					mGalleryRootView.setNews(mENews);
+				}
 			}
 			super.onPostExecute(result);
 		}

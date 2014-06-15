@@ -22,8 +22,12 @@ public class IntroTextGroup extends ViewGroup {
 
 	private int mFormerPos = 0;
 
-	public IntroTextGroup(Context context, int pageCount, int titleArrayId) {
+	private GalleryRootView mRootView;
+
+	public IntroTextGroup(Context context, GalleryRootView rootView,
+			int pageCount) {
 		super(context);
+		mRootView = rootView;
 		mPageCount = pageCount;
 		initView();
 	}
@@ -34,14 +38,12 @@ public class IntroTextGroup extends ViewGroup {
 	}
 
 	private void initView() {
-
 		mTextPaint = new Paint();
 		mTextPaint.setTextSize(20);
 
 		mTexViewList = new ArrayList<CustomGalleryTextView>(mPageCount);
 		for (int i = 0; i < mPageCount; i++) {
 			CustomGalleryTextView textView = new CustomGalleryTextView(getContext());
-			textView.setText("Page: " + i);
 			mTexViewList.add(textView);
 			addView(textView);
 		}
@@ -65,8 +67,7 @@ public class IntroTextGroup extends ViewGroup {
 			View textview = (View) getChildAt(i);
 			int leftPadding = (width - textview.getMeasuredWidth()) / 2;
 			int topPadding = (height - textview.getMeasuredHeight()) / 2;
-			textview.layout(leftPadding + width * i, topPadding, leftPadding + width * (i + 1) + width,
-					topPadding + textview.getMeasuredHeight());
+			textview.layout(leftPadding + width * i, topPadding, leftPadding + width * (i + 1) + width, topPadding + textview.getMeasuredHeight());
 		}
 	}
 
@@ -82,4 +83,15 @@ public class IntroTextGroup extends ViewGroup {
 		}
 	}
 
+	@Override
+	public void invalidate() {
+		if (mTexViewList != null && mTexViewList.size() > 0) {
+			if (mRootView.mENews.size() > 5) {
+				for (int i = 0; i < mTexViewList.size(); i++) {
+					mTexViewList.get(i).setText(mRootView.mENews.get(i).title);
+				}
+			}
+		}
+		super.invalidate();
+	}
 }

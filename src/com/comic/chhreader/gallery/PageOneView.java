@@ -1,11 +1,10 @@
 package com.comic.chhreader.gallery;
 
-import com.comic.chhreader.R;
-
 import android.content.Context;
-import android.graphics.Color;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.comic.chhreader.R;
 
 public class PageOneView extends RelativeLayout {
 
