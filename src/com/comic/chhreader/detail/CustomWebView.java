@@ -47,13 +47,12 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		String appCacheDir = context.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
 		webSettings.setAppCachePath(appCacheDir);
 		webSettings.setAppCacheEnabled(true);
-		webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+		webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 		webSettings.setSupportZoom(false);
-		webSettings.setSaveFormData(false);
+		webSettings.setSaveFormData(true);
 		webSettings.setLoadsImagesAutomatically(true);
 
 		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
-		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 		webSettings.setJavaScriptEnabled(true);
 
 		setOnSystemUiVisibilityChangeListener(this);
@@ -63,6 +62,7 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 	public class Js2JavaInterface {
 		private Context context;
+
 		public void setImgSrc(String imgSrc) {
 			Loge.i("setImgSrc : " + imgSrc);
 		}

@@ -68,16 +68,19 @@ public class GalleryRootView extends FrameLayout {
 		mScroller = new Scroller(getContext(), mInterpolator);
 
 		mIntroTextGroup = new IntroTextGroup(getContext(), this, mPageCount);
-		FrameLayout.LayoutParams introTextParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight / 3);
+		FrameLayout.LayoutParams introTextParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.MATCH_PARENT, mHeight / 3);
 		introTextParams.gravity = Gravity.BOTTOM;
 		mIntroTextGroup.setLayoutParams(introTextParams);
 
 		mCenterCorssFadeView = new CenterCorssFadeView(getContext(), this, mPageCount);
-		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mHeight);
+		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.MATCH_PARENT, mHeight);
 		mCenterCorssFadeView.setLayoutParams(centerParams);
 
 		mPageIndecator = new PageIndecator(getContext(), mPageCount);
-		FrameLayout.LayoutParams indecatorParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+		FrameLayout.LayoutParams indecatorParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 		indecatorParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;
 		mPageIndecator.setLayoutParams(indecatorParams);
 
@@ -115,30 +118,30 @@ public class GalleryRootView extends FrameLayout {
 		}
 		mCurrentPoint.set(event.getX(), event.getY());
 		switch (action) {
-		case MotionEvent.ACTION_DOWN: {
-			if (mVelocityTracker == null) {
-				mVelocityTracker = VelocityTracker.obtain();
+			case MotionEvent.ACTION_DOWN: {
+				if (mVelocityTracker == null) {
+					mVelocityTracker = VelocityTracker.obtain();
+				}
+				mVelocityTracker.addMovement(event);
 			}
-			mVelocityTracker.addMovement(event);
-		}
-			break;
-		case MotionEvent.ACTION_MOVE: {
-			mVelocityTracker.addMovement(event);
-			int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
-			takeMove(xMove - mViewWidth * mPageCurrent);
-		}
-			break;
-		case MotionEvent.ACTION_CANCEL:
-		case MotionEvent.ACTION_UP: {
-			mVelocityTracker.addMovement(event);
-			moveToNextPage();
-			mVelocityTracker.recycle();
-			mVelocityTracker = null;
-			mStartPoint = null;
-		}
+				break;
+			case MotionEvent.ACTION_MOVE: {
+				mVelocityTracker.addMovement(event);
+				int xMove = (int) (mCurrentPoint.x - mStartPoint.x);
+				takeMove(xMove - mViewWidth * mPageCurrent);
+			}
+				break;
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP: {
+				mVelocityTracker.addMovement(event);
+				moveToNextPage();
+				mVelocityTracker.recycle();
+				mVelocityTracker = null;
+				mStartPoint = null;
+			}
 
-		default:
-			break;
+			default:
+				break;
 		}
 		mGestureDetector.onTouchEvent(event);
 		return true;
@@ -198,7 +201,8 @@ public class GalleryRootView extends FrameLayout {
 	}
 
 	private void takeMove(int moveX) {
-		if ((mPageCurrent == 0 && moveX > 0) || (moveX < (-mViewWidth * (mPageCount - 1)) && mPageCurrent == (mPageCount - 1))) {
+		if ((mPageCurrent == 0 && moveX > 0)
+				|| (moveX < (-mViewWidth * (mPageCount - 1)) && mPageCurrent == (mPageCount - 1))) {
 			return;
 		}
 		float movePercent = moveX / (1.0F * mViewWidth);
@@ -263,6 +267,7 @@ public class GalleryRootView extends FrameLayout {
 				Intent intent = new Intent(getContext(), DetailActivity.class);
 				intent.putExtra("title", mENews.get(mPageCurrent).title);
 				intent.putExtra("url", mENews.get(mPageCurrent).link);
+				intent.putExtra("news", true);
 				getContext().startActivity(intent);
 			}
 			return true;

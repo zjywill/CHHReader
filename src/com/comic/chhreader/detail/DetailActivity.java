@@ -58,6 +58,7 @@ public class DetailActivity extends Activity {
 
 	private HtmlParser mParser;
 
+	private boolean mLoadNewsUrl = false;
 	private boolean mDestroyed = false;
 	private boolean mPaused = false;
 	private boolean mNoImage = false;
@@ -72,6 +73,13 @@ public class DetailActivity extends Activity {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		}
 
+		Intent dataIntent = getIntent();
+		mMainTitle = dataIntent.getStringExtra("title");
+		mMainUrl = dataIntent.getStringExtra("url");
+		mLoadNewsUrl = dataIntent.getBooleanExtra("news", false);
+		Loge.d("MainUrl: " + mMainUrl);
+		Loge.d("is News: " + mLoadNewsUrl);
+
 		mContext = this;
 
 		setContentView(R.layout.detail_activity);
@@ -83,21 +91,22 @@ public class DetailActivity extends Activity {
 		mCustomWebView.setWebChromeClient(new DetailWebChromeClient());
 		mCustomWebView.setWebViewClient(new DetailWebViewClient());
 
-		Intent dataIntent = getIntent();
-		mMainTitle = dataIntent.getStringExtra("title");
-		mMainUrl = dataIntent.getStringExtra("url");
-
-		Loge.d("MainUrl: " + mMainUrl);
-
 		initActionBar();
 		if (!Utils.isNetworkAvailable(getBaseContext())) {
 			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
 		}
-		mCustomWebView.setVisibility(View.GONE);
-		mWebProgress.setVisibility(View.GONE);
-		mLoadingView.setVisibility(View.VISIBLE);
 
-		new LoadContentAsyncTask().execute(mMainUrl);
+		if (!mLoadNewsUrl) {
+			new LoadContentAsyncTask().execute(mMainUrl);
+			mCustomWebView.setVisibility(View.GONE);
+			mWebProgress.setVisibility(View.GONE);
+			mLoadingView.setVisibility(View.VISIBLE);
+		} else {
+			mCustomWebView.loadUrl(mMainUrl);
+			mCustomWebView.setVisibility(View.VISIBLE);
+			mWebProgress.setVisibility(View.VISIBLE);
+			mLoadingView.setVisibility(View.GONE);
+		}
 	}
 
 	void initActionBar() {
@@ -138,27 +147,28 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-		case R.id.action_back: {
-			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
-				mCustomWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
+			case android.R.id.home:
+			case R.id.action_back: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
+				}
 			}
-		}
-			break;
-		case R.id.action_refresh: {
-			new DeleteLocalPhotoTask().execute();
-		}
-			break;
-		case R.id.action_view_in_browser: {
-			Uri uri = Uri.parse(mMainUrl);
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-			startActivity(viewIntent);
-		}
-			break;
-		default:
-			break;
+				break;
+			case R.id.action_refresh: {
+				new DeleteLocalPhotoTask().execute();
+			}
+				break;
+			case R.id.action_view_in_browser: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
+			}
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -228,7 +238,11 @@ public class DetailActivity extends Activity {
 
 	private void doImageDownload() {
 		if (mNoImage) {
-			mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			return;
 		}
 		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
@@ -361,13 +375,22 @@ public class DetailActivity extends Activity {
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \"" + values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
+						+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			super.onPostExecute(result);
 		}
 
@@ -420,7 +443,7 @@ public class DetailActivity extends Activity {
 					urlCon = (HttpURLConnection) url.openConnection();
 					Loge.d("DownloadWebImgTask openConnection B");
 					urlCon.setRequestMethod("GET");
-					urlCon.setRequestProperty("Accept-Encoding", "identity"); 
+					urlCon.setRequestProperty("Accept-Encoding", "identity");
 					urlCon.setReadTimeout(5000);
 					urlCon.setDoInput(true);
 					urlCon.connect();
