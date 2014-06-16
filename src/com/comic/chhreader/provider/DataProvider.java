@@ -17,7 +17,7 @@ import com.comic.chhreader.Loge;
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1002;
+	private static final int DB_VERSION = 1003;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -25,6 +25,7 @@ public class DataProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_SUBITEM_DATA = Uri.parse("content://com.comic.chhreader/subitem");
 	public static final Uri CONTENT_URI_MAIN_DATA = Uri.parse("content://com.comic.chhreader/main");
 	public static final Uri CONTENT_URI_CONTENT_DATA = Uri.parse("content://com.comic.chhreader/content");
+	public static final Uri CONTENT_URI_NEWS_DATA = Uri.parse("content://com.comic.chhreader/news");
 
 	// Name of table in the database
 	private static final String DB_TABLE_TOPIC_DATA = "topic";
@@ -72,6 +73,17 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_CONTENT_BODY = "body";
 	public static final String KEY_CONTENT_UPLOAD_DATE = "time";
 	public static final String KEY_CONTENT_IMAGE_SET = "imageset";
+	
+	// Name of table in the database
+	private static final String DB_TABLE_NEWS_DATA = "news";
+
+	// news data table
+	public static final String KEY_NEWS_ID = "_id";
+	public static final String KEY_NEWS_TITLE = "title";
+	public static final String KEY_NEWS_URL = "url";
+	public static final String KEY_NEWS_IMAGE_URL = "imageurl";
+	public static final String KEY_NEWS_DESCRIPTION = "description";
+	public static final String KEY_NEWS_UPLOAD_DATE = "time";
 
 	@Override
 	public boolean onCreate() {
@@ -179,6 +191,8 @@ public class DataProvider extends ContentProvider {
 			return DB_TABLE_SUBITEM_DATA;
 		} else if (sUri.equals(CONTENT_URI_CONTENT_DATA.toString())) {
 			return DB_TABLE_CONTENT_DATA;
+		} else if (sUri.equals(CONTENT_URI_NEWS_DATA.toString())) {
+			return DB_TABLE_NEWS_DATA;
 		}
 		return "";
 	}
@@ -196,12 +210,15 @@ public class DataProvider extends ContentProvider {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			Loge.w("onUpgrade oldVersion: " + oldVersion + " newVersion: " + newVersion);
 			switch (newVersion) {
 				case 1002: {
 					addColumn(db, DB_TABLE_TOPIC_DATA, KEY_TOPIC_IMAGE_TIME_STAMP,
 							"INTEGER NOT NULL DEFAULT 0");
-					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_IMAGE_SET,
-							"TEXT");
+					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_IMAGE_SET, "TEXT");
+				}
+				case 1003: {
+					createNewsTable(db);
 				}
 					break;
 				default: {
@@ -250,11 +267,25 @@ public class DataProvider extends ContentProvider {
 					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
 					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
 					+ KEY_CONTENT_IMAGE_SET + " TEXT ); ";
+			
 
 			db.execSQL(commandTopic);
 			db.execSQL(commandSubitem);
 			db.execSQL(commandMain);
 			db.execSQL(commandContent);
+			
+			
+			//-------------db version 1003------------------
+			createNewsTable(db);
+		}
+		
+		private void createNewsTable(SQLiteDatabase db) {
+			String commandNews = "create table " + DB_TABLE_NEWS_DATA//
+					+ " (" + KEY_NEWS_ID + " integer primary key autoincrement, " //
+					+ KEY_NEWS_TITLE + " TEXT," + KEY_NEWS_URL + " TEXT, "//
+					+ KEY_NEWS_IMAGE_URL + " TEXT," + KEY_NEWS_DESCRIPTION + " TEXT, "//
+					+ KEY_NEWS_UPLOAD_DATE + " INTEGER ); ";
+			db.execSQL(commandNews);
 		}
 
 		private void addColumn(SQLiteDatabase db, String dbTable, String columnName, String columnDefinition) {

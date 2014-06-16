@@ -17,6 +17,7 @@ public class RssNews {
 	public String link;
 	public String imageurl;
 	public String description;
+	public long posttime;
 
 	public static List<RssNews> getRssNews(String data) {
 		List<RssNews> newsList = new ArrayList<RssNews>();
@@ -33,10 +34,12 @@ public class RssNews {
 			parser.nextTag();
 			parser.nextTag();
 
+			int itemId = 1;
 			while (parser.nextTag() == XmlPullParser.START_TAG) {
 				String name1 = parser.getName();
 				if (name1.equals("item")) {
 					RssNews item = new RssNews();
+					item.posttime = itemId;
 					while (parser.nextTag() == XmlPullParser.START_TAG) {
 						String name2 = parser.getName();
 						if (name2.equals("title")) {
@@ -52,6 +55,7 @@ public class RssNews {
 							item.imageurl = item.imageurl.replace("<img src=\"", "");
 							Loge.d("RssNews description: " + item.description);
 							Loge.d("RssNews imageurl: " + item.imageurl);
+							itemId++;
 						} else {
 							skipUnknownTag(parser);
 						}
