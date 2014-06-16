@@ -151,8 +151,11 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		switch (item.getItemId()) {
 			case R.id.action_do_refresh: {
 				Loge.i("Options Selected = do_refresh");
-				if (!updating)
+				if (!updating){
 					new FetchDataTaskNet().execute();
+					new FetchNewsTaskNet().execute();
+				}
+
 			}
 				break;
 			case R.id.action_no_image: {
