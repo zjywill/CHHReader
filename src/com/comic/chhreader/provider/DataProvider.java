@@ -73,6 +73,8 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_CONTENT_BODY = "body";
 	public static final String KEY_CONTENT_UPLOAD_DATE = "time";
 	public static final String KEY_CONTENT_IMAGE_SET = "imageset";
+	public static final String KEY_CONTENT_ORIGIN = "origincontent";
+	public static final String KEY_CONTENT_FAVOR = "favorite";
 	
 	// Name of table in the database
 	private static final String DB_TABLE_NEWS_DATA = "news";
@@ -218,6 +220,9 @@ public class DataProvider extends ContentProvider {
 					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_IMAGE_SET, "TEXT");
 				}
 				case 1003: {
+					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_ORIGIN, "TEXT");
+					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_FAVOR,
+							"INTEGER NOT NULL DEFAULT 0");
 					createNewsTable(db);
 				}
 					break;
@@ -266,7 +271,9 @@ public class DataProvider extends ContentProvider {
 					+ " (" + KEY_CONTENT_ID + " integer primary key autoincrement, " //
 					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
 					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
-					+ KEY_CONTENT_IMAGE_SET + " TEXT ); ";
+					+ KEY_CONTENT_IMAGE_SET + " TEXT, "//
+			        + KEY_CONTENT_ORIGIN + " TEXT, "
+			        + KEY_CONTENT_FAVOR + " INTEGER );";
 			
 
 			db.execSQL(commandTopic);

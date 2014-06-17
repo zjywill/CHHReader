@@ -15,6 +15,8 @@ import org.jsoup.nodes.Document;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,12 +39,19 @@ import android.widget.Toast;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentDataDetail;
+import com.comic.chhreader.evernoteshare.ParentActivity;
+import com.comic.chhreader.evernoteshare.ShareToEvernote;
 import com.comic.chhreader.utils.DataBaseUtils;
 import com.comic.chhreader.utils.FileOperation;
 import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
+import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.OnClientCallback;
+import com.evernote.edam.type.Note;
 
 public class DetailActivity extends Activity {
+
+	protected final int DIALOG_PROGRESS = 101;
 
 	private CustomWebView mCustomWebView;
 	private ProgressBar mWebProgress;
@@ -64,6 +74,20 @@ public class DetailActivity extends Activity {
 	private boolean mNoImage = false;
 
 	public List<String> mImgUrls = new ArrayList<String>();
+
+	private OnClientCallback<Note> mNoteCreateCallback = new OnClientCallback<Note>() {
+		@Override
+		public void onSuccess(Note note) {
+			Toast.makeText(getApplicationContext(), R.string.note_saved, Toast.LENGTH_LONG).show();
+			removeDialog(DIALOG_PROGRESS);
+		}
+
+		@Override
+		public void onException(Exception exception) {
+			Loge.e("NoteCreateCallback onException: " + exception.getMessage());
+			removeDialog(DIALOG_PROGRESS);
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -167,10 +191,67 @@ public class DetailActivity extends Activity {
 				startActivity(viewIntent);
 			}
 				break;
+			case R.id.action_evernote: {
+				if (!ShareToEvernote.getInstance(mContext).isLoggedIn()) {
+					Loge.d("App not Logged In");
+					ShareToEvernote.getInstance(mContext).authenticate();
+				} else {
+					Loge.i("App Logged In");
+					if (!ShareToEvernote.getInstance(mContext).isAppLinkedNotebook()) {
+						saveToEvernote();
+					}
+				}
+			}
+				break;
 			default:
 				break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+			case DIALOG_PROGRESS:
+				ProgressDialog progress = new ProgressDialog(DetailActivity.this);
+				progress.setCancelable(false);
+				return progress;
+		}
+		return super.onCreateDialog(id);
+	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id) {
+			case DIALOG_PROGRESS:
+				((ProgressDialog) dialog).setIndeterminate(true);
+				dialog.setCancelable(false);
+				((ProgressDialog) dialog).setMessage(getString(R.string.esdk__loading));
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+			case EvernoteSession.REQUEST_CODE_OAUTH:
+				if (resultCode == Activity.RESULT_OK) {
+					Loge.i("App Logged In Success");
+					if (!ShareToEvernote.getInstance(mContext).isAppLinkedNotebook()) {
+						saveToEvernote();
+					}
+				}
+				break;
+		}
+	}
+
+	private void saveToEvernote() {
+		showDialog(DIALOG_PROGRESS);
+		String content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
+		content = content.replaceAll("b8b8b8", "000000");
+		content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
+		content = content.replaceAll("</body>", "");
+		ShareToEvernote.getInstance(mContext).shareNote(mContext, mMainTitle, content, mNoteCreateCallback);
 	}
 
 	@Override

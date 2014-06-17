@@ -21,5 +21,6 @@
     <string name="swipe_down_to_refresh">Pull to refresh&#8230;</string>
     <string name="refreshing">@string/loading</string>
 	<string name="no_image_mode">Not load image</string>
+	<string name="note_saved">Note saved to Evernote</string>
 	
 </resources>

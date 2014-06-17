@@ -13,6 +13,12 @@
         android:showAsAction="always"
         android:title="@string/action_browser"/>
     <item
+        android:id="@+id/action_evernote"
+        android:icon="@drawable/ic_menu_evernote"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_share"/>
+    <item
         android:id="@+id/action_share"
         android:actionProviderClass="android.widget.ShareActionProvider"
         android:icon="@drawable/ic_menu_share"

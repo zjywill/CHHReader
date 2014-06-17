@@ -84,7 +84,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 				imageSetBuilder.append(IMAGE_BREAK_TAG);
 			}
 		}
-		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString());
+		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString(),body);
 
 		return htmlText;
 	}

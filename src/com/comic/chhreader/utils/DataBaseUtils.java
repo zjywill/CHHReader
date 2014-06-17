@@ -267,7 +267,8 @@ public class DataBaseUtils {
 		return false;
 	}
 
-	public static boolean updateContentData(Context context, String url, String body, String imageset) {
+	public static boolean updateContentData(Context context, String url, String body, String imageset,
+			String origin) {
 		if (context != null) {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver == null) {
@@ -278,11 +279,92 @@ public class DataBaseUtils {
 			cv.put(DataProvider.KEY_CONTENT_BODY, body);
 			cv.put(DataProvider.KEY_CONTENT_UPLOAD_DATE, System.currentTimeMillis());
 			cv.put(DataProvider.KEY_CONTENT_IMAGE_SET, imageset);
+			cv.put(DataProvider.KEY_CONTENT_ORIGIN, origin);
 			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
 			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
 			return true;
 		}
 		return false;
+	}
+
+	public static boolean updateContentOriginData(Context context, String url, String origin) {
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return false;
+			}
+			ContentValues cv = new ContentValues();
+			cv.put(DataProvider.KEY_CONTENT_ORIGIN, origin);
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean updateContentFavorData(Context context, String url, int favor) {
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return false;
+			}
+			ContentValues cv = new ContentValues();
+			cv.put(DataProvider.KEY_CONTENT_FAVOR, favor);
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean getContentFavorData(Context context, String url) {
+		boolean favor = false;
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return favor;
+			}
+			String[] projection = new String[1];
+			projection[0] = DataProvider.KEY_CONTENT_FAVOR;
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, projection, where,
+					null, null);
+			if (cursor != null) {
+				if (cursor.getCount() > 0) {
+					if (cursor.moveToFirst()) {
+						favor = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_CONTENT_FAVOR)) == 1;
+					}
+				}
+				cursor.close();
+			}
+			return favor;
+		}
+		return favor;
+	}
+	
+	public static String getContentOriginData(Context context, String url) {
+		String content = "";
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return content;
+			}
+			String[] projection = new String[1];
+			projection[0] = DataProvider.KEY_CONTENT_ORIGIN;
+			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, projection, where,
+					null, null);
+			if (cursor != null) {
+				if (cursor.getCount() > 0) {
+					if (cursor.moveToFirst()) {
+						content = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_CONTENT_ORIGIN));
+					}
+				}
+				cursor.close();
+			}
+			return content;
+		}
+		return content;
 	}
 
 	public static ContentDataDetail getContentData(Context context, String url) {
