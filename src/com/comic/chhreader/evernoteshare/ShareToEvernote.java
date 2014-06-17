@@ -33,8 +33,7 @@ public class ShareToEvernote {
 	}
 
 	private void genEvernoteSession(Context context) {
-		sEvernoteSession = EvernoteSession.getInstance(context, CONSUMER_KEY, CONSUMER_SECRET,
-				EVERNOTE_SERVICE, SUPPORT_APP_LINKED_NOTEBOOKS);
+		sEvernoteSession = EvernoteSession.getInstance(context, CONSUMER_KEY, CONSUMER_SECRET, EVERNOTE_SERVICE, SUPPORT_APP_LINKED_NOTEBOOKS);
 	}
 
 	public EvernoteSession getEvernoteSession() {
@@ -66,7 +65,7 @@ public class ShareToEvernote {
 	public void shareNote(Context context, String title, String content,
 			OnClientCallback<Note> mNoteCreateCallback) {
 		genEvernoteSession(context);
-		
+
 		Note note = new Note();
 		note.setTitle(title);
 		note.setContent(EvernoteUtil.NOTE_PREFIX + content + EvernoteUtil.NOTE_SUFFIX);
