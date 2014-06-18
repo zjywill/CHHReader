@@ -170,39 +170,40 @@ public class DetailActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-		case R.id.action_back: {
-			if (mCustomWebView != null && mCustomWebView.getUrl() != null && mCustomWebView.getUrl().contains("album")) {
-				mCustomWebView.loadUrl(mMainUrl);
-			} else {
-				finish();
-			}
-		}
-			break;
-		case R.id.action_refresh: {
-			new DeleteLocalPhotoTask().execute();
-		}
-			break;
-		case R.id.action_view_in_browser: {
-			Uri uri = Uri.parse(mMainUrl);
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-			startActivity(viewIntent);
-		}
-			break;
-		case R.id.action_evernote: {
-			if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
-				Loge.d("App not Logged In");
-				ShareToEvernote.getInstance(this).authenticate();
-			} else {
-				Loge.i("App Logged In");
-				if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-					saveToEvernote();
+			case android.R.id.home:
+			case R.id.action_back: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
 				}
 			}
-		}
-			break;
-		default:
-			break;
+				break;
+			case R.id.action_refresh: {
+				new DeleteLocalPhotoTask().execute();
+			}
+				break;
+			case R.id.action_view_in_browser: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
+			}
+				break;
+			case R.id.action_evernote: {
+				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
+					Loge.d("App not Logged In");
+					ShareToEvernote.getInstance(this).authenticate();
+				} else {
+					Loge.i("App Logged In");
+					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
+						saveToEvernote();
+					}
+				}
+			}
+				break;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -210,10 +211,10 @@ public class DetailActivity extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case DIALOG_PROGRESS:
-			ProgressDialog progress = new ProgressDialog(DetailActivity.this);
-			progress.setCancelable(false);
-			return progress;
+			case DIALOG_PROGRESS:
+				ProgressDialog progress = new ProgressDialog(DetailActivity.this);
+				progress.setCancelable(false);
+				return progress;
 		}
 		return super.onCreateDialog(id);
 	}
@@ -221,10 +222,10 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onPrepareDialog(int id, Dialog dialog) {
 		switch (id) {
-		case DIALOG_PROGRESS:
-			((ProgressDialog) dialog).setIndeterminate(true);
-			dialog.setCancelable(false);
-			((ProgressDialog) dialog).setMessage(getString(R.string.esdk__loading));
+			case DIALOG_PROGRESS:
+				((ProgressDialog) dialog).setIndeterminate(true);
+				dialog.setCancelable(false);
+				((ProgressDialog) dialog).setMessage(getString(R.string.save_to_evernote));
 		}
 	}
 
@@ -232,25 +233,32 @@ public class DetailActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-		case EvernoteSession.REQUEST_CODE_OAUTH:
-			if (resultCode == Activity.RESULT_OK) {
-				Loge.i("App Logged In Success");
-				if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-					saveToEvernote();
+			case EvernoteSession.REQUEST_CODE_OAUTH:
+				if (resultCode == Activity.RESULT_OK) {
+					Loge.i("App Logged In Success");
+					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
+						saveToEvernote();
+					}
 				}
-			}
-			break;
+				break;
 		}
 	}
 
 	private void saveToEvernote() {
-		showDialog(DIALOG_PROGRESS);
-		String content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
-		content = content.replaceAll("b8b8b8", "000000");
-		content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
-		content = content.replaceAll("</body>", "");
-		content = content.replaceAll("class=\"img-responsive\"", "");
-		ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, content, mNoteCreateCallback);
+		if ((mMainContent != null && !mMainContent.isEmpty()) || mLoadNewsUrl) {
+			showDialog(DIALOG_PROGRESS);
+			String content = "";
+			if (!mLoadNewsUrl) {
+				content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
+				content = content.replaceAll("b8b8b8", "000000");
+				content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
+				content = content.replaceAll("</body>", "");
+				content = content.replaceAll("class=\"img-responsive\"", "");
+			} else {
+				content = mMainUrl;
+			}
+			ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, content, mNoteCreateCallback);
+		}
 	}
 
 	@Override
@@ -318,7 +326,11 @@ public class DetailActivity extends Activity {
 
 	private void doImageDownload() {
 		if (mNoImage) {
-			mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			return;
 		}
 		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
@@ -451,13 +463,22 @@ public class DetailActivity extends Activity {
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \"" + values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
+						+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); " + "for(var i=0;i<objs.length;i++)  " + "{" + "    var imgSrc = objs[i].getAttribute(\"src_link\"); " + "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+				mCustomWebView.loadUrl("javascript:(function(){"
+						+ "var objs = document.getElementsByTagName(\"img\"); "
+						+ "for(var i=0;i<objs.length;i++)  " + "{"
+						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+						+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
 			super.onPostExecute(result);
 		}
 

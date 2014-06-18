@@ -21,6 +21,7 @@
     <string name="swipe_down_to_refresh">下拉刷新&#8230;</string>
     <string name="refreshing">@string/loading</string>
     <string name="no_image_mode">无图模式</string>
+    <string name="save_to_evernote">保存到印象笔记&#8230;</string>
     <string name="note_saved">保存到印象笔记成功</string>
     <string name="note_save_fail">保存到印象笔记失败</string>
 
