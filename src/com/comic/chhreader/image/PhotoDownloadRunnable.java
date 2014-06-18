@@ -43,7 +43,7 @@ import com.comic.chhreader.image.PhotoDecodeRunnable.TaskRunnableDecodeMethods;
  */
 class PhotoDownloadRunnable implements Runnable {
 	// Sets the image cache folder in external storage
-	private static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache";
+	public static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache";
 
 	// Sets the size for each read action (bytes)
 	private static final int READ_SIZE = 1024;
@@ -149,14 +149,7 @@ class PhotoDownloadRunnable implements Runnable {
 		byte[] byteBuffer = mPhotoTask.getByteBuffer();
 
 		// gen photo name in cache
-		String[] photoFileNameArray = mPhotoTask.getImageURL().toString().split("/");
-		String photoFileName = null;
-		if (photoFileNameArray.length > 2) {
-			photoFileName = photoFileNameArray[photoFileNameArray.length - 2] + photoFileNameArray[photoFileNameArray.length - 1];
-		} else {
-			photoFileName = photoFileNameArray[photoFileNameArray.length - 1];
-		}
-
+		String photoFileName = PhotoUtils.getPhotoName(mPhotoTask.getImageURL().toString());
 		Loge.d("photoFileName = " + photoFileName);
 		photoFileName = photoFileName + ".chhreader";
 

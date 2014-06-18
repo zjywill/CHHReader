@@ -16,6 +16,7 @@
 
 package com.comic.chhreader.image;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 
@@ -315,6 +316,14 @@ public class PhotoTask implements TaskRunnableDownloadMethods, TaskRunnableDecod
 				break;
 			case PhotoDecodeRunnable.DECODE_STATE_FAILED:
 				outState = PhotoManager.DOWNLOAD_FAILED;
+				String photoFileName = PhotoUtils.getPhotoName(mImageURL.toString());
+				Loge.d("photoFileName = " + photoFileName);
+				photoFileName = photoFileName + ".chhreader";
+				String path = PhotoDownloadRunnable.IMAGE_CACHE_FOLDER + "/" + photoFileName;
+				File imageFile = new File(path);
+				if(imageFile.exists()){
+					imageFile.delete();
+				}
 				break;
 			default:
 				outState = PhotoManager.DECODE_STARTED;
