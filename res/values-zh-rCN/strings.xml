@@ -24,5 +24,5 @@
     <string name="save_to_evernote">保存到印象笔记&#8230;</string>
     <string name="note_saved">保存到印象笔记成功</string>
     <string name="note_save_fail">保存到印象笔记失败</string>
-
+	<string name="no_news_mode">不显示新闻</string>
 </resources>

@@ -28,12 +28,17 @@ public class CenterCorssFadeView extends FrameLayout {
 
 	private Drawable mLogoDrawable;
 
-	public CenterCorssFadeView(Context context, GalleryRootView rootView,
-			int pagecount) {
+	private boolean mNoImage = true;
+
+	public CenterCorssFadeView(Context context, GalleryRootView rootView, int pagecount) {
 		super(context);
 		mPageCount = pagecount;
 		mRootView = rootView;
 		initView();
+	}
+
+	public void setNoImage(boolean noImage) {
+		mNoImage = noImage;
 	}
 
 	private void initView() {
@@ -42,7 +47,8 @@ public class CenterCorssFadeView extends FrameLayout {
 			mCenterLayoutList = new ArrayList<PhotoView>(mPageCount);
 		}
 
-		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+		FrameLayout.LayoutParams centerParams = new FrameLayout.LayoutParams(
+				FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
 		for (int i = 0; i < 5; i++) {
 			PhotoView view = new PhotoView(getContext());
@@ -84,7 +90,8 @@ public class CenterCorssFadeView extends FrameLayout {
 					String imageUrl = mRootView.mENews.get(i).imageurl;
 					Loge.d("CenterCorssFadeView invalidate: " + imageUrl);
 					try {
-						mCenterLayoutList.get(i).setImageURL(new URL(imageUrl), true, true, true, mLogoDrawable);
+						mCenterLayoutList.get(i).setImageURL(new URL(imageUrl), true, true, !mNoImage,
+								mLogoDrawable);
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}

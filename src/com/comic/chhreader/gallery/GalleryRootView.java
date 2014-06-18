@@ -99,6 +99,13 @@ public class GalleryRootView extends FrameLayout {
 			mCenterCorssFadeView.invalidate();
 		}
 	}
+	
+	public void setNoImage(boolean noImage){
+		if (mCenterCorssFadeView != null) {
+			mCenterCorssFadeView.setNoImage(noImage);
+			mCenterCorssFadeView.invalidate();
+		}
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -274,4 +281,5 @@ public class GalleryRootView extends FrameLayout {
 		}
 
 	}
+
 }

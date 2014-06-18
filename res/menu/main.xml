@@ -12,5 +12,12 @@
         android:showAsAction="never"
         android:checkable="true"
         android:title="@string/no_image_mode"/>
+        
+        <item
+        android:id="@+id/action_no_news"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:checkable="true"
+        android:title="@string/no_news_mode"/>
 
 </menu>

@@ -31,5 +31,17 @@ public class SharedPreferencesUtils {
 		SharedPreferences pref = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_APPEND);
 		return pref.getBoolean("noimagemode", true);
 	}
+	
+	public static void saveNoNewsMode(Context context, boolean check) {
+		SharedPreferences pref = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_APPEND);
+		Editor editor = pref.edit();
+		editor.putBoolean("nonewsmode", check);
+		editor.commit();
+	}
+
+	public static boolean getNoNewsMode(Context context) {
+		SharedPreferences pref = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_APPEND);
+		return pref.getBoolean("nonewsmode", false);
+	}
 
 }

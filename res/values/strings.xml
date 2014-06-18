@@ -24,5 +24,6 @@
 	<string name="save_to_evernote">Save to Evernote&#8230;</string>
 	<string name="note_saved">Note saved to Evernote</string>
 	<string name="note_save_fail">Fail to save to Evernote</string>
+	<string name="no_news_mode">Not show News</string>
 	
 </resources>

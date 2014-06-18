@@ -64,6 +64,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 
 	private boolean updating = false;
 	private boolean mNoImage = true;
+	private boolean mNoNews = false;
 
 	private List<RssNews> mENews = new ArrayList<RssNews>();
 
@@ -94,6 +95,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 			mNoImage = false;
 		}
 
+		mNoNews = SharedPreferencesUtils.getNoNewsMode(mContext);
+
 		mGirdAdapter.setNoImage(mNoImage);
 
 		mGrid.setAdapter(mGirdAdapter);
@@ -109,7 +112,14 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				mScrollView.setVisibility(View.VISIBLE);
 			}
 		});
-		new FetchNewsTaskLocal().execute();
+		
+		mGalleryRootView.setNoImage(mNoImage);
+		if (mNoNews) {
+			mGalleryRootView.setVisibility(View.GONE);
+		} else {
+			new FetchNewsTaskLocal().execute();
+		}
+
 		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
 
 		if (Utils.isWifiAvailable(mContext) && !updating) {
@@ -143,6 +153,8 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		getMenuInflater().inflate(R.menu.main, menu);
 		MenuItem no_image = menu.findItem(R.id.action_no_image);
 		no_image.setChecked(SharedPreferencesUtils.getNoImageMode(mContext));
+		MenuItem no_news = menu.findItem(R.id.action_no_news);
+		no_news.setChecked(SharedPreferencesUtils.getNoNewsMode(mContext));
 		return true;
 	}
 
@@ -151,7 +163,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		switch (item.getItemId()) {
 			case R.id.action_do_refresh: {
 				Loge.i("Options Selected = do_refresh");
-				if (!updating){
+				if (!updating) {
 					new FetchDataTaskNet().execute();
 					new FetchNewsTaskNet().execute();
 				}
@@ -163,6 +175,19 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				boolean state = SharedPreferencesUtils.getNoImageMode(mContext);
 				item.setChecked(!state);
 				SharedPreferencesUtils.saveNoImageMode(mContext, !state);
+			}
+				break;
+			case R.id.action_no_news: {
+				boolean state = SharedPreferencesUtils.getNoNewsMode(mContext);
+				item.setChecked(!state);
+				SharedPreferencesUtils.saveNoNewsMode(mContext, !state);
+				mNoNews = !state;
+				if (mNoNews) {
+					mGalleryRootView.setVisibility(View.GONE);
+				} else {
+					mGalleryRootView.setVisibility(View.VISIBLE);
+					new FetchNewsTaskLocal().execute();
+				}
 			}
 				break;
 			default:
@@ -192,6 +217,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		} else {
 			mNoImage = false;
 		}
+		mGalleryRootView.setNoImage(mNoImage);
 		if (mGirdAdapter != null) {
 			mGirdAdapter.setNoImage(mNoImage);
 			new Handler().postDelayed(new Runnable() {
