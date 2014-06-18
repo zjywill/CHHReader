@@ -12,7 +12,7 @@ import com.evernote.thrift.transport.TTransportException;
 public class ShareToEvernote {
 	private static final String CONSUMER_KEY = "zjywill";
 	private static final String CONSUMER_SECRET = "6ced9b74e128bcfb";
-	private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
+	private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.PRODUCTION;
 	private static final boolean SUPPORT_APP_LINKED_NOTEBOOKS = true;
 
 	public static ShareToEvernote sShareToEvernote = null;
