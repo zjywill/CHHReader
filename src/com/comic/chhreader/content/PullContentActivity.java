@@ -275,11 +275,17 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 				}
 			}, 500);
 		}
+		if (mPullToRefreshLayout != null) {
+			mPullToRefreshLayout.setPause(false);
+		}
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
+		if (mPullToRefreshLayout != null) {
+			mPullToRefreshLayout.setPause(true);
+		}
 		super.onPause();
 	}
 

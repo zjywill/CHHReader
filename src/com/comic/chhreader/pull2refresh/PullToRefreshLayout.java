@@ -23,422 +23,423 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 
 /**
- * Conversation list view contains a {@link ListView} and a sync status bar above it.
+ * Conversation list view contains a {@link ListView} and a sync status bar
+ * above it.
  */
-public class PullToRefreshLayout extends FrameLayout{
+public class PullToRefreshLayout extends FrameLayout {
 
-    private static final int MIN_DISTANCE_TO_TRIGGER_SYNC = 50; // dp
-    private static final int MAX_DISTANCE_TO_TRIGGER_SYNC = 200; // dp
+	private static final int MIN_DISTANCE_TO_TRIGGER_SYNC = 50; // dp
+	private static final int MAX_DISTANCE_TO_TRIGGER_SYNC = 200; // dp
 
-    private static final int DISTANCE_TO_IGNORE = 15; // dp
-    private static final int DISTANCE_TO_TRIGGER_CANCEL = 10; // dp
-    private static final int SHOW_CHECKING_FOR_MAIL_DURATION_IN_MILLIS = 1 * 1000; // 1 seconds
+	private static final int DISTANCE_TO_IGNORE = 15; // dp
+	private static final int DISTANCE_TO_TRIGGER_CANCEL = 10; // dp
+	private static final int SHOW_CHECKING_FOR_MAIL_DURATION_IN_MILLIS = 1 * 1000; // 1 seconds
 
-    private static final int SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS = 200;
-    private static final int SYNC_STATUS_BAR_FADE_DURATION_IN_MILLIS = 150;
-    private static final int SYNC_TRIGGER_SHRINK_DURATION_IN_MILLIS = 250;
+	private static final int SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS = 200;
+	private static final int SYNC_STATUS_BAR_FADE_DURATION_IN_MILLIS = 150;
+	private static final int SYNC_TRIGGER_SHRINK_DURATION_IN_MILLIS = 250;
 
-    private View mSyncTriggerBar;
-    private View mSyncProgressBar;
-    private final AnimatorListenerAdapter mSyncDismissListener;
-    private ListView mListView;
+	private View mSyncTriggerBar;
+	private View mSyncProgressBar;
+	private final AnimatorListenerAdapter mSyncDismissListener;
+	private ListView mListView;
 
-    private boolean mIgnoreTouchEvents = false;
+	private boolean mIgnoreTouchEvents = false;
 
-    private boolean mTrackingScrollMovement = false;
-    private float mTrackingScrollStartY;
-    private float mTrackingScrollMaxY;
-    private boolean mIsSyncing = false;
+	private boolean mTrackingScrollMovement = false;
+	private float mTrackingScrollStartY;
+	private float mTrackingScrollMaxY;
+	private boolean mIsSyncing = false;
 
-    private final Interpolator mAccelerateInterpolator = new AccelerateInterpolator(1.5f);
-    private final Interpolator mDecelerateInterpolator = new DecelerateInterpolator(1.5f);
+	private final Interpolator mAccelerateInterpolator = new AccelerateInterpolator(1.5f);
+	private final Interpolator mDecelerateInterpolator = new DecelerateInterpolator(1.5f);
 
-    private float mDensity;
+	private float mDensity;
 
-    private Activity mActivity;
-    private final WindowManager mWindowManager;
-    private final HintText mHintText;
-    private boolean mHasHintTextViewBeenAdded = false;
+	private Activity mActivity;
+	private final WindowManager mWindowManager;
+	private final HintText mHintText;
+	private boolean mHasHintTextViewBeenAdded = false;
+	private boolean mHasPaused = false;
 
-    // Minimum vertical distance (in dips) of swipe to trigger a sync.
-    // This value can be different based on the device.
-    private float mDistanceToTriggerSyncDp = MIN_DISTANCE_TO_TRIGGER_SYNC;
+	// Minimum vertical distance (in dips) of swipe to trigger a sync.
+	// This value can be different based on the device.
+	private float mDistanceToTriggerSyncDp = MIN_DISTANCE_TO_TRIGGER_SYNC;
 
-//    private ConversationListContext mConvListContext;
+	//    private ConversationListContext mConvListContext;
 
-//    private final MailPrefs mMailPrefs;
-//    private AccountPreferences mAccountPreferences;
-    private OnRefreshListener mOnRefreshListener;
-    
-    // Instantiated through view inflation
-    public PullToRefreshLayout(Context context) {
-        this(context, null);
-    }
+	//    private final MailPrefs mMailPrefs;
+	//    private AccountPreferences mAccountPreferences;
+	private OnRefreshListener mOnRefreshListener;
 
-    public PullToRefreshLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, -1);
-    }
+	// Instantiated through view inflation
+	public PullToRefreshLayout(Context context) {
+		this(context, null);
+	}
 
-    public PullToRefreshLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        this.mActivity = (Activity) context;
-        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        mHintText = new PullToRefreshLayout.HintText(context);
+	public PullToRefreshLayout(Context context, AttributeSet attrs) {
+		this(context, attrs, -1);
+	}
 
-        mSyncDismissListener = new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator arg0) {
-                mSyncProgressBar.setVisibility(GONE);
-                mSyncTriggerBar.setVisibility(GONE);
-            }
-        };
+	public PullToRefreshLayout(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		this.mActivity = (Activity) context;
+		mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		mHintText = new PullToRefreshLayout.HintText(context);
 
-//        mMailPrefs = MailPrefs.get(context);
-    }
+		mSyncDismissListener = new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator arg0) {
+				mSyncProgressBar.setVisibility(GONE);
+				mSyncTriggerBar.setVisibility(GONE);
+			}
+		};
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        mListView = (ListView) findViewById(R.id.content_list);
+		//        mMailPrefs = MailPrefs.get(context);
+	}
 
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        mDensity = displayMetrics.density;
+	@Override
+	protected void onFinishInflate() {
+		super.onFinishInflate();
+		mListView = (ListView) findViewById(R.id.content_list);
 
-        // Calculate distance threshold for triggering a sync based on
-        // screen height.  Apply a min and max cutoff.
-        float threshold = (displayMetrics.heightPixels) / mDensity / 2.5f;
-        mDistanceToTriggerSyncDp = Math.max(
-                Math.min(threshold, MAX_DISTANCE_TO_TRIGGER_SYNC),
-                MIN_DISTANCE_TO_TRIGGER_SYNC);
-    }
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		mDensity = displayMetrics.density;
 
-    protected void setActivity(Activity activity) {
-        mActivity = activity;
-    }
+		// Calculate distance threshold for triggering a sync based on
+		// screen height.  Apply a min and max cutoff.
+		float threshold = (displayMetrics.heightPixels) / mDensity / 2.5f;
+		mDistanceToTriggerSyncDp = Math.max(Math.min(threshold, MAX_DISTANCE_TO_TRIGGER_SYNC),
+				MIN_DISTANCE_TO_TRIGGER_SYNC);
+	}
 
+	protected void setActivity(Activity activity) {
+		mActivity = activity;
+	}
 
-    private void addHintTextViewIfNecessary() {
-        if (!mHasHintTextViewBeenAdded) {
-            mWindowManager.addView(mHintText, getRefreshHintTextLayoutParams());
-            mHasHintTextViewBeenAdded = true;
-        }
-    }
+	private void addHintTextViewIfNecessary() {
+		if (!mHasHintTextViewBeenAdded && !mHasPaused) {
+			mWindowManager.addView(mHintText, getRefreshHintTextLayoutParams());
+			mHasHintTextViewBeenAdded = true;
+		}
+	}
+	
+	public void setPause(boolean paused) {
+		mHasPaused = paused;
+		if (mHasHintTextViewBeenAdded && mHasPaused) {
+			mWindowManager.removeView(mHintText);
+			mHasHintTextViewBeenAdded = false;
+		}
+	}
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        // Delayed to this step because activity has to be running in order for view to be
-        // successfully added to the window manager.
-        addHintTextViewIfNecessary();
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		// Delayed to this step because activity has to be running in order for view to be
+		// successfully added to the window manager.
+		addHintTextViewIfNecessary();
 
-        // First check for any events that can trigger end of a swipe, so we can reset
-        // mIgnoreTouchEvents back to false (it can only be set to true at beginning of swipe)
-        // via {#onBeginSwipe()} callback.
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mIgnoreTouchEvents = false;
-        }
+		// First check for any events that can trigger end of a swipe, so we can reset
+		// mIgnoreTouchEvents back to false (it can only be set to true at beginning of swipe)
+		// via {#onBeginSwipe()} callback.
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_CANCEL:
+				mIgnoreTouchEvents = false;
+		}
 
-        if (mIgnoreTouchEvents) {
-            return super.dispatchTouchEvent(event);
-        }
+		if (mIgnoreTouchEvents) {
+			return super.dispatchTouchEvent(event);
+		}
 
-        float y = event.getY(0);
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                if (mIsSyncing) {
-                    break;
-                }
-                if (mListView.getVisibility() != View.VISIBLE || mListView.getChildCount() == 0 || mListView.getChildAt(0).getTop() == 0) {
-                    startMovementTracking(y);
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (mTrackingScrollMovement) {
-                    float verticalDistancePx = y - mTrackingScrollStartY;
-                    float verticalDistanceDp = verticalDistancePx / mDensity;
-                    if (verticalDistanceDp > mDistanceToTriggerSyncDp) {
-                        triggerSync();
-                        break;
-                    }
+		float y = event.getY(0);
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				if (mIsSyncing) {
+					break;
+				}
+				if (mListView.getVisibility() != View.VISIBLE || mListView.getChildCount() == 0
+						|| mListView.getChildAt(0).getTop() == 0) {
+					startMovementTracking(y);
+				}
+				break;
+			case MotionEvent.ACTION_MOVE:
+				if (mTrackingScrollMovement) {
+					float verticalDistancePx = y - mTrackingScrollStartY;
+					float verticalDistanceDp = verticalDistancePx / mDensity;
+					if (verticalDistanceDp > mDistanceToTriggerSyncDp) {
+						triggerSync();
+						break;
+					}
 
-                    // Moving back up vertically should be handled the same as CANCEL / UP:
-                    float verticalDistanceFromMaxPx = mTrackingScrollMaxY - y;
-                    float verticalDistanceFromMaxDp = verticalDistanceFromMaxPx / mDensity;
-                    if (verticalDistanceFromMaxDp > DISTANCE_TO_TRIGGER_CANCEL) {
-                        cancelMovementTracking();
-                        break;
-                    }
+					// Moving back up vertically should be handled the same as CANCEL / UP:
+					float verticalDistanceFromMaxPx = mTrackingScrollMaxY - y;
+					float verticalDistanceFromMaxDp = verticalDistanceFromMaxPx / mDensity;
+					if (verticalDistanceFromMaxDp > DISTANCE_TO_TRIGGER_CANCEL) {
+						cancelMovementTracking();
+						break;
+					}
 
-                    if (verticalDistanceDp < DISTANCE_TO_IGNORE) {
-                        verticalDistanceDp = 0;
-                    } else {
-                        mHintText.displaySwipeToRefresh();
-                    }
-                    setTriggerScale(mAccelerateInterpolator.getInterpolation(
-                            verticalDistanceDp/mDistanceToTriggerSyncDp));
+					if (verticalDistanceDp < DISTANCE_TO_IGNORE) {
+						verticalDistanceDp = 0;
+					} else {
+						mHintText.displaySwipeToRefresh();
+					}
+					setTriggerScale(mAccelerateInterpolator.getInterpolation(verticalDistanceDp
+							/ mDistanceToTriggerSyncDp));
 
-                    if (y > mTrackingScrollMaxY) {
-                        mTrackingScrollMaxY = y;
-                    }
-                }
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                if (mTrackingScrollMovement) {
-                    cancelMovementTracking();
-                }
-                break;
-        }
+					if (y > mTrackingScrollMaxY) {
+						mTrackingScrollMaxY = y;
+					}
+				}
+				break;
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP:
+				if (mTrackingScrollMovement) {
+					cancelMovementTracking();
+				}
+				break;
+		}
 
-        return super.dispatchTouchEvent(event);
-    }
+		return super.dispatchTouchEvent(event);
+	}
 
-    private void startMovementTracking(float y) {
-        mTrackingScrollMovement = true;
-        mTrackingScrollStartY = y;
-        mTrackingScrollMaxY = mTrackingScrollStartY;
-    }
+	private void startMovementTracking(float y) {
+		mTrackingScrollMovement = true;
+		mTrackingScrollStartY = y;
+		mTrackingScrollMaxY = mTrackingScrollStartY;
+	}
 
-    private void cancelMovementTracking() {
-        if (mTrackingScrollMovement) {
-            // Shrink the status bar when user lifts finger and no sync has happened yet
-            if (mSyncTriggerBar != null) {
-                mSyncTriggerBar.animate()
-                        .scaleX(0f)
-                        .setInterpolator(mDecelerateInterpolator)
-                        .setDuration(SYNC_TRIGGER_SHRINK_DURATION_IN_MILLIS)
-                        .setListener(mSyncDismissListener)
-                        .start();
-            }
-            mTrackingScrollMovement = false;
-        }
-        mHintText.hide();
-    }
+	private void cancelMovementTracking() {
+		if (mTrackingScrollMovement) {
+			// Shrink the status bar when user lifts finger and no sync has happened yet
+			if (mSyncTriggerBar != null) {
+				mSyncTriggerBar.animate().scaleX(0f).setInterpolator(mDecelerateInterpolator)
+						.setDuration(SYNC_TRIGGER_SHRINK_DURATION_IN_MILLIS)
+						.setListener(mSyncDismissListener).start();
+			}
+			mTrackingScrollMovement = false;
+		}
+		mHintText.hide();
+	}
 
-    private void setTriggerScale(float scale) {
-        if (scale == 0f && mSyncTriggerBar == null) {
-            // No-op. A null trigger means it's uninitialized, and setting it to zero-scale
-            // means we're trying to reset state, so there's nothing to reset in this case.
-            return;
-        } else if (mSyncTriggerBar != null) {
-            // reset any leftover trigger visual state
-            mSyncTriggerBar.animate().cancel();
-            mSyncTriggerBar.setVisibility(VISIBLE);
-        }
-        ensureProgressBars();
-        mSyncTriggerBar.setScaleX(scale);
-    }
+	private void setTriggerScale(float scale) {
+		if (scale == 0f && mSyncTriggerBar == null) {
+			// No-op. A null trigger means it's uninitialized, and setting it to zero-scale
+			// means we're trying to reset state, so there's nothing to reset in this case.
+			return;
+		} else if (mSyncTriggerBar != null) {
+			// reset any leftover trigger visual state
+			mSyncTriggerBar.animate().cancel();
+			mSyncTriggerBar.setVisibility(VISIBLE);
+		}
+		ensureProgressBars();
+		mSyncTriggerBar.setScaleX(scale);
+	}
 
-    private void ensureProgressBars() {
-        if (mSyncTriggerBar == null || mSyncProgressBar == null) {
-            final LayoutInflater inflater = LayoutInflater.from(getContext());
-            inflater.inflate(R.layout.conversation_list_progress, this, true /* attachToRoot */);
-            mSyncTriggerBar = findViewById(R.id.sync_trigger);
-            mSyncProgressBar = findViewById(R.id.progress_pull);
-        }
-    }
+	private void ensureProgressBars() {
+		if (mSyncTriggerBar == null || mSyncProgressBar == null) {
+			final LayoutInflater inflater = LayoutInflater.from(getContext());
+			inflater.inflate(R.layout.conversation_list_progress, this, true /* attachToRoot */);
+			mSyncTriggerBar = findViewById(R.id.sync_trigger);
+			mSyncProgressBar = findViewById(R.id.progress_pull);
+		}
+	}
 
-    private void triggerSync() {
-        ensureProgressBars();
-        mSyncTriggerBar.setVisibility(View.GONE);
+	private void triggerSync() {
+		ensureProgressBars();
+		mSyncTriggerBar.setVisibility(View.GONE);
 
-        showSyncStatusBar();
-        if(mOnRefreshListener != null){
-        	mOnRefreshListener.onRefresh();
-        }
-        postDelayed(new Runnable() {
-			
+		showSyncStatusBar();
+		if (mOnRefreshListener != null) {
+			mOnRefreshListener.onRefresh();
+		}
+		postDelayed(new Runnable() {
+
 			@Override
 			public void run() {
 				onSyncFinished();
 			}
 		}, 10000);
 
-        mTrackingScrollMovement = false;
+		mTrackingScrollMovement = false;
 
-        mHintText.displayCheckingForMailAndHideAfterDelay();
-    }
+		mHintText.displayCheckingForMailAndHideAfterDelay();
+	}
 
-    protected void showSyncStatusBar() {
-        if (!mIsSyncing) {
-            mIsSyncing = true;
+	protected void showSyncStatusBar() {
+		if (!mIsSyncing) {
+			mIsSyncing = true;
 
-            ensureProgressBars();
-            mSyncTriggerBar.setVisibility(GONE);
-            mSyncProgressBar.setVisibility(VISIBLE);
-            mSyncProgressBar.setAlpha(1f);
+			ensureProgressBars();
+			mSyncTriggerBar.setVisibility(GONE);
+			mSyncProgressBar.setVisibility(VISIBLE);
+			mSyncProgressBar.setAlpha(1f);
 
-        }
-    }
+		}
+	}
 
+	public void onSyncFinished() {
+		if (mIsSyncing) {
+			// Hide both the sync progress bar and sync trigger bar
+			mSyncProgressBar.animate().alpha(0f).setDuration(SYNC_STATUS_BAR_FADE_DURATION_IN_MILLIS)
+					.setListener(mSyncDismissListener);
+			mSyncTriggerBar.setVisibility(GONE);
+			// Hide the "Checking for mail" text in action bar if it isn't hidden already:
+			mHintText.hide();
+			mIsSyncing = false;
+		}
+	}
 
-    public void onSyncFinished() {
-        if (mIsSyncing) {
-            // Hide both the sync progress bar and sync trigger bar
-            mSyncProgressBar.animate().alpha(0f)
-                    .setDuration(SYNC_STATUS_BAR_FADE_DURATION_IN_MILLIS)
-                    .setListener(mSyncDismissListener);
-            mSyncTriggerBar.setVisibility(GONE);
-            // Hide the "Checking for mail" text in action bar if it isn't hidden already:
-            mHintText.hide();
-            mIsSyncing = false;
-        }
-    }
+	@Override
+	protected void onDetachedFromWindow() {
+		if (mHasHintTextViewBeenAdded) {
+			try {
+				mWindowManager.removeView(mHintText);
+			} catch (IllegalArgumentException e) {
+				// Have seen this happen on occasion during orientation change.
+			}
+		}
+	}
 
-    @Override
-    protected void onDetachedFromWindow() {
-        if (mHasHintTextViewBeenAdded) {
-            try {
-                mWindowManager.removeView(mHintText);
-            } catch (IllegalArgumentException e) {
-                // Have seen this happen on occasion during orientation change.
-            }
-        }
-    }
+	private WindowManager.LayoutParams getRefreshHintTextLayoutParams() {
+		// Create the "Swipe down to refresh" text view that covers the action bar.
+		Rect rect = new Rect();
+		Window window = mActivity.getWindow();
+		window.getDecorView().getWindowVisibleDisplayFrame(rect);
+		int statusBarHeight = rect.top;
 
-    private WindowManager.LayoutParams getRefreshHintTextLayoutParams() {
-        // Create the "Swipe down to refresh" text view that covers the action bar.
-        Rect rect= new Rect();
-        Window window = mActivity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rect);
-        int statusBarHeight = rect.top;
+		final TypedArray actionBarSize = ((Activity) mActivity)
+				.obtainStyledAttributes(new int[] { android.R.attr.actionBarSize });
+		int actionBarHeight = actionBarSize.getDimensionPixelSize(0, 0);
+		actionBarSize.recycle();
 
-        final TypedArray actionBarSize = ((Activity) mActivity).obtainStyledAttributes(
-                new int[]{android.R.attr.actionBarSize});
-        int actionBarHeight = actionBarSize.getDimensionPixelSize(0, 0);
-        actionBarSize.recycle();
+		WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+				WindowManager.LayoutParams.MATCH_PARENT, actionBarHeight,
+				WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
+				WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+		params.gravity = Gravity.TOP;
+		params.x = 0;
+		params.y = statusBarHeight;
+		return params;
+	}
 
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                actionBarHeight,
-                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.TOP;
-        params.x = 0;
-        params.y = statusBarHeight;
-        return params;
-    }
+	/**
+	 * A text view that covers the entire action bar, used for displaying
+	 * "Swipe down to refresh" hint text if user has initiated a downward swipe.
+	 */
+	protected static class HintText extends FrameLayout {
 
-    /**
-     * A text view that covers the entire action bar, used for displaying
-     * "Swipe down to refresh" hint text if user has initiated a downward swipe.
-     */
-    protected static class HintText extends FrameLayout {
+		private static final int NONE = 0;
+		private static final int SWIPE_TO_REFRESH = 1;
+		private static final int CHECKING_FOR_MAIL = 2;
 
-        private static final int NONE = 0;
-        private static final int SWIPE_TO_REFRESH = 1;
-        private static final int CHECKING_FOR_MAIL = 2;
+		// Can be one of NONE, SWIPE_TO_REFRESH, CHECKING_FOR_MAIL
+		private int mDisplay;
 
-        // Can be one of NONE, SWIPE_TO_REFRESH, CHECKING_FOR_MAIL
-        private int mDisplay;
+		private final TextView mTextView;
 
-        private final TextView mTextView;
+		private final Interpolator mDecelerateInterpolator = new DecelerateInterpolator(1.5f);
+		private final Interpolator mAccelerateInterpolator = new AccelerateInterpolator(1.5f);
 
-        private final Interpolator mDecelerateInterpolator = new DecelerateInterpolator(1.5f);
-        private final Interpolator mAccelerateInterpolator = new AccelerateInterpolator(1.5f);
+		private final Runnable mHideHintTextRunnable = new Runnable() {
+			@Override
+			public void run() {
+				hide();
+			}
+		};
+		private final Runnable mSetVisibilityGoneRunnable = new Runnable() {
+			@Override
+			public void run() {
+				setVisibility(View.GONE);
+			}
+		};
 
-        private final Runnable mHideHintTextRunnable = new Runnable() {
-            @Override
-            public void run() {
-                hide();
-            }
-        };
-        private final Runnable mSetVisibilityGoneRunnable = new Runnable() {
-            @Override
-            public void run() {
-                setVisibility(View.GONE);
-            }
-        };
+		public HintText(final Context context) {
+			this(context, null);
+		}
 
-        public HintText(final Context context) {
-            this(context, null);
-        }
+		public HintText(final Context context, final AttributeSet attrs) {
+			this(context, attrs, -1);
+		}
 
-        public HintText(final Context context, final AttributeSet attrs) {
-            this(context, attrs, -1);
-        }
+		public HintText(final Context context, final AttributeSet attrs, final int defStyle) {
+			super(context, attrs, defStyle);
 
-        public HintText(final Context context, final AttributeSet attrs, final int defStyle) {
-            super(context, attrs, defStyle);
+			final LayoutInflater factory = LayoutInflater.from(context);
+			factory.inflate(R.layout.swipe_to_refresh, this);
 
-            final LayoutInflater factory = LayoutInflater.from(context);
-            factory.inflate(R.layout.swipe_to_refresh, this);
+			mTextView = (TextView) findViewById(R.id.swipe_text);
 
-            mTextView = (TextView) findViewById(R.id.swipe_text);
+			mDisplay = NONE;
+			setVisibility(View.GONE);
 
-            mDisplay = NONE;
-            setVisibility(View.GONE);
+			// Set background color to be same as action bar color
+			final int actionBarRes = getActionBarBackgroundResource(context);
+			setBackgroundResource(actionBarRes);
+		}
 
-            // Set background color to be same as action bar color
-            final int actionBarRes = getActionBarBackgroundResource(context);
-            setBackgroundResource(actionBarRes);
-        }
-        private static final int[] STYLE_ATTR = new int[] {android.R.attr.background};
-        /**
-         * Get the background color of Gmail's action bar.
-         */
-        public static int getActionBarBackgroundResource(final Context context) {
-            final TypedValue actionBarStyle = new TypedValue();
-            if (context.getTheme().resolveAttribute(android.R.attr.actionBarStyle, actionBarStyle, true)
-                    && actionBarStyle.type == TypedValue.TYPE_REFERENCE) {
-                final TypedValue backgroundValue = new TypedValue();
-                final TypedArray attr = context.obtainStyledAttributes(actionBarStyle.resourceId, STYLE_ATTR);
-                attr.getValue(0, backgroundValue);
-                attr.recycle();
-                return backgroundValue.resourceId;
-            } else {
-                // Default color
-                return context.getResources().getColor(R.color.list_background_color);
-            }
-        }
-        
-        private void displaySwipeToRefresh() {
-            if (mDisplay != SWIPE_TO_REFRESH) {
-                mTextView.setText(getResources().getText(R.string.swipe_down_to_refresh));
-                // Covers the current action bar:
-                setVisibility(View.VISIBLE);
-                setAlpha(1f);
-                // Animate text sliding down onto action bar:
-                mTextView.setY(-mTextView.getHeight());
-                mTextView.animate().y(0)
-                        .setInterpolator(mDecelerateInterpolator)
-                        .setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
-                mDisplay = SWIPE_TO_REFRESH;
-            }
-        }
+		private static final int[] STYLE_ATTR = new int[] { android.R.attr.background };
 
-        private void displayCheckingForMailAndHideAfterDelay() {
-            mTextView.setText(getResources().getText(R.string.refreshing));
-            setVisibility(View.VISIBLE);
-            mDisplay = CHECKING_FOR_MAIL;
-            postDelayed(mHideHintTextRunnable, SHOW_CHECKING_FOR_MAIL_DURATION_IN_MILLIS);
-        }
+		/**
+		 * Get the background color of Gmail's action bar.
+		 */
+		public static int getActionBarBackgroundResource(final Context context) {
+			final TypedValue actionBarStyle = new TypedValue();
+			if (context.getTheme().resolveAttribute(android.R.attr.actionBarStyle, actionBarStyle, true)
+					&& actionBarStyle.type == TypedValue.TYPE_REFERENCE) {
+				final TypedValue backgroundValue = new TypedValue();
+				final TypedArray attr = context.obtainStyledAttributes(actionBarStyle.resourceId, STYLE_ATTR);
+				attr.getValue(0, backgroundValue);
+				attr.recycle();
+				return backgroundValue.resourceId;
+			} else {
+				// Default color
+				return context.getResources().getColor(R.color.list_background_color);
+			}
+		}
 
-        private void hide() {
-            if (mDisplay != NONE) {
-                // Animate text sliding up leaving behind a blank action bar
-                mTextView.animate().y(-mTextView.getHeight())
-                        .setInterpolator(mAccelerateInterpolator)
-                        .setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS)
-                        .start();
-                animate().alpha(0f)
-                        .setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
-                postDelayed(mSetVisibilityGoneRunnable, SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
-                mDisplay = NONE;
-            }
-        }
-    }
+		private void displaySwipeToRefresh() {
+			if (mDisplay != SWIPE_TO_REFRESH) {
+				mTextView.setText(getResources().getText(R.string.swipe_down_to_refresh));
+				// Covers the current action bar:
+				setVisibility(View.VISIBLE);
+				setAlpha(1f);
+				// Animate text sliding down onto action bar:
+				mTextView.setY(-mTextView.getHeight());
+				mTextView.animate().y(0).setInterpolator(mDecelerateInterpolator)
+						.setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
+				mDisplay = SWIPE_TO_REFRESH;
+			}
+		}
 
-    public interface OnRefreshListener{
-    	public void onRefresh();
-    }
-    
+		private void displayCheckingForMailAndHideAfterDelay() {
+			mTextView.setText(getResources().getText(R.string.refreshing));
+			setVisibility(View.VISIBLE);
+			mDisplay = CHECKING_FOR_MAIL;
+			postDelayed(mHideHintTextRunnable, SHOW_CHECKING_FOR_MAIL_DURATION_IN_MILLIS);
+		}
+
+		private void hide() {
+			if (mDisplay != NONE) {
+				// Animate text sliding up leaving behind a blank action bar
+				mTextView.animate().y(-mTextView.getHeight()).setInterpolator(mAccelerateInterpolator)
+						.setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS).start();
+				animate().alpha(0f).setDuration(SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
+				postDelayed(mSetVisibilityGoneRunnable, SWIPE_TEXT_APPEAR_DURATION_IN_MILLIS);
+				mDisplay = NONE;
+			}
+		}
+	}
+
+	public interface OnRefreshListener {
+		public void onRefresh();
+	}
+
 	public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
 		this.mOnRefreshListener = onRefreshListener;
 	}
