@@ -251,6 +251,8 @@ public class DetailActivity extends Activity {
 			if (!mLoadNewsUrl) {
 				content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
 				content = content.replaceAll("b8b8b8", "000000");
+				content = content.replaceAll("1a1a1a", "888888");
+				content = content.replaceAll("b8b7b7", "ffffff");
 				content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
 				content = content.replaceAll("</body>", "");
 				content = content.replaceAll("<font",
@@ -596,6 +598,9 @@ public class DetailActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			if (mCustomWebView == null) {
+				return;
+			}
 			if (mMainContent != null && !mMainContent.isEmpty()) {
 				mCustomWebView.loadDataWithBaseURL(mMainUrl, mMainContent, "text/html", "utf-8", mMainUrl);
 			} else {
