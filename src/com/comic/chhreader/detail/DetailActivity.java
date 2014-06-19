@@ -253,11 +253,15 @@ public class DetailActivity extends Activity {
 				content = content.replaceAll("b8b8b8", "000000");
 				content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
 				content = content.replaceAll("</body>", "");
-				content = content.replaceAll("class=\"img-responsive\"", "");
+				content = content.replaceAll("<font",
+						"<font style=\"word-break:break-all;word-wrap:break-word;\"");
+				content = content.replaceAll("class=\"img-responsive\"",
+						"style=\"display:block;height:auto;max-width:100%;\"");
 			} else {
-				content = mMainUrl;
+				content = "";
 			}
-			ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, content, mNoteCreateCallback);
+			ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, mMainUrl, content,
+					mNoteCreateCallback);
 		}
 	}
 

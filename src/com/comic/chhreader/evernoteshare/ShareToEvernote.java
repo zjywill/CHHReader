@@ -1,12 +1,15 @@
 package com.comic.chhreader.evernoteshare;
 
+import android.R;
 import android.content.Context;
 
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.utils.CHHNetUtils;
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.EvernoteUtil;
 import com.evernote.client.android.OnClientCallback;
 import com.evernote.edam.type.Note;
+import com.evernote.edam.type.NoteAttributes;
 import com.evernote.thrift.transport.TTransportException;
 
 public class ShareToEvernote {
@@ -33,7 +36,8 @@ public class ShareToEvernote {
 	}
 
 	private void genEvernoteSession(Context context) {
-		sEvernoteSession = EvernoteSession.getInstance(context, CONSUMER_KEY, CONSUMER_SECRET, EVERNOTE_SERVICE, SUPPORT_APP_LINKED_NOTEBOOKS);
+		sEvernoteSession = EvernoteSession.getInstance(context, CONSUMER_KEY, CONSUMER_SECRET,
+				EVERNOTE_SERVICE, SUPPORT_APP_LINKED_NOTEBOOKS);
 	}
 
 	public EvernoteSession getEvernoteSession() {
@@ -62,13 +66,21 @@ public class ShareToEvernote {
 		}
 	}
 
-	public void shareNote(Context context, String title, String content,
+	public void shareNote(Context context, String title, String url, String content,
 			OnClientCallback<Note> mNoteCreateCallback) {
 		genEvernoteSession(context);
 
 		Note note = new Note();
 		note.setTitle(title);
-		note.setContent(EvernoteUtil.NOTE_PREFIX + content + EvernoteUtil.NOTE_SUFFIX);
+
+		NoteAttributes attrs = new NoteAttributes();
+		attrs.setSourceURL(url);
+		note.setAttributes(attrs);
+
+		String originUrl = context.getString(com.comic.chhreader.R.string.origin_url) + "	";
+		originUrl = originUrl + "<a href=\"" + url + "\"" + ">" + url + "</a>";
+		String fomateBegin = "<div>" + originUrl + "</div>" + "<div><br /></div> 	";
+		note.setContent(EvernoteUtil.NOTE_PREFIX + fomateBegin + content + EvernoteUtil.NOTE_SUFFIX);
 
 		if (sEvernoteSession == null) {
 			return;
