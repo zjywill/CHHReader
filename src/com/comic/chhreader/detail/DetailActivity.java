@@ -249,21 +249,30 @@ public class DetailActivity extends Activity {
 			showDialog(DIALOG_PROGRESS);
 			String content = "";
 			if (!mLoadNewsUrl) {
-				content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
-				content = content.replaceAll("b8b8b8", "000000");
-				content = content.replaceAll("1a1a1a", "888888");
-				content = content.replaceAll("b8b7b7", "ffffff");
-				content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
-				content = content.replaceAll("</body>", "");
-				content = content.replaceAll("<font",
-						"<font style=\"word-break:break-all;word-wrap:break-word;\"");
-				content = content.replaceAll("class=\"img-responsive\"",
-						"style=\"display:block;height:auto;max-width:100%;\"");
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						String content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
+						content = content.replaceAll("b8b8b8", "000000");
+						content = content.replaceAll("1a1a1a", "888888");
+						content = content.replaceAll("b8b7b7", "ffffff");
+						content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
+						content = content.replaceAll("</body>", "");
+						content = content.replaceAll("<font",
+								"<font style=\"word-break:break-all;word-wrap:break-word;\"");
+						content = content.replaceAll("class=\"img-responsive\"",
+								"style=\"display:block;height:auto;max-width:100%;\"");
+						ShareToEvernote.getInstance(mContext).shareNote(mContext, mMainTitle, mMainUrl,
+								content, mNoteCreateCallback);
+
+					}
+				}).start();
 			} else {
 				content = "";
+				ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, mMainUrl, content,
+						mNoteCreateCallback);
 			}
-			ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, mMainUrl, content,
-					mNoteCreateCallback);
+
 		}
 	}
 
