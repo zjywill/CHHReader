@@ -25,6 +25,6 @@
 	<string name="note_saved">Note saved to Evernote</string>
 	<string name="note_save_fail">Fail to save to Evernote</string>
 	<string name="no_news_mode">Not show News</string>
-	<string name="origin_url">Origin link:</string>
+	<string name="origin_url">Origin link</string>
 	
 </resources>

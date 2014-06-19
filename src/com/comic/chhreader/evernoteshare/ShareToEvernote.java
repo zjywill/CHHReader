@@ -77,9 +77,9 @@ public class ShareToEvernote {
 		attrs.setSourceURL(url);
 		note.setAttributes(attrs);
 
-		String originUrl = context.getString(com.comic.chhreader.R.string.origin_url) + "	";
-		originUrl = originUrl + "<a href=\"" + url + "\"" + ">" + url + "</a>";
-		String fomateBegin = "<div>" + originUrl + "</div>" + "<div><br /></div> 	";
+		String originUrl = context.getString(com.comic.chhreader.R.string.origin_url);
+		originUrl = "<a href=\"" + url + "\"" + ">" + originUrl + "</a>";
+		String fomateBegin = "<div>" + originUrl + "</div>" + "<div><br /></div>";
 		note.setContent(EvernoteUtil.NOTE_PREFIX + fomateBegin + content + EvernoteUtil.NOTE_SUFFIX);
 
 		if (sEvernoteSession == null) {
