@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -31,6 +32,7 @@ public class FavorActivity extends Activity implements OnItemClickListener, Load
 	private ContentAdapter mListAdapter;
 
 	private boolean mNoImage = true;
+	private boolean mFirstIn = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,8 @@ public class FavorActivity extends Activity implements OnItemClickListener, Load
 		mListView.setOnItemClickListener(this);
 
 		intActionBar();
+
+		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
 	}
 
 	void intActionBar() {
@@ -69,31 +73,45 @@ public class FavorActivity extends Activity implements OnItemClickListener, Load
 
 	@Override
 	protected void onResume() {
-		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
+		if (!mFirstIn) {
+			getLoaderManager().restartLoader(LOADER_ID_LOACL, null, this);
+		}
+		mFirstIn = false;
 		super.onResume();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			break;
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
 		switch (loaderID) {
-			case LOADER_ID_LOACL: {
-				String[] projection = new String[6];
-				projection[0] = DataProvider.KEY_MAIN_ID;
-				projection[1] = DataProvider.KEY_MAIN_TITLE;
-				projection[2] = DataProvider.KEY_MAIN_PIC_URL;
-				projection[3] = DataProvider.KEY_MAIN_CONTENT;
-				projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
-				projection[5] = DataProvider.KEY_MAIN_URL;
+		case LOADER_ID_LOACL: {
+			String[] projection = new String[6];
+			projection[0] = DataProvider.KEY_MAIN_ID;
+			projection[1] = DataProvider.KEY_MAIN_TITLE;
+			projection[2] = DataProvider.KEY_MAIN_PIC_URL;
+			projection[3] = DataProvider.KEY_MAIN_CONTENT;
+			projection[4] = DataProvider.KEY_MAIN_PUBLISH_DATE;
+			projection[5] = DataProvider.KEY_MAIN_URL;
 
-				String selection = DataProvider.KEY_MAIN_FAVOR + "='" + "1" + "'"//
-						+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
-				Loge.i("selection = " + selection);
+			String selection = DataProvider.KEY_MAIN_FAVOR + "='" + "1" + "'"//
+					+ " AND " + DataProvider.KEY_MAIN_VALID + "='" + "1" + "'";
+			Loge.i("selection = " + selection);
 
-				return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection,
-						null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
-			}
-			default:
-				break;
+			return new CursorLoader(this, DataProvider.CONTENT_URI_MAIN_DATA, projection, selection, null, DataProvider.KEY_MAIN_PUBLISH_DATE + " DESC");
+		}
+		default:
+			break;
 		}
 		return null;
 	}
@@ -101,13 +119,13 @@ public class FavorActivity extends Activity implements OnItemClickListener, Load
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		switch (loader.getId()) {
-			case LOADER_ID_LOACL: {
-				mListAdapter.swapCursor(cur);
-				mListAdapter.notifyDataSetChanged();
-			}
-				break;
-			default:
-				break;
+		case LOADER_ID_LOACL: {
+			mListAdapter.swapCursor(cur);
+			mListAdapter.notifyDataSetChanged();
+		}
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -117,7 +135,8 @@ public class FavorActivity extends Activity implements OnItemClickListener, Load
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
 		Intent intent = new Intent(FavorActivity.this, DetailActivity.class);
 		Cursor cur = (Cursor) mListAdapter.getItem(position);
 		if (cur != null) {

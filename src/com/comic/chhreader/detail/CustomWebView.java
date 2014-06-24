@@ -14,6 +14,7 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
@@ -51,9 +52,8 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		webSettings.setSupportZoom(false);
 		webSettings.setSaveFormData(true);
 		webSettings.setLoadsImagesAutomatically(true);
-
-		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
 		webSettings.setJavaScriptEnabled(true);
+		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
 
 		setOnSystemUiVisibilityChangeListener(this);
 
@@ -62,7 +62,8 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 	public class Js2JavaInterface {
 		private Context context;
-
+		
+		@JavascriptInterface
 		public void setImgSrc(String imgSrc) {
 			Loge.i("setImgSrc : " + imgSrc);
 		}

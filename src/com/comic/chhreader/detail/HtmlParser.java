@@ -23,8 +23,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	public static final String Js2JavaInterfaceName = "JsUseJava";
 	public static final String IMAGE_BREAK_TAG = "&00000&";
-	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache/SUB/";
+	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/";
 
 	private String mUrl;
 	private String mThreadId;
@@ -84,7 +83,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 				imageSetBuilder.append(IMAGE_BREAK_TAG);
 			}
 		}
-		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString(),body);
+		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString(), body);
 
 		return htmlText;
 	}
@@ -123,7 +122,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);
-				String str = "window." + Js2JavaInterfaceName + ".setImgSrc('" + filePath + "')";
+				String str = "window." + Js2JavaInterfaceName + ".setImgSrc('" + imgUrl + "')";
 				e.attr("onclick", str);
 			}
 		}
