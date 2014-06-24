@@ -7,6 +7,8 @@
     <string name="action_back">Back</string>
     <string name="action_browser">Open in browser</string>
     <string name="action_share">Share</string>
+    <string name="action_favor">Favorite</string>
+    <string name="action_myfavor">My Favorite</string>
     <string name="empty_text">No Data</string>
     <string name="network_warn">Turn on Network</string>
     <string name="no_network">No network</string>

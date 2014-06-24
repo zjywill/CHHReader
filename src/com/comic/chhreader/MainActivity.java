@@ -31,6 +31,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.comic.chhreader.clean.CleanService;
+import com.comic.chhreader.content.FavorActivity;
 import com.comic.chhreader.content.PullContentActivity;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.RssNews;
@@ -112,7 +113,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				mScrollView.setVisibility(View.VISIBLE);
 			}
 		});
-		
+
 		mGalleryRootView.setNoImage(mNoImage);
 		if (mNoNews) {
 			mGalleryRootView.setVisibility(View.GONE);
@@ -188,6 +189,11 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 					mGalleryRootView.setVisibility(View.VISIBLE);
 					new FetchNewsTaskLocal().execute();
 				}
+			}
+				break;
+			case R.id.action_myfavor: {
+				Intent intent = new Intent(MainActivity.this, FavorActivity.class);
+				startActivity(intent);
 			}
 				break;
 			default:

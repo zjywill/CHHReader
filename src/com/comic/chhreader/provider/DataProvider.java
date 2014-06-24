@@ -17,7 +17,7 @@ import com.comic.chhreader.Loge;
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1003;
+	private static final int DB_VERSION = 1004;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -63,6 +63,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_MAIN_EXTEND_DATA2 = "extend2";
 	public static final String KEY_MAIN_VALID = "valid";
 	public static final String KEY_MAIN_PUBLISH_DATE = "date";
+	public static final String KEY_MAIN_FAVOR = "favorite";
 
 	// Name of table in the database
 	private static final String DB_TABLE_CONTENT_DATA = "content";
@@ -225,7 +226,11 @@ public class DataProvider extends ContentProvider {
 							"INTEGER NOT NULL DEFAULT 0");
 					createNewsTable(db);
 				}
-					break;
+				case 1004: {
+					addColumn(db, DB_TABLE_MAIN_DATA, KEY_MAIN_FAVOR,
+							"INTEGER NOT NULL DEFAULT 0");
+				}
+				break;
 				default: {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
@@ -264,6 +269,7 @@ public class DataProvider extends ContentProvider {
 					+ KEY_MAIN_CONTENT + " TEXT, "+ KEY_MAIN_URL+ " TEXT, " //
 					+ KEY_MAIN_EXTEND_DATA1 + " TEXT, "+ KEY_MAIN_EXTEND_DATA2+ " TEXT, " //
 					+ KEY_MAIN_VALID + " INTEGER,"+ KEY_MAIN_PUBLISH_DATE+ " INTEGER, "//
+					+ KEY_MAIN_FAVOR + " INTEGER NOT NULL DEFAULT 0, "//
 					+ "FOREIGN KEY (" + KEY_MAIN_TOPIC_PK + ") REFERENCES " + DB_TABLE_TOPIC_DATA + " ("+ KEY_TOPIC_PK+ "),"//
 					+ "FOREIGN KEY (" + KEY_MAIN_SUB_PK + ") REFERENCES " + DB_TABLE_SUBITEM_DATA + " ("+ KEY_SUBITEM_PK + "));";
 
@@ -273,7 +279,7 @@ public class DataProvider extends ContentProvider {
 					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
 					+ KEY_CONTENT_IMAGE_SET + " TEXT, "//
 			        + KEY_CONTENT_ORIGIN + " TEXT, "
-			        + KEY_CONTENT_FAVOR + " INTEGER );";
+			        + KEY_CONTENT_FAVOR + " INTEGER NOT NULL DEFAULT 0 );";
 			
 
 			db.execSQL(commandTopic);

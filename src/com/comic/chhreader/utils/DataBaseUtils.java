@@ -309,9 +309,9 @@ public class DataBaseUtils {
 				return false;
 			}
 			ContentValues cv = new ContentValues();
-			cv.put(DataProvider.KEY_CONTENT_FAVOR, favor);
-			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
-			contentResolver.update(DataProvider.CONTENT_URI_CONTENT_DATA, cv, where, null);
+			cv.put(DataProvider.KEY_MAIN_FAVOR, favor);
+			String where = DataProvider.KEY_MAIN_URL + "='" + url + "'";
+			contentResolver.update(DataProvider.CONTENT_URI_MAIN_DATA, cv, where, null);
 			return true;
 		}
 		return false;
@@ -325,14 +325,14 @@ public class DataBaseUtils {
 				return favor;
 			}
 			String[] projection = new String[1];
-			projection[0] = DataProvider.KEY_CONTENT_FAVOR;
-			String where = DataProvider.KEY_CONTENT_URL + "='" + url + "'";
-			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_CONTENT_DATA, projection, where,
+			projection[0] = DataProvider.KEY_MAIN_FAVOR;
+			String where = DataProvider.KEY_MAIN_URL + "='" + url + "'";
+			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_MAIN_DATA, projection, where,
 					null, null);
 			if (cursor != null) {
 				if (cursor.getCount() > 0) {
 					if (cursor.moveToFirst()) {
-						favor = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_CONTENT_FAVOR)) == 1;
+						favor = cursor.getInt(cursor.getColumnIndex(DataProvider.KEY_MAIN_FAVOR)) == 1;
 					}
 				}
 				cursor.close();

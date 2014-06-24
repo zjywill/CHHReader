@@ -5,19 +5,22 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_refresh"/>
-    
-        <item
+    <item
+        android:id="@+id/action_myfavor"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_myfavor"/>
+    <item
         android:id="@+id/action_no_image"
+        android:checkable="true"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:checkable="true"
         android:title="@string/no_image_mode"/>
-        
-        <item
+    <item
         android:id="@+id/action_no_news"
+        android:checkable="true"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:checkable="true"
         android:title="@string/no_news_mode"/>
 
 </menu>

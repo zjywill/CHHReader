@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,9 @@ public class DetailActivity extends Activity {
 	private boolean mDestroyed = false;
 	private boolean mPaused = false;
 	private boolean mNoImage = false;
+	private boolean mFavor = false;
+
+	private MenuItem mFavorMenuItem;
 
 	public List<String> mImgUrls = new ArrayList<String>();
 
@@ -151,6 +155,14 @@ public class DetailActivity extends Activity {
 		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
 		setShareIntent();
 
+		mFavorMenuItem = menu.findItem(R.id.action_favor);
+		if (mFavor) {
+			Loge.d("Favor A: " + mFavor);
+			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
+		} else {
+			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
+		}
+
 		return true;
 	}
 
@@ -199,6 +211,17 @@ public class DetailActivity extends Activity {
 					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
 						saveToEvernote();
 					}
+				}
+			}
+				break;
+			case R.id.action_favor: {
+				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
+				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
+				mFavor = !mFavor;
+				if (mFavor) {
+					item.setIcon(R.drawable.ic_menu_favor_active);
+				} else {
+					item.setIcon(R.drawable.ic_menu_favor);
 				}
 			}
 				break;
@@ -393,8 +416,8 @@ public class DetailActivity extends Activity {
 				if (url.isEmpty()) {
 					return "fail";
 				}
+				mFavor = DataBaseUtils.getContentFavorData(mContext, url);
 
-				Loge.d("URL:  " + url);
 				mThreadId = HtmlParser.getThreadId(url);
 
 				ContentDataDetail contentData = DataBaseUtils.getContentData(mContext, url);
@@ -435,6 +458,10 @@ public class DetailActivity extends Activity {
 				mCustomWebView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 				mLoadingView.setVisibility(View.GONE);
 
+				if (mFavor && mFavorMenuItem != null) {
+					Loge.d("Favor B: " + mFavor);
+					mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
+				}
 			} else {
 				if (mParser == null) {
 					mParser = new HtmlParser(mContext, mMainUrl) {
