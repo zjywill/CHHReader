@@ -11,7 +11,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
-        android:background="#ff2a2a2a" >
+        android:background="#ff202020" >
 
         <com.comic.chhreader.image.PhotoView
             android:id="@+id/content_ori_image"
@@ -35,6 +35,8 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center|left"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
                 android:singleLine="true"
                 android:text="@string/app_name"
                 android:textColor="#ffbb0000"
@@ -48,6 +50,8 @@
                 android:ellipsize="end"
                 android:gravity="center|left"
                 android:maxLines="3"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
                 android:text="@string/app_name"
                 android:textColor="#ffb8b8b8"
                 android:textSize="15.33sp"
