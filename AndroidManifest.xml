@@ -49,6 +49,9 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name="com.comic.chhreader.ShareAccountActivity"
+            android:configChanges="orientation|keyboardHidden" />
+        <activity
             android:name="com.evernote.client.android.EvernoteOAuthActivity"
             android:configChanges="orientation|keyboardHidden" />
 

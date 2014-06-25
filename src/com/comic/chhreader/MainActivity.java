@@ -196,6 +196,11 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				startActivity(intent);
 			}
 				break;
+			case R.id.action_share_account:{
+				Intent intent = new Intent(MainActivity.this, ShareAccountActivity.class);
+				startActivity(intent);
+			}
+				break;
 			default:
 				break;
 		}

@@ -1,12 +1,11 @@
 package com.comic.chhreader.evernoteshare;
 
-import android.R;
 import android.content.Context;
 
 import com.comic.chhreader.Loge;
-import com.comic.chhreader.utils.CHHNetUtils;
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.EvernoteUtil;
+import com.evernote.client.android.InvalidAuthenticationException;
 import com.evernote.client.android.OnClientCallback;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.NoteAttributes;
@@ -66,6 +65,16 @@ public class ShareToEvernote {
 		}
 	}
 
+	public void logOut() {
+		if (sEvernoteSession != null && sContext != null) {
+			try {
+				sEvernoteSession.logOut(sContext);
+			} catch (InvalidAuthenticationException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void shareNote(Context context, String title, String url, String content,
 			OnClientCallback<Note> mNoteCreateCallback) {
 		genEvernoteSession(context);

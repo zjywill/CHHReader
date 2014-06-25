@@ -9,6 +9,7 @@
     <string name="action_share">Share</string>
     <string name="action_favor">Favorite</string>
     <string name="action_myfavor">My Favorite</string>
+    <string name="action_share_account">Share account</string>
     <string name="empty_text">No Data</string>
     <string name="network_warn">Turn on Network</string>
     <string name="no_network">No network</string>
@@ -23,10 +24,13 @@
     <string name="swipe_down_to_refresh">Pull to refresh&#8230;</string>
     <string name="refreshing">@string/loading</string>
 	<string name="no_image_mode">Not load image</string>
+	<string name="evernote">Evernote</string>
 	<string name="save_to_evernote">Save to Evernote&#8230;</string>
 	<string name="note_saved">Note saved to Evernote</string>
 	<string name="note_save_fail">Fail to save to Evernote</string>
 	<string name="no_news_mode">Not show News</string>
 	<string name="origin_url">Origin link</string>
+	<string name="logout">Logout</string>
+	<string name="login">Login</string>
 	
 </resources>
