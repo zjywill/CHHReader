@@ -24,7 +24,7 @@ public class ContentAdapter extends CursorAdapter {
 	}
 
 	private Context mContext;
-	
+
 	private boolean mNoImage = true;
 
 	ContentAdapter(Context ctx) {
@@ -44,7 +44,8 @@ public class ContentAdapter extends CursorAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(R.layout.content_list_item, null);
+		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(
+				R.layout.content_list_item, null);
 		final ViewHolder holder = new ViewHolder();
 
 		holder.icon = (PhotoView) itemLayout.findViewById(R.id.content_ori_image);
@@ -99,16 +100,18 @@ public class ContentAdapter extends CursorAdapter {
 	public Object getItem(int position) {
 		Cursor cursor = getCursor();
 		if (cursor != null) {
+			if (position >= cursor.getCount()) {
+				return null;
+			}
 			cursor.moveToPosition(position);
 			return cursor;
 		} else {
 			return null;
 		}
 	}
-	
-	public void setNoImage(boolean noimage){
+
+	public void setNoImage(boolean noimage) {
 		mNoImage = noimage;
 	}
-
 
 }

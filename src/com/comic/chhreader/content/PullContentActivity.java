@@ -11,20 +11,23 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.DateUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
+import com.comic.chhreader.content.ExtendedListView.OnPositionChangedListener;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.detail.DetailActivity;
@@ -38,12 +41,12 @@ import com.comic.chhreader.utils.Utils;
 import com.comic.chhreader.view.NetworkDialog;
 
 public class PullContentActivity extends Activity implements OnRefreshListener, LoaderCallbacks<Cursor>,
-		OnItemClickListener {
+		OnItemClickListener, OnPositionChangedListener {
 	private static final int LOADER_ID_LOACL = 105;
 
 	private Context mCtx;
 
-	private ListView mListView;
+	private ExtendedListView mListView;
 	private ContentAdapter mListAdapter;
 
 	private View mLoadMoreView;
@@ -82,7 +85,7 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 
 		setContentView(R.layout.content_activity);
 
-		mListView = (ListView) findViewById(R.id.content_list);
+		mListView = (ExtendedListView) findViewById(R.id.content_list);
 
 		mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.pull_to_refresh_layout);
 		mPullToRefreshLayout.setOnRefreshListener(this);
@@ -106,6 +109,8 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 		mListView.setOnItemClickListener(this);
 		mListView.setOnCreateContextMenuListener(this);
 		mListView.setOnScrollListener(mScrollListener);
+		mListView.setCacheColorHint(Color.TRANSPARENT);
+		mListView.setOnPositionChangedListener(this);
 
 		Intent infointent = getIntent();
 		mMainTitle = infointent.getStringExtra("title");
@@ -229,6 +234,22 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 			intent.putExtra("title", cur.getString(1));
 			intent.putExtra("url", cur.getString(5));
 			startActivity(intent);
+		}
+	}
+
+	@Override
+	public void onRefresh() {
+		showToast = true;
+		new NetDataFetch().execute("update");
+	}
+
+	@Override
+	public void onPositionChanged(ExtendedListView listView, int firstVisiblePosition, View scrollBarPanel) {
+		Cursor cur = (Cursor) mListAdapter.getItem(firstVisiblePosition);
+		if (cur != null) {
+			long date = cur.getLong(4) * 1000;
+			String tag = DateUtils.formatDateTime(mCtx, date, DateUtils.FORMAT_ABBREV_MONTH);
+			((TextView) scrollBarPanel).setText(tag);
 		}
 	}
 
@@ -492,11 +513,4 @@ public class PullContentActivity extends Activity implements OnRefreshListener, 
 			showToast = false;
 		}
 	}
-
-	@Override
-	public void onRefresh() {
-		showToast = true;
-		new NetDataFetch().execute("update");
-	}
-
 }

@@ -39,5 +39,9 @@
         <attr name="spb_generate_background_with_colors" format="boolean"/>
         <attr name="spb_gradients" format="boolean"/>
     </declare-styleable>
-
+    <declare-styleable name="ExtendedListView">
+        <attr name="scrollBarPanel" format="reference" />
+        <attr name="scrollBarPanelInAnimation" format="reference" />
+        <attr name="scrollBarPanelOutAnimation" format="reference" />
+    </declare-styleable>
 </resources>
