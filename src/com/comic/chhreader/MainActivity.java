@@ -78,18 +78,6 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		cleanService.setClass(MainActivity.this, CleanService.class);
 		startService(cleanService);
 
-		mScrollView = (ScrollView) findViewById(R.id.scroll_view);
-		mScrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-		mScrollView.setVerticalScrollBarEnabled(false);
-		mScrollView.setHorizontalScrollBarEnabled(false);
-
-		mGalleryRootView = (GalleryRootView) findViewById(R.id.news);
-
-		mGrid = (GridView) findViewById(R.id.main_gird);
-		mGrid.setOnItemClickListener(this);
-
-		mGirdAdapter = new MainGridAdapter(this, null);
-
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
 			mNoImage = true;
 		} else {
@@ -97,24 +85,10 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		}
 
 		mNoNews = SharedPreferencesUtils.getNoNewsMode(mContext);
-
-		mGirdAdapter.setNoImage(mNoImage);
-
-		mGrid.setAdapter(mGirdAdapter);
-
+		
 		initActionBar();
-
-		mScrollView.scrollTo(0, 0);
-
-		mScrollView.setAlpha(0f);
-		mScrollView.animate().alpha(1f).setDuration(1000).setListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				mScrollView.setVisibility(View.VISIBLE);
-			}
-		});
-
-		mGalleryRootView.setNoImage(mNoImage);
+		initViews();
+		
 		if (mNoNews) {
 			mGalleryRootView.setVisibility(View.GONE);
 		} else {
@@ -128,7 +102,34 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 		}
 	}
 
-	void initActionBar() {
+	private void initViews() {
+		mScrollView = (ScrollView) findViewById(R.id.scroll_view);
+		mScrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+		mScrollView.setVerticalScrollBarEnabled(false);
+		mScrollView.setHorizontalScrollBarEnabled(false);
+
+		mGalleryRootView = (GalleryRootView) findViewById(R.id.news);
+
+		mGrid = (GridView) findViewById(R.id.main_gird);
+		mGrid.setOnItemClickListener(this);
+		
+		mGirdAdapter = new MainGridAdapter(this, null);
+		mGirdAdapter.setNoImage(mNoImage);
+		mGrid.setAdapter(mGirdAdapter);
+
+		mScrollView.setAlpha(0f);
+		mScrollView.animate().alpha(1f).setDuration(1000).setListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				mScrollView.setVisibility(View.VISIBLE);
+				mScrollView.scrollTo(0, 0);
+			}
+		});
+
+		mGalleryRootView.setNoImage(mNoImage);
+	}
+
+	private void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		if (actionBar != null) {
 			actionBar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.action_bar_bg));
@@ -196,7 +197,7 @@ public class MainActivity extends Activity implements OnItemClickListener, Loade
 				startActivity(intent);
 			}
 				break;
-			case R.id.action_share_account:{
+			case R.id.action_share_account: {
 				Intent intent = new Intent(MainActivity.this, ShareAccountActivity.class);
 				startActivity(intent);
 			}
