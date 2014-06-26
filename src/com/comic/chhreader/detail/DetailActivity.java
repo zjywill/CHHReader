@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,6 +99,8 @@ public class DetailActivity extends Activity {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		}
 
+		mContext = this;
+
 		Intent dataIntent = getIntent();
 		mMainTitle = dataIntent.getStringExtra("title");
 		mMainUrl = dataIntent.getStringExtra("url");
@@ -107,10 +108,16 @@ public class DetailActivity extends Activity {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
-		mContext = this;
-
 		setContentView(R.layout.detail_activity);
 
+		initViews();
+
+		if (!Utils.isNetworkAvailable(getBaseContext())) {
+			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void initViews() {
 		mCustomWebView = (CustomWebView) findViewById(R.id.content);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
 		mLoadingView = (View) findViewById(R.id.web_empty_view);
@@ -119,9 +126,6 @@ public class DetailActivity extends Activity {
 		mCustomWebView.setWebViewClient(new DetailWebViewClient());
 
 		initActionBar();
-		if (!Utils.isNetworkAvailable(getBaseContext())) {
-			Toast.makeText(this, R.string.no_network, Toast.LENGTH_SHORT).show();
-		}
 
 		if (!mLoadNewsUrl) {
 			new LoadContentAsyncTask().execute(mMainUrl);
@@ -136,7 +140,7 @@ public class DetailActivity extends Activity {
 		}
 	}
 
-	void initActionBar() {
+	private void initActionBar() {
 		ActionBar actionbar = getActionBar();
 		if (actionbar != null) {
 			actionbar.setDisplayHomeAsUpEnabled(true);
