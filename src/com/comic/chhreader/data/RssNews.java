@@ -50,10 +50,30 @@ public class RssNews {
 							Loge.d("RssNews link: " + item.link);
 						} else if (name2.equals("description")) {
 							item.description = parser.nextText();
-							item.imageurl = item.description.substring(0, item.description.lastIndexOf("\"/>"));
-							item.description = item.description.substring(item.description.lastIndexOf("/>") + 2);
-							item.imageurl = item.imageurl.replace("<img src=\"", "");
-							Loge.d("RssNews description: " + item.description);
+							Loge.d("RssNews item.description: " + item.description);
+							String tempdes = item.description;
+							int startpos = tempdes.indexOf("<img");
+							if (startpos >= 0) {
+								if (startpos + 4 < tempdes.length())
+									tempdes = tempdes.substring(startpos + 4, tempdes.length());
+								int startpos2 = tempdes.indexOf("src=");
+								if (startpos2 >= 0) {
+									if (startpos2 + 4 < tempdes.length())
+										tempdes = tempdes.substring(startpos2 + 4, tempdes.length());
+									int jpgindex = tempdes.indexOf(".jpg");
+									if (jpgindex > 0) {
+										if (jpgindex + 4 < tempdes.length())
+											tempdes = tempdes.substring(0, jpgindex + 4);
+									} else {
+										int gifindex = tempdes.indexOf(".gif");
+										if (gifindex > 0) {
+											if (gifindex + 4 < tempdes.length())
+												tempdes = tempdes.substring(0, gifindex + 4);
+										}
+									}
+									item.imageurl = tempdes.replaceAll("\"", "");
+								}
+							}
 							Loge.d("RssNews imageurl: " + item.imageurl);
 							itemId++;
 						} else {
