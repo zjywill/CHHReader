@@ -94,6 +94,7 @@ public class DetailActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		Feature For FULL SCREEN MODE
 //		int sysVersion = VERSION.SDK_INT;
 //		if (sysVersion >= 19) {
 //			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
