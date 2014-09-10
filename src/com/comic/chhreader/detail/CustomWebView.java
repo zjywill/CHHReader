@@ -7,22 +7,18 @@ import org.apache.http.util.EncodingUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build.VERSION;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
-import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
-import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 
 import com.comic.chhreader.Loge;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class CustomWebView extends WebView implements View.OnSystemUiVisibilityChangeListener {
+public class CustomWebView extends WebView{
 
 	boolean mNavVisible;
 	int mBaseSystemUiVisibility = SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | SYSTEM_UI_FLAG_LAYOUT_STABLE;
@@ -41,7 +37,7 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 
 	public CustomWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mGesture = new GestureDetector(getContext(), new GestureListener());
+//		mGesture = new GestureDetector(getContext(), new GestureListener());
 		setClickable(false);
 
 		WebSettings webSettings = getSettings();
@@ -55,9 +51,9 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		webSettings.setJavaScriptEnabled(true);
 		addJavascriptInterface(new Js2JavaInterface(), HtmlParser.Js2JavaInterfaceName);
 
-		setOnSystemUiVisibilityChangeListener(this);
+//		setOnSystemUiVisibilityChangeListener(this);
 
-		setNavVisibility(true);
+//		setNavVisibility(true);
 	}
 
 	public class Js2JavaInterface {
@@ -96,64 +92,64 @@ public class CustomWebView extends WebView implements View.OnSystemUiVisibilityC
 		return result;
 	}
 
-	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		mGesture.onTouchEvent(ev);
-		return super.onTouchEvent(ev);
-	}
+//	@Override
+//	public boolean onTouchEvent(MotionEvent ev) {
+//		mGesture.onTouchEvent(ev);
+//		return super.onTouchEvent(ev);
+//	}
+//
+//	@Override
+//	public void onSystemUiVisibilityChange(int visibility) {
+//		// Detect when we go out of low-profile mode, to also go out
+//		// of full screen. We only do this when the low profile mode
+//		// is changing from its last state, and turning off.
+//		int diff = mLastSystemUiVis ^ visibility;
+//		mLastSystemUiVis = visibility;
+//		if ((diff & SYSTEM_UI_FLAG_LOW_PROFILE) != 0 && (visibility & SYSTEM_UI_FLAG_LOW_PROFILE) == 0) {
+//			setNavVisibility(true);
+//		}
+//	}
 
-	@Override
-	public void onSystemUiVisibilityChange(int visibility) {
-		// Detect when we go out of low-profile mode, to also go out
-		// of full screen. We only do this when the low profile mode
-		// is changing from its last state, and turning off.
-		int diff = mLastSystemUiVis ^ visibility;
-		mLastSystemUiVis = visibility;
-		if ((diff & SYSTEM_UI_FLAG_LOW_PROFILE) != 0 && (visibility & SYSTEM_UI_FLAG_LOW_PROFILE) == 0) {
-			setNavVisibility(true);
-		}
-	}
-
-	@Override
-	protected void onWindowVisibilityChanged(int visibility) {
-		super.onWindowVisibilityChanged(visibility);
-
-		// When we become visible, we show our navigation elements briefly
-		// before hiding them.
-		setNavVisibility(true);
-		getHandler().postDelayed(mNavHider, 2000);
-	}
-
-	@Override
-	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-		super.onScrollChanged(l, t, oldl, oldt);
-		// When the user scrolls, we hide navigation elements.
-		setNavVisibility(false);
-	}
+//	@Override
+//	protected void onWindowVisibilityChanged(int visibility) {
+//		super.onWindowVisibilityChanged(visibility);
+//
+//		// When we become visible, we show our navigation elements briefly
+//		// before hiding them.
+//		setNavVisibility(true);
+//		getHandler().postDelayed(mNavHider, 2000);
+//	}
+//
+//	@Override
+//	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+//		super.onScrollChanged(l, t, oldl, oldt);
+//		// When the user scrolls, we hide navigation elements.
+//		setNavVisibility(false);
+//	}
 
 	void setBaseSystemUiVisibility(int visibility) {
 		mBaseSystemUiVisibility = visibility;
 	}
 
 	void setNavVisibility(boolean visible) {
-		int sysVersion = VERSION.SDK_INT;
-		if (sysVersion < 19) {
-			return;
-		}
-
-		int newVis = mBaseSystemUiVisibility;
-		if (!visible) {
-			newVis |= SYSTEM_UI_FLAG_LOW_PROFILE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION
-					| SYSTEM_UI_FLAG_IMMERSIVE;
-		}
-		final boolean changed = newVis == getSystemUiVisibility();
-		if (changed || visible) {
-			Handler h = getHandler();
-			if (h != null) {
-				h.removeCallbacks(mNavHider);
-			}
-		}
-		setSystemUiVisibility(newVis);
+//		int sysVersion = VERSION.SDK_INT;
+//		if (sysVersion < 19) {
+//			return;
+//		}
+//
+//		int newVis = mBaseSystemUiVisibility;
+//		if (!visible) {
+//			newVis |= SYSTEM_UI_FLAG_LOW_PROFILE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//					| SYSTEM_UI_FLAG_IMMERSIVE;
+//		}
+//		final boolean changed = newVis == getSystemUiVisibility();
+//		if (changed || visible) {
+//			Handler h = getHandler();
+//			if (h != null) {
+//				h.removeCallbacks(mNavHider);
+//			}
+//		}
+//		setSystemUiVisibility(newVis);
 	}
 
 	class GestureListener extends SimpleOnGestureListener {
