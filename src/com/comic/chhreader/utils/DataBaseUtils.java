@@ -14,7 +14,6 @@ import android.os.RemoteException;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.ContentDataDetail;
-import com.comic.chhreader.data.RssNews;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.provider.DataProvider;
@@ -36,7 +35,8 @@ public class DataBaseUtils {
 							.withValue(DataProvider.KEY_TOPIC_NAME, item.mName)//
 							.withValue(DataProvider.KEY_TOPIC_IMAGE_URL, item.mImageUrl)//
 							.withValue(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP, item.mImageTimeStamp)//
-							.withValue(DataProvider.KEY_TOPIC_PK, item.mPk);
+							.withValue(DataProvider.KEY_TOPIC_PK, item.mPk)//
+							.withValue(DataProvider.KEY_TOPIC_SELECTED, item.mSelected ? 1 : 0);
 					opertions.add(builder.build());
 				}
 				try {
@@ -103,6 +103,8 @@ public class DataBaseUtils {
 									.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_URL));
 							itemData.mImageTimeStamp = cursor.getLong(cursor
 									.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP));
+							itemData.mSelected = cursor.getInt(cursor
+									.getColumnIndex(DataProvider.KEY_TOPIC_SELECTED)) == 1;
 							if (topicData == null) {
 								topicData = new ArrayList<TopicData>();
 							}
@@ -317,6 +319,26 @@ public class DataBaseUtils {
 		return false;
 	}
 
+	public static boolean updateTopicSelectData(Context context, int pk, boolean select) {
+		if (context != null) {
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver == null) {
+				return false;
+			}
+			ContentValues cv = new ContentValues();
+			cv.put(DataProvider.KEY_TOPIC_SELECTED, select ? 1 : 0);
+			String where = null;
+			if (!select) {
+				where = DataProvider.KEY_TOPIC_SELECTED + "='" + 1 + "'";
+			} else {
+				where = DataProvider.KEY_TOPIC_PK + "='" + pk + "'";
+			}
+			contentResolver.update(DataProvider.CONTENT_URI_TOPIC_DATA, cv, where, null);
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean getContentFavorData(Context context, String url) {
 		boolean favor = false;
 		if (context != null) {
@@ -341,7 +363,7 @@ public class DataBaseUtils {
 		}
 		return favor;
 	}
-	
+
 	public static String getContentOriginData(Context context, String url) {
 		String content = "";
 		if (context != null) {
@@ -405,80 +427,6 @@ public class DataBaseUtils {
 			return true;
 		}
 		return false;
-	}
-
-	public static boolean saveNewsData(Context context, List<RssNews> rssNewsDatas) {
-		if (context != null && rssNewsDatas != null) {
-			Loge.d("saveNewsData size:  " + rssNewsDatas.size());
-			ContentResolver contentResolver = context.getContentResolver();
-			if (contentResolver == null) {
-				return false;
-			}
-
-			if (rssNewsDatas.size() > 0) {
-				ArrayList<ContentProviderOperation> opertions = new ArrayList<ContentProviderOperation>();
-				for (RssNews item : rssNewsDatas) {
-					ContentProviderOperation.Builder builder = ContentProviderOperation
-							.newInsert(DataProvider.CONTENT_URI_NEWS_DATA)//
-							.withValue(DataProvider.KEY_NEWS_TITLE, item.title)//
-							.withValue(DataProvider.KEY_NEWS_URL, item.link)//
-							.withValue(DataProvider.KEY_NEWS_IMAGE_URL, item.imageurl)//
-							.withValue(DataProvider.KEY_NEWS_DESCRIPTION, item.description)//
-							.withValue(DataProvider.KEY_NEWS_UPLOAD_DATE, item.posttime);
-					opertions.add(builder.build());
-				}
-				try {
-					contentResolver.applyBatch(DataProvider.DB_AUTHOR, opertions);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				} catch (OperationApplicationException e) {
-					e.printStackTrace();
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static ArrayList<RssNews> getNewsData(Context context) {
-		ArrayList<RssNews> newsDatas = null;
-		if (context != null) {
-			ContentResolver contentResolver = context.getContentResolver();
-			if (contentResolver == null) {
-				return newsDatas;
-			}
-			Cursor cursor = contentResolver.query(DataProvider.CONTENT_URI_NEWS_DATA, null, null, null,
-					DataProvider.KEY_NEWS_UPLOAD_DATE);
-
-			if (cursor != null) {
-				if (cursor.getCount() > 0) {
-					if (cursor.moveToFirst()) {
-						int count = 0;
-						do {
-							RssNews itemData = new RssNews();
-							itemData.title = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_NEWS_TITLE));
-							itemData.link = cursor
-									.getString(cursor.getColumnIndex(DataProvider.KEY_NEWS_URL));
-							itemData.imageurl = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_NEWS_IMAGE_URL));
-							itemData.description = cursor.getString(cursor
-									.getColumnIndex(DataProvider.KEY_NEWS_DESCRIPTION));
-							itemData.posttime = cursor.getLong(cursor
-									.getColumnIndex(DataProvider.KEY_NEWS_UPLOAD_DATE));
-							if (newsDatas == null) {
-								newsDatas = new ArrayList<RssNews>();
-							}
-							newsDatas.add(itemData);
-							count++;
-						} while (cursor.moveToNext() && count < 7);
-					}
-				}
-				cursor.close();
-			}
-			return newsDatas;
-		}
-		return newsDatas;
 	}
 
 }

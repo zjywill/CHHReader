@@ -9,28 +9,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.comic.chhreader.data.TopicData;
-import com.comic.chhreader.image.PhotoView;
-import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.data.ContentData;
 
-public class MainGridAdapter extends CursorAdapter {
+public class ContentAdapter extends CursorAdapter {
 
 	static class ViewHolder {
+		ImageView icon;
 		TextView title;
-		PhotoView image;
+		TextView subcontent;
 	}
 
 	private Context mContext;
-	private Cursor mCursor;
-	
+
 	private boolean mNoImage = true;
 
-	MainGridAdapter(Context ctx, Cursor cursor) {
-		super(ctx, cursor, 0);
+	ContentAdapter(Context ctx) {
+		super(ctx, null, 0);
 		mContext = ctx;
-		mCursor = cursor;
+
 	}
 
 	void setCursor(Cursor cursor) {
@@ -39,19 +38,18 @@ public class MainGridAdapter extends CursorAdapter {
 
 	@Override
 	public Cursor swapCursor(Cursor newCursor) {
-		mCursor = newCursor;
 		return super.swapCursor(newCursor);
 	}
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		Loge.d("Create new view");
-
-		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(R.layout.main_gird_item, null);
+		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(
+				R.layout.content_list_item, null);
 		final ViewHolder holder = new ViewHolder();
 
-		holder.image = (PhotoView) itemLayout.findViewById(R.id.gird_image);
-		holder.title = (TextView) itemLayout.findViewById(R.id.gird_title);
+		holder.icon = (ImageView) itemLayout.findViewById(R.id.content_ori_image);
+		holder.title = (TextView) itemLayout.findViewById(R.id.content_title_text);
+		holder.subcontent = (TextView) itemLayout.findViewById(R.id.content_subcontent_text);
 
 		itemLayout.setTag(holder);
 
@@ -60,17 +58,19 @@ public class MainGridAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-
 		if (cursor != null) {
 
 			final ViewHolder holder = (ViewHolder) view.getTag();
 
-			TopicData data = new TopicData();
+			ContentData data = new ContentData();
 
-			data.mName = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_NAME));
-			data.mImageUrl = cursor.getString(cursor.getColumnIndex(DataProvider.KEY_TOPIC_IMAGE_URL));
+			data.mTitle = cursor.getString(1);
+			data.mImageUrl = cursor.getString(2);
+			data.mContent = cursor.getString(3);
+			data.mPostDate = cursor.getLong(4);
 
-			holder.title.setText(data.mName);
+			holder.title.setText(data.mTitle);
+			holder.subcontent.setText(data.mContent);
 
 			if (data.mImageUrl == null) {
 				return;
@@ -78,8 +78,8 @@ public class MainGridAdapter extends CursorAdapter {
 
 			try {
 				URL localURL = new URL(data.mImageUrl);
-				holder.image.setImageURL(localURL, true, true, !mNoImage, null);
-				holder.image.setCustomDownloadingImage(R.drawable.gray_image_downloading);
+//				holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
+//				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {
 				localMalformedURLException.printStackTrace();
 			}
@@ -97,15 +97,19 @@ public class MainGridAdapter extends CursorAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		if (mCursor != null) {
-			mCursor.moveToPosition(position);
-			return mCursor;
+		Cursor cursor = getCursor();
+		if (cursor != null) {
+			if (position >= cursor.getCount()) {
+				return null;
+			}
+			cursor.moveToPosition(position);
+			return cursor;
 		} else {
 			return null;
 		}
 	}
-	
-	public void setNoImage(boolean noimage){
+
+	public void setNoImage(boolean noimage) {
 		mNoImage = noimage;
 	}
 

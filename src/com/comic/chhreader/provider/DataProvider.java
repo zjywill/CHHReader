@@ -17,7 +17,7 @@ import com.comic.chhreader.Loge;
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1004;
+	private static final int DB_VERSION = 1005;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -36,6 +36,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_TOPIC_IMAGE_URL = "imageurl";
 	public static final String KEY_TOPIC_IMAGE_TIME_STAMP = "imagetime";
 	public static final String KEY_TOPIC_PK = "pk";
+	public static final String KEY_TOPIC_SELECTED = "selected";
 
 	// Name of table in the database
 	private static final String DB_TABLE_SUBITEM_DATA = "subitem";
@@ -230,6 +231,10 @@ public class DataProvider extends ContentProvider {
 					addColumn(db, DB_TABLE_MAIN_DATA, KEY_MAIN_FAVOR,
 							"INTEGER NOT NULL DEFAULT 0");
 				}
+				case 1005: {
+					addColumn(db, DB_TABLE_TOPIC_DATA, KEY_TOPIC_SELECTED,
+							"INTEGER NOT NULL DEFAULT 0");
+				}
 				break;
 				default: {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
@@ -245,10 +250,11 @@ public class DataProvider extends ContentProvider {
 
 		private void createTable(SQLiteDatabase db) {
 			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
-					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
-					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
+					+  " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
+					+  KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
 					+  KEY_TOPIC_PK+ " INTEGER, "//
-					+  KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER );";
+					+  KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
+					+  KEY_TOPIC_SELECTED + " INTEGER );";
 
 			String commandSubitem = "create table "
 					+ DB_TABLE_SUBITEM_DATA //

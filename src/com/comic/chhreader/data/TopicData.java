@@ -6,4 +6,5 @@ public class TopicData {
 	public String mImageUrl;
 	public long mImageTimeStamp;
 	public int mPk;
+	public boolean mSelected = false;
 }

@@ -43,7 +43,6 @@ import android.content.Context;
 
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.data.ContentData;
-import com.comic.chhreader.data.RssNews;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
 
@@ -284,6 +283,7 @@ public class CHHNetUtils {
 					TopicData itemData = new TopicData();
 					itemData.mName = name;
 					itemData.mPk = Integer.parseInt(pk);
+					itemData.mSelected = false;
 					topicsData.add(itemData);
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -470,16 +470,6 @@ public class CHHNetUtils {
 			}
 		}
 		return body;
-	}
-
-	public static List<RssNews> getEngadgetNews(Context context) {
-		Object obj = getResult("http://cn.engadget.com/rss.xml", null, null);
-		if (obj == null) {
-			return null;
-		}
-		String data = obj.toString();
-		FileOperation.savaDataToLocalCatch(context, "rss.xml", data);
-		return RssNews.getRssNews(data);
 	}
 
 }

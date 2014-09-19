@@ -23,14 +23,16 @@
     <string name="no_more_data">Already reach the end</string>
     <string name="swipe_down_to_refresh">Pull to refresh&#8230;</string>
     <string name="refreshing">@string/loading</string>
-	<string name="no_image_mode">Not load image</string>
-	<string name="evernote">Evernote</string>
-	<string name="save_to_evernote">Save to Evernote&#8230;</string>
-	<string name="note_saved">Note saved to Evernote</string>
-	<string name="note_save_fail">Fail to save to Evernote</string>
-	<string name="no_news_mode">Not show News</string>
-	<string name="origin_url">Origin link</string>
-	<string name="logout">Logout</string>
-	<string name="login">Login</string>
-	
+    <string name="no_image_mode">Not load image</string>
+    <string name="evernote">Evernote</string>
+    <string name="save_to_evernote">Save to Evernote&#8230;</string>
+    <string name="note_saved">Note saved to Evernote</string>
+    <string name="note_save_fail">Fail to save to Evernote</string>
+    <string name="no_news_mode">Not show News</string>
+    <string name="origin_url">Origin link</string>
+    <string name="logout">Logout</string>
+    <string name="login">Login</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
 </resources>
