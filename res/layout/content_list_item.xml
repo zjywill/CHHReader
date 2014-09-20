@@ -1,62 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/content_text_panel"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"
-        android:background="#ff202020" >
+        android:layout_weight="6"
+        android:orientation="vertical" >
 
-        <ImageView
-            android:id="@+id/content_ori_image"
-            android:layout_width="120dp"
-            android:layout_height="90dp"
-            android:layout_alignParentLeft="true"
-            android:scaleType="centerCrop" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/content_title_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
-            android:layout_marginLeft="3dp"
-            android:layout_marginTop="3dp"
-            android:layout_toRightOf="@id/content_ori_image"
-            android:orientation="vertical" >
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/app_name"
+            android:textColor="#ff000000"
+            android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/content_title_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center|left"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:singleLine="true"
-                android:text="@string/app_name"
-                android:textColor="#ffbb0000"
-                android:textSize="19.33sp"
-                android:typeface="sans" />
+        <TextView
+            android:id="@+id/content_subcontent_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="4"
+            android:text="@string/app_name"
+            android:textColor="#ff9e9e9e"
+            android:textSize="14sp" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/content_subcontent_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center|left"
-                android:maxLines="3"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:text="@string/app_name"
-                android:textColor="#ffb8b8b8"
-                android:textSize="15.33sp"
-                android:typeface="sans" />
-        </LinearLayout>
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/content_ori_image"
+        android:layout_width="0dp"
+        android:layout_height="95dp"
+        android:layout_weight="4"
+        android:layout_marginLeft="16dp"
+        android:padding="3dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/news_01" />
 
-</FrameLayout>
+</LinearLayout>
