@@ -37,7 +37,7 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <ImageView
+    <com.comic.chhreader.image.PhotoView
         android:id="@+id/content_ori_image"
         android:layout_width="0dp"
         android:layout_height="95dp"

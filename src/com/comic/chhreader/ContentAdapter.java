@@ -9,22 +9,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.image.PhotoView;
 
 public class ContentAdapter extends CursorAdapter {
 
 	static class ViewHolder {
-		ImageView icon;
+		PhotoView icon;
 		TextView title;
 		TextView subcontent;
 	}
 
 	private Context mContext;
 
-	private boolean mNoImage = true;
+	private boolean mNoImage = false;
 
 	ContentAdapter(Context ctx) {
 		super(ctx, null, 0);
@@ -47,7 +47,7 @@ public class ContentAdapter extends CursorAdapter {
 				R.layout.content_list_item, null);
 		final ViewHolder holder = new ViewHolder();
 
-		holder.icon = (ImageView) itemLayout.findViewById(R.id.content_ori_image);
+		holder.icon = (PhotoView) itemLayout.findViewById(R.id.content_ori_image);
 		holder.title = (TextView) itemLayout.findViewById(R.id.content_title_text);
 		holder.subcontent = (TextView) itemLayout.findViewById(R.id.content_subcontent_text);
 
@@ -78,8 +78,8 @@ public class ContentAdapter extends CursorAdapter {
 
 			try {
 				URL localURL = new URL(data.mImageUrl);
-//				holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
-//				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
+				holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
+				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 			} catch (MalformedURLException localMalformedURLException) {
 				localMalformedURLException.printStackTrace();
 			}
