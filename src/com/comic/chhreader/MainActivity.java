@@ -10,6 +10,8 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -268,11 +270,20 @@ public class MainActivity extends FragmentActivity implements
 				}
 
 				for (TopicData topic : topicsData) {
-					if (topic.mSelected = true) {
+					if (topic.mSelected == true) {
 						mCategory = topic.mPk;
 						break;
 					}
 				}
+
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					@Override
+					public void run() {
+						if (mMainDataFrgment != null) {
+							mMainDataFrgment.initData(mCategory);
+						}
+					}
+				});
 
 				if (subItemDatas == null) {
 					return "fail";
@@ -312,7 +323,6 @@ public class MainActivity extends FragmentActivity implements
 				if (mMainDataFrgment != null) {
 					mMainDataFrgment.reloadData(mCategory);
 				}
-
 			} else {
 				Toast.makeText(mContext, R.string.no_update, Toast.LENGTH_SHORT)
 						.show();

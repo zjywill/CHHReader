@@ -44,15 +44,18 @@ public class ContentListFragment extends SwipeRefreshListFragment implements
 		setColorScheme(R.color.red_300, R.color.red_400, R.color.red_500,
 				R.color.red_600);
 
-		getLoaderManager().initLoader(LOADER_ID_LOACL, null,
-				ContentListFragment.this);
-
 	}
 
 	private void initiateRefresh() {
 
 	}
 
+	public void initData(int category) {
+		mCategory = category;
+		getLoaderManager().initLoader(LOADER_ID_LOACL, null,
+				ContentListFragment.this);
+	}
+	
 	public void reloadData(int category) {
 		mCategory = category;
 		getLoaderManager().restartLoader(LOADER_ID_LOACL, null,
