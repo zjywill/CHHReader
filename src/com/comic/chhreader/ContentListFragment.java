@@ -33,6 +33,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements
 
 		mListAdapter = new ContentAdapter(getActivity());
 		setListAdapter(mListAdapter);
+		getListView().setDivider(null);
 
 		setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override

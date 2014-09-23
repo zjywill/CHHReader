@@ -2,102 +2,138 @@ package com.comic.chhreader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.LinearLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.image.PhotoView;
 
-public class ContentAdapter extends CursorAdapter {
+public class ContentAdapter extends SimpleCursorAdapter {
 
 	static class ViewHolder {
 		PhotoView icon;
 		TextView title;
 		TextView subcontent;
+		LinearLayout section;
+		TextView section_text;
 	}
 
 	private Context mContext;
-
+	private Cursor mDataCursor;
+	private LayoutInflater mInflater;
 	private boolean mNoImage = false;
+	private long mToday;
 
-	ContentAdapter(Context ctx) {
-		super(ctx, null, 0);
-		mContext = ctx;
-
+	public ContentAdapter(Context context) {
+		super(context, 0, null, null, null);
+		mContext = context;
+		mDataCursor = null;
+		mInflater = LayoutInflater.from(context);
+		mToday = System.currentTimeMillis();
 	}
 
 	void setCursor(Cursor cursor) {
-		setCursor(cursor);
+		mDataCursor = cursor;
 	}
 
 	@Override
 	public Cursor swapCursor(Cursor newCursor) {
-		return super.swapCursor(newCursor);
+		mDataCursor = newCursor;
+		return newCursor;
 	}
 
 	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		final View itemLayout = LayoutInflater.from(mContext.getApplicationContext()).inflate(
-				R.layout.content_list_item, null);
-		final ViewHolder holder = new ViewHolder();
+	public View getView(int position, View convertView, ViewGroup parent) {
 
-		holder.icon = (PhotoView) itemLayout.findViewById(R.id.content_ori_image);
-		holder.title = (TextView) itemLayout.findViewById(R.id.content_title_text);
-		holder.subcontent = (TextView) itemLayout.findViewById(R.id.content_subcontent_text);
+		ViewHolder holder;
 
-		itemLayout.setTag(holder);
+		if (convertView == null) {
+			convertView = mInflater.inflate(R.layout.content_list_item, null);
+			holder = new ViewHolder();
+			holder.icon = (PhotoView) convertView.findViewById(R.id.content_ori_image);
+			holder.title = (TextView) convertView.findViewById(R.id.content_title_text);
+			holder.subcontent = (TextView) convertView.findViewById(R.id.content_subcontent_text);
+			holder.section = (LinearLayout) convertView.findViewById(R.id.list_section);
+			holder.section_text = (TextView) convertView.findViewById(R.id.list_section_text);
 
-		return itemLayout;
-	}
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
 
-	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		if (cursor != null) {
-
-			final ViewHolder holder = (ViewHolder) view.getTag();
+		if (mDataCursor != null) {
+			mDataCursor.moveToPosition(position);
 
 			ContentData data = new ContentData();
 
-			data.mTitle = cursor.getString(1);
-			data.mImageUrl = cursor.getString(2);
-			data.mContent = cursor.getString(3);
-			data.mPostDate = cursor.getLong(4);
+			data.mTitle = mDataCursor.getString(1);
+			data.mImageUrl = mDataCursor.getString(2);
+			data.mContent = mDataCursor.getString(3);
+			data.mPostDate = mDataCursor.getLong(4);
 
 			holder.title.setText(data.mTitle);
 			holder.subcontent.setText(data.mContent);
 
-			if (data.mImageUrl == null) {
-				return;
+			if (data.mImageUrl != null) {
+				try {
+					URL localURL = new URL(data.mImageUrl);
+					holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
+					holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
+				} catch (MalformedURLException localMalformedURLException) {
+					localMalformedURLException.printStackTrace();
+				}
 			}
 
-			try {
-				URL localURL = new URL(data.mImageUrl);
-				holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
-				holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
-			} catch (MalformedURLException localMalformedURLException) {
-				localMalformedURLException.printStackTrace();
+			long prevDate = 0;
+			if (mDataCursor.getPosition() > 0 && mDataCursor.moveToPrevious()) {
+				prevDate = mDataCursor.getLong(4);
+				mDataCursor.moveToNext();
+			}
+
+			if (isSameDate(prevDate, data.mPostDate)) {
+				holder.section.setVisibility(View.GONE);
+			} else {
+				holder.section.setVisibility(View.VISIBLE);
+				if(position == 0){
+					holder.section_text.setText("最新");
+				}else{
+					holder.section_text.setText(DateUtils.formatDateTime(mContext, data.mPostDate * 1000,
+							DateUtils.FORMAT_24HOUR));
+				}
 			}
 		}
+
+		return convertView;
+	}
+
+	public static boolean isSameDate(long date1, long date2) {
+		long days1 = date1 / (60 * 60 * 24);
+		long days2 = date2 / (60 * 60 * 24);
+		return days1 == days2;
 	}
 
 	@Override
 	public int getCount() {
-		if (getCursor() == null) {
+		if (mDataCursor == null) {
 			return 0;
 		}
-		int count = getCursor().getCount();
+		int count = mDataCursor.getCount();
 		return count;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		Cursor cursor = getCursor();
+		Cursor cursor = mDataCursor;
 		if (cursor != null) {
 			if (position >= cursor.getCount()) {
 				return null;
@@ -107,10 +143,6 @@ public class ContentAdapter extends CursorAdapter {
 		} else {
 			return null;
 		}
-	}
-
-	public void setNoImage(boolean noimage) {
-		mNoImage = noimage;
 	}
 
 }
