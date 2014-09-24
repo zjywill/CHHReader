@@ -76,7 +76,7 @@
             android:layout_marginTop="7dp"
             android:layout_weight="4"
             android:scaleType="centerCrop"
-            android:src="@drawable/news_01" />
+            android:src="@drawable/gray_image_downloading" />
     </LinearLayout>
 
 </LinearLayout>

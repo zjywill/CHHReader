@@ -18,12 +18,15 @@ package com.comic.chhreader;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.RotateAnimation;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 /**
@@ -32,36 +35,71 @@ import android.widget.ListView;
  * the the content view in a
  * {@link android.support.v4.widget.SwipeRefreshLayout}.
  */
-public class SwipeRefreshListFragment extends ListFragment {
+public class SwipeRefreshListFragment extends Fragment implements View.OnClickListener {
+
+	private static final int ID_MENU_BTN = 0;
 
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 
+	private ListView mListView;
+	protected ImageButton mMenuButton;
+
+	private boolean mSign = false;
+
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		// Create the list fragment's content view by calling the super method
-		final View listFragmentView = super.onCreateView(inflater, container,
-				savedInstanceState);
+		final View listFragmentView = inflater.inflate(R.layout.main_content_list, null);
+
+		mListView = (ListView) listFragmentView.findViewById(R.id.main_list);
+		mMenuButton = (ImageButton) listFragmentView.findViewById(R.id.main_menu_button);
+		mMenuButton.setId(ID_MENU_BTN);
+		mMenuButton.setOnClickListener(this);
 
 		// Now create a SwipeRefreshLayout to wrap the fragment's content view
-		mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(
-				container.getContext());
+		mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(container.getContext());
 
 		// Add the list fragment's content view to the SwipeRefreshLayout,
 		// making sure that it fills
 		// the SwipeRefreshLayout
-		mSwipeRefreshLayout.addView(listFragmentView,
-				ViewGroup.LayoutParams.MATCH_PARENT,
+		mSwipeRefreshLayout.addView(listFragmentView, ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
 
 		// Make sure that the SwipeRefreshLayout will fill the fragment
-		mSwipeRefreshLayout.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
+		mSwipeRefreshLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT));
 
 		// Now return the SwipeRefreshLayout as this fragment's content view
 		return mSwipeRefreshLayout;
+	}
+
+	@Override
+	public void onClick(View v) {
+		int id = v.getId();
+		switch (id) {
+			case ID_MENU_BTN:
+				showRotateAnimation();
+				break;
+			default:
+				break;
+		}
+	}
+
+	public void showRotateAnimation() {
+		final float centerX = mMenuButton.getWidth() / 2.0f;
+		final float centerY = mMenuButton.getHeight() / 2.0f;
+		RotateAnimation rotateAnimation = null;
+		if (!mSign) {
+			rotateAnimation = new RotateAnimation(0, 405, centerX, centerY);
+
+		} else {
+			rotateAnimation = new RotateAnimation(405, 0, centerX, centerY);
+		}
+		rotateAnimation.setDuration(100 + 220);
+		rotateAnimation.setFillAfter(true);
+		mMenuButton.startAnimation(rotateAnimation);
+		mSign = !mSign;
 	}
 
 	/**
@@ -71,8 +109,7 @@ public class SwipeRefreshListFragment extends ListFragment {
 	 *
 	 * @see android.support.v4.widget.SwipeRefreshLayout#setOnRefreshListener(android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener)
 	 */
-	public void setOnRefreshListener(
-			SwipeRefreshLayout.OnRefreshListener listener) {
+	public void setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener listener) {
 		mSwipeRefreshLayout.setOnRefreshListener(listener);
 	}
 
@@ -103,10 +140,8 @@ public class SwipeRefreshListFragment extends ListFragment {
 	 * @see android.support.v4.widget.SwipeRefreshLayout#setColorScheme(int,
 	 *      int, int, int)
 	 */
-	public void setColorScheme(int colorRes1, int colorRes2, int colorRes3,
-			int colorRes4) {
-		mSwipeRefreshLayout.setColorSchemeResources(colorRes1, colorRes2,
-				colorRes3, colorRes4);
+	public void setColorScheme(int colorRes1, int colorRes2, int colorRes3, int colorRes4) {
+		mSwipeRefreshLayout.setColorSchemeResources(colorRes1, colorRes2, colorRes3, colorRes4);
 	}
 
 	/**
@@ -115,6 +150,14 @@ public class SwipeRefreshListFragment extends ListFragment {
 	 */
 	public SwipeRefreshLayout getSwipeRefreshLayout() {
 		return mSwipeRefreshLayout;
+	}
+
+	protected ListView getListView() {
+		return mListView;
+	}
+
+	protected void setListAdapter(BaseAdapter adapter) {
+		mListView.setAdapter(adapter);
 	}
 
 	/**
@@ -174,10 +217,9 @@ public class SwipeRefreshListFragment extends ListFragment {
 			// child view's top
 			// value
 			return listView.getChildCount() > 0
-					&& (listView.getFirstVisiblePosition() > 0 || listView
-							.getChildAt(0).getTop() < listView.getPaddingTop());
+					&& (listView.getFirstVisiblePosition() > 0 || listView.getChildAt(0).getTop() < listView
+							.getPaddingTop());
 		}
 	}
 	// END_INCLUDE (check_list_can_scroll)
-
 }

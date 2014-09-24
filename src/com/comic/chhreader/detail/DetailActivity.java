@@ -139,30 +139,29 @@ public class DetailActivity extends Activity {
 		if (actionbar != null) {
 			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
-			actionbar.setIcon(R.drawable.chh_icon);
 			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg));
 			actionbar.setSplitBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg));
 		}
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.detail_main, menu);
-
-		MenuItem item = menu.findItem(R.id.action_share);
-		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-		setShareIntent();
-
-		mFavorMenuItem = menu.findItem(R.id.action_favor);
-		if (mFavor) {
-			Loge.d("Favor A: " + mFavor);
-			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
-		} else {
-			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
-		}
-
-		return true;
-	}
+//
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		getMenuInflater().inflate(R.menu.detail_main, menu);
+//
+//		MenuItem item = menu.findItem(R.id.action_share);
+//		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+//		setShareIntent();
+//
+//		mFavorMenuItem = menu.findItem(R.id.action_favor);
+//		if (mFavor) {
+//			Loge.d("Favor A: " + mFavor);
+//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
+//		} else {
+//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
+//		}
+//
+//		return true;
+//	}
 
 	private void setShareIntent() {
 		if (mMainUrl == null || mMainUrl.isEmpty()) {
@@ -176,58 +175,58 @@ public class DetailActivity extends Activity {
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-			case R.id.action_back: {
-				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-						&& mCustomWebView.getUrl().contains("album")) {
-					mCustomWebView.loadUrl(mMainUrl);
-				} else {
-					finish();
-				}
-			}
-				break;
-			case R.id.action_refresh: {
-				new DeleteLocalPhotoTask().execute();
-			}
-				break;
-			case R.id.action_view_in_browser: {
-				Uri uri = Uri.parse(mMainUrl);
-				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(viewIntent);
-			}
-				break;
-			case R.id.action_evernote: {
-				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
-					Loge.d("App not Logged In");
-					ShareToEvernote.getInstance(this).authenticate();
-				} else {
-					Loge.i("App Logged In");
-					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-						saveToEvernote();
-					}
-				}
-			}
-				break;
-			case R.id.action_favor: {
-				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
-				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
-				mFavor = !mFavor;
-				if (mFavor) {
-					item.setIcon(R.drawable.ic_menu_favor_active);
-				} else {
-					item.setIcon(R.drawable.ic_menu_favor);
-				}
-			}
-				break;
-			default:
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		switch (item.getItemId()) {
+//			case android.R.id.home:
+//			case R.id.action_back: {
+//				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+//						&& mCustomWebView.getUrl().contains("album")) {
+//					mCustomWebView.loadUrl(mMainUrl);
+//				} else {
+//					finish();
+//				}
+//			}
+//				break;
+//			case R.id.action_refresh: {
+//				new DeleteLocalPhotoTask().execute();
+//			}
+//				break;
+//			case R.id.action_view_in_browser: {
+//				Uri uri = Uri.parse(mMainUrl);
+//				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+//				startActivity(viewIntent);
+//			}
+//				break;
+//			case R.id.action_evernote: {
+//				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
+//					Loge.d("App not Logged In");
+//					ShareToEvernote.getInstance(this).authenticate();
+//				} else {
+//					Loge.i("App Logged In");
+//					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
+//						saveToEvernote();
+//					}
+//				}
+//			}
+//				break;
+//			case R.id.action_favor: {
+//				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
+//				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
+//				mFavor = !mFavor;
+//				if (mFavor) {
+//					item.setIcon(R.drawable.ic_menu_favor_active);
+//				} else {
+//					item.setIcon(R.drawable.ic_menu_favor);
+//				}
+//			}
+//				break;
+//			default:
+//				break;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {

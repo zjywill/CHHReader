@@ -38,16 +38,18 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginRight="5dp"
                 android:indeterminate="true" />
-
-            <TextView
-                android:id="@+id/web_empty_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/loading"
-                android:textColor="#ffb8b8b8"
-                android:textSize="19.33sp" />
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/detail_menu_button"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="7dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_menu_plus" />
     </FrameLayout>
 
 </LinearLayout>
