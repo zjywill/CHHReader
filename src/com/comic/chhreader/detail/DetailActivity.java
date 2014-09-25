@@ -19,16 +19,22 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.view.Menu;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
@@ -45,13 +51,23 @@ import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.OnClientCallback;
 import com.evernote.edam.type.Note;
 
-public class DetailActivity extends Activity {
-
-	protected final int DIALOG_PROGRESS = 101;
+public class DetailActivity extends Activity implements View.OnClickListener {
+	private static final int ID_MENU_BTN = 0;
+	private static final int ID_MENU_BTN_VIEW_ORIGIN = 1;
+	private static final int ID_MENU_BTN_FAVOR = 2;
+	private static final int ID_MENU_BTN_EVERNOTE = 3;
+	private static final int ID_MENU_BTN_SHARE = 4;
+	private final int DIALOG_PROGRESS = 101;
 
 	private CustomWebView mCustomWebView;
 	private ProgressBar mWebProgress;
 	private View mLoadingView;
+	private ImageButton mMenuButton;
+
+	private ImageButton mMenuButtonViewOrigin;
+	private ImageButton mMenuButtonFavor;
+	private ImageButton mMenuButtonEvernote;
+	private ImageButton mMenuButtonShare;
 
 	private String mMainTitle;
 	private String mMainUrl;
@@ -72,7 +88,13 @@ public class DetailActivity extends Activity {
 
 	private MenuItem mFavorMenuItem;
 
+	private boolean mSign = false;
+
 	public List<String> mImgUrls = new ArrayList<String>();
+
+	private int mViewOriginY;
+
+	private int mAnicatinoTime = 100;
 
 	private OnClientCallback<Note> mNoteCreateCallback = new OnClientCallback<Note>() {
 		@Override
@@ -102,6 +124,8 @@ public class DetailActivity extends Activity {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
+		mViewOriginY = 500;
+
 		setContentView(R.layout.detail_activity);
 
 		initViews();
@@ -115,6 +139,26 @@ public class DetailActivity extends Activity {
 		mCustomWebView = (CustomWebView) findViewById(R.id.content);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
 		mLoadingView = (View) findViewById(R.id.web_empty_view);
+
+		mMenuButton = (ImageButton) findViewById(R.id.detail_menu_button);
+		mMenuButton.setId(ID_MENU_BTN);
+		mMenuButton.setOnClickListener(this);
+
+		mMenuButtonViewOrigin = (ImageButton) findViewById(R.id.detail_menu_view_origin);
+		mMenuButtonViewOrigin.setId(ID_MENU_BTN_VIEW_ORIGIN);
+		mMenuButtonViewOrigin.setOnClickListener(this);
+
+		mMenuButtonFavor = (ImageButton) findViewById(R.id.detail_menu_favor);
+		mMenuButtonFavor.setId(ID_MENU_BTN_FAVOR);
+		mMenuButtonFavor.setOnClickListener(this);
+
+		mMenuButtonEvernote = (ImageButton) findViewById(R.id.detail_menu_evernote);
+		mMenuButtonEvernote.setId(ID_MENU_BTN_EVERNOTE);
+		mMenuButtonEvernote.setOnClickListener(this);
+
+		mMenuButtonShare = (ImageButton) findViewById(R.id.detail_menu_share);
+		mMenuButtonShare.setId(ID_MENU_BTN_SHARE);
+		mMenuButtonShare.setOnClickListener(this);
 
 		mCustomWebView.setWebChromeClient(new DetailWebChromeClient());
 		mCustomWebView.setWebViewClient(new DetailWebViewClient());
@@ -143,25 +187,109 @@ public class DetailActivity extends Activity {
 			actionbar.setSplitBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg));
 		}
 	}
-//
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		getMenuInflater().inflate(R.menu.detail_main, menu);
-//
-//		MenuItem item = menu.findItem(R.id.action_share);
-//		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-//		setShareIntent();
-//
-//		mFavorMenuItem = menu.findItem(R.id.action_favor);
-//		if (mFavor) {
-//			Loge.d("Favor A: " + mFavor);
-//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
-//		} else {
-//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
-//		}
-//
-//		return true;
-//	}
+
+	@Override
+	public void onClick(View v) {
+		int id = v.getId();
+		switch (id) {
+			case ID_MENU_BTN: {
+				showRotateAnimation();
+			}
+				break;
+			case ID_MENU_BTN_VIEW_ORIGIN: {
+			}
+				break;
+			case ID_MENU_BTN_EVERNOTE: {
+			}
+				break;
+			case ID_MENU_BTN_FAVOR: {
+			}
+				break;
+			case ID_MENU_BTN_SHARE: {
+			}
+				break;
+			default:
+				break;
+		}
+	}
+
+	public void showRotateAnimation() {
+		final float centerX = mMenuButton.getWidth() / 2.0f;
+		final float centerY = mMenuButton.getHeight() / 2.0f;
+		RotateAnimation rotateAnimation = null;
+		if (!mSign) {
+			rotateAnimation = new RotateAnimation(0, 405, centerX, centerY);
+			outAnimation();
+		} else {
+			rotateAnimation = new RotateAnimation(405, 0, centerX, centerY);
+			inAnimation();
+		}
+		rotateAnimation.setDuration(100 + 220);
+		rotateAnimation.setFillAfter(true);
+		mMenuButton.startAnimation(rotateAnimation);
+		mSign = !mSign;
+	}
+
+	public void outAnimation() {
+		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, -mViewOriginY);
+		translateAnimation.setInterpolator(new OvershootInterpolator());
+		translateAnimation.setDuration(mAnicatinoTime * 4 + 240);
+		translateAnimation.setFillEnabled(true);
+		translateAnimation.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
+				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+				layoutParams.setMargins(0, 0, 0, mViewOriginY);
+				mMenuButtonViewOrigin.setLayoutParams(layoutParams);
+			}
+		});
+		mMenuButtonViewOrigin.startAnimation(translateAnimation);
+	}
+
+	public void inAnimation() {
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
+		layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+		layoutParams.setMargins(0, 0, 0, 0);
+
+		mMenuButtonViewOrigin.setLayoutParams(layoutParams);
+
+		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, -mViewOriginY, 0);
+		translateAnimation.setDuration(mAnicatinoTime * 4);
+		translateAnimation.setFillEnabled(true);
+		mMenuButtonViewOrigin.startAnimation(translateAnimation);
+
+	}
+
+	//
+	//	@Override
+	//	public boolean onCreateOptionsMenu(Menu menu) {
+	//		getMenuInflater().inflate(R.menu.detail_main, menu);
+	//
+	//		MenuItem item = menu.findItem(R.id.action_share);
+	//		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+	//		setShareIntent();
+	//
+	//		mFavorMenuItem = menu.findItem(R.id.action_favor);
+	//		if (mFavor) {
+	//			Loge.d("Favor A: " + mFavor);
+	//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
+	//		} else {
+	//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
+	//		}
+	//
+	//		return true;
+	//	}
 
 	private void setShareIntent() {
 		if (mMainUrl == null || mMainUrl.isEmpty()) {
@@ -175,58 +303,59 @@ public class DetailActivity extends Activity {
 			mShareActionProvider.setShareIntent(shareIntent);
 		}
 	}
-//
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		switch (item.getItemId()) {
-//			case android.R.id.home:
-//			case R.id.action_back: {
-//				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-//						&& mCustomWebView.getUrl().contains("album")) {
-//					mCustomWebView.loadUrl(mMainUrl);
-//				} else {
-//					finish();
-//				}
-//			}
-//				break;
-//			case R.id.action_refresh: {
-//				new DeleteLocalPhotoTask().execute();
-//			}
-//				break;
-//			case R.id.action_view_in_browser: {
-//				Uri uri = Uri.parse(mMainUrl);
-//				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-//				startActivity(viewIntent);
-//			}
-//				break;
-//			case R.id.action_evernote: {
-//				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
-//					Loge.d("App not Logged In");
-//					ShareToEvernote.getInstance(this).authenticate();
-//				} else {
-//					Loge.i("App Logged In");
-//					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-//						saveToEvernote();
-//					}
-//				}
-//			}
-//				break;
-//			case R.id.action_favor: {
-//				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
-//				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
-//				mFavor = !mFavor;
-//				if (mFavor) {
-//					item.setIcon(R.drawable.ic_menu_favor_active);
-//				} else {
-//					item.setIcon(R.drawable.ic_menu_favor);
-//				}
-//			}
-//				break;
-//			default:
-//				break;
-//		}
-//		return super.onOptionsItemSelected(item);
-//	}
+
+	//
+	//	@Override
+	//	public boolean onOptionsItemSelected(MenuItem item) {
+	//		switch (item.getItemId()) {
+	//			case android.R.id.home:
+	//			case R.id.action_back: {
+	//				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+	//						&& mCustomWebView.getUrl().contains("album")) {
+	//					mCustomWebView.loadUrl(mMainUrl);
+	//				} else {
+	//					finish();
+	//				}
+	//			}
+	//				break;
+	//			case R.id.action_refresh: {
+	//				new DeleteLocalPhotoTask().execute();
+	//			}
+	//				break;
+	//			case R.id.action_view_in_browser: {
+	//				Uri uri = Uri.parse(mMainUrl);
+	//				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+	//				startActivity(viewIntent);
+	//			}
+	//				break;
+	//			case R.id.action_evernote: {
+	//				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
+	//					Loge.d("App not Logged In");
+	//					ShareToEvernote.getInstance(this).authenticate();
+	//				} else {
+	//					Loge.i("App Logged In");
+	//					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
+	//						saveToEvernote();
+	//					}
+	//				}
+	//			}
+	//				break;
+	//			case R.id.action_favor: {
+	//				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
+	//				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
+	//				mFavor = !mFavor;
+	//				if (mFavor) {
+	//					item.setIcon(R.drawable.ic_menu_favor_active);
+	//				} else {
+	//					item.setIcon(R.drawable.ic_menu_favor);
+	//				}
+	//			}
+	//				break;
+	//			default:
+	//				break;
+	//		}
+	//		return super.onOptionsItemSelected(item);
+	//	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {

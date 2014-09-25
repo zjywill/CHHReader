@@ -20,6 +20,7 @@
         <activity
             android:name="com.comic.chhreader.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme_Main_Page" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -291,6 +291,8 @@ public class MainActivity extends FragmentActivity implements
 						if (mMainDataFrgment != null) {
 							mMainDataFrgment.initData(mCategory);
 						}
+						getLoaderManager().restartLoader(LOADER_ID_LOACL, null,
+								MainActivity.this);
 					}
 				});
 
