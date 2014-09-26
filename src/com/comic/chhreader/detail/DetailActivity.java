@@ -19,18 +19,16 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.WebChromeClient;
@@ -205,9 +203,21 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 			}
 				break;
 			case ID_MENU_BTN_VIEW_ORIGIN: {
+				Uri uri = Uri.parse(mMainUrl);
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(viewIntent);
 			}
 				break;
 			case ID_MENU_BTN_EVERNOTE: {
+				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
+					Loge.d("App not Logged In");
+					ShareToEvernote.getInstance(this).authenticate();
+				} else {
+					Loge.i("App Logged In");
+					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
+						saveToEvernote();
+					}
+				}
 			}
 				break;
 			case ID_MENU_BTN_FAVOR: {
