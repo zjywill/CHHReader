@@ -25,8 +25,11 @@ import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
@@ -92,7 +95,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 
 	public List<String> mImgUrls = new ArrayList<String>();
 
-	private int mViewOriginY;
+	private int mViewOriginY, mFavorY, mEvernoteY, mShareY, mBtnMarginY, mBtnSize;
 
 	private int mAnicatinoTime = 100;
 
@@ -124,7 +127,12 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
-		mViewOriginY = 500;
+		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.view_origin_offsety);
+		mFavorY = this.getResources().getDimensionPixelSize(R.dimen.favor_offsety);
+		mEvernoteY = this.getResources().getDimensionPixelSize(R.dimen.evernote_offsety);
+		mShareY = this.getResources().getDimensionPixelSize(R.dimen.share_offsety);
+		mBtnMarginY = this.getResources().getDimensionPixelSize(R.dimen.btn_margin);
+		mBtnSize = this.getResources().getDimensionPixelSize(R.dimen.btn_size);
 
 		setContentView(R.layout.detail_activity);
 
@@ -224,7 +232,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 			rotateAnimation = new RotateAnimation(405, 0, centerX, centerY);
 			inAnimation();
 		}
-		rotateAnimation.setDuration(100 + 220);
+		rotateAnimation.setDuration(mAnicatinoTime * 4);
 		rotateAnimation.setFillAfter(true);
 		mMenuButton.startAnimation(rotateAnimation);
 		mSign = !mSign;
@@ -232,8 +240,8 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 
 	public void outAnimation() {
 		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, -mViewOriginY);
-		translateAnimation.setInterpolator(new OvershootInterpolator());
-		translateAnimation.setDuration(mAnicatinoTime * 4 + 240);
+		translateAnimation.setInterpolator(new DecelerateInterpolator());
+		translateAnimation.setDuration(mAnicatinoTime * 4);
 		translateAnimation.setFillEnabled(true);
 		translateAnimation.setAnimationListener(new AnimationListener() {
 			@Override
@@ -248,26 +256,119 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
+				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
 				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
 				layoutParams.setMargins(0, 0, 0, mViewOriginY);
 				mMenuButtonViewOrigin.setLayoutParams(layoutParams);
 			}
 		});
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
+
+		TranslateAnimation translateAnimation1 = new TranslateAnimation(0, 0, 0, -mFavorY);
+		translateAnimation1.setInterpolator(new DecelerateInterpolator());
+		translateAnimation1.setDuration(mAnicatinoTime * 3);
+		translateAnimation1.setFillEnabled(true);
+		translateAnimation1.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
+				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+				layoutParams.setMargins(0, 0, 0, mFavorY);
+				mMenuButtonFavor.setLayoutParams(layoutParams);
+			}
+		});
+		mMenuButtonFavor.startAnimation(translateAnimation1);
+
+		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, 0, -mEvernoteY);
+		translateAnimation2.setInterpolator(new DecelerateInterpolator());
+		translateAnimation2.setDuration(mAnicatinoTime * 2);
+		translateAnimation2.setFillEnabled(true);
+		translateAnimation2.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
+				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+				layoutParams.setMargins(0, 0, 0, mEvernoteY);
+				mMenuButtonEvernote.setLayoutParams(layoutParams);
+			}
+		});
+		mMenuButtonEvernote.startAnimation(translateAnimation2);
+
+		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, 0, -mShareY);
+		translateAnimation3.setInterpolator(new DecelerateInterpolator());
+		translateAnimation3.setDuration(mAnicatinoTime * 1);
+		translateAnimation3.setFillEnabled(true);
+		translateAnimation3.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
+				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+				layoutParams.setMargins(0, 0, 0, mShareY);
+				mMenuButtonShare.setLayoutParams(layoutParams);
+			}
+		});
+		mMenuButtonShare.startAnimation(translateAnimation3);
 	}
 
 	public void inAnimation() {
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
 		layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-		layoutParams.setMargins(0, 0, 0, 0);
+		layoutParams.setMargins(0, 0, 0, mBtnMarginY);
 
 		mMenuButtonViewOrigin.setLayoutParams(layoutParams);
+		mMenuButtonFavor.setLayoutParams(layoutParams);
+		mMenuButtonEvernote.setLayoutParams(layoutParams);
+		mMenuButtonShare.setLayoutParams(layoutParams);
 
 		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, -mViewOriginY, 0);
 		translateAnimation.setDuration(mAnicatinoTime * 4);
 		translateAnimation.setFillEnabled(true);
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
+
+		TranslateAnimation translateAnimation1 = new TranslateAnimation(0, 0, -mFavorY, 0);
+		translateAnimation1.setDuration(mAnicatinoTime * 3);
+		translateAnimation1.setFillEnabled(true);
+		mMenuButtonFavor.startAnimation(translateAnimation1);
+
+		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, -mEvernoteY, 0);
+		translateAnimation2.setDuration(mAnicatinoTime * 2);
+		translateAnimation2.setFillEnabled(true);
+		mMenuButtonEvernote.startAnimation(translateAnimation2);
+
+		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, -mShareY, 0);
+		translateAnimation3.setDuration(mAnicatinoTime * 1);
+		translateAnimation3.setFillEnabled(true);
+		mMenuButtonShare.startAnimation(translateAnimation3);
 
 	}
 
