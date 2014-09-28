@@ -17,6 +17,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -221,9 +222,16 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 			}
 				break;
 			case ID_MENU_BTN_FAVOR: {
+				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
+				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
+				mFavor = !mFavor;
+				if (mFavor) {
+				} else {
+				}
 			}
 				break;
 			case ID_MENU_BTN_SHARE: {
+				shareText(mMainTitle + "    " + mMainUrl);
 			}
 				break;
 			default:
@@ -382,26 +390,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 
 	}
 
-	//
-	//	@Override
-	//	public boolean onCreateOptionsMenu(Menu menu) {
-	//		getMenuInflater().inflate(R.menu.detail_main, menu);
-	//
-	//		MenuItem item = menu.findItem(R.id.action_share);
-	//		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-	//		setShareIntent();
-	//
-	//		mFavorMenuItem = menu.findItem(R.id.action_favor);
-	//		if (mFavor) {
-	//			Loge.d("Favor A: " + mFavor);
-	//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor_active);
-	//		} else {
-	//			mFavorMenuItem.setIcon(R.drawable.ic_menu_favor);
-	//		}
-	//
-	//		return true;
-	//	}
-
 	private void setShareIntent() {
 		if (mMainUrl == null || mMainUrl.isEmpty()) {
 			return;
@@ -415,58 +403,37 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
-	//
-	//	@Override
-	//	public boolean onOptionsItemSelected(MenuItem item) {
-	//		switch (item.getItemId()) {
-	//			case android.R.id.home:
-	//			case R.id.action_back: {
-	//				if (mCustomWebView != null && mCustomWebView.getUrl() != null
-	//						&& mCustomWebView.getUrl().contains("album")) {
-	//					mCustomWebView.loadUrl(mMainUrl);
-	//				} else {
-	//					finish();
-	//				}
-	//			}
-	//				break;
-	//			case R.id.action_refresh: {
-	//				new DeleteLocalPhotoTask().execute();
-	//			}
-	//				break;
-	//			case R.id.action_view_in_browser: {
-	//				Uri uri = Uri.parse(mMainUrl);
-	//				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-	//				startActivity(viewIntent);
-	//			}
-	//				break;
-	//			case R.id.action_evernote: {
-	//				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
-	//					Loge.d("App not Logged In");
-	//					ShareToEvernote.getInstance(this).authenticate();
-	//				} else {
-	//					Loge.i("App Logged In");
-	//					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-	//						saveToEvernote();
-	//					}
-	//				}
-	//			}
-	//				break;
-	//			case R.id.action_favor: {
-	//				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
-	//				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
-	//				mFavor = !mFavor;
-	//				if (mFavor) {
-	//					item.setIcon(R.drawable.ic_menu_favor_active);
-	//				} else {
-	//					item.setIcon(R.drawable.ic_menu_favor);
-	//				}
-	//			}
-	//				break;
-	//			default:
-	//				break;
-	//		}
-	//		return super.onOptionsItemSelected(item);
-	//	}
+	private void shareText(String msg) {
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_TEXT, msg);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		try {
+			this.startActivity(Intent.createChooser(intent, this.getText(R.string.action_share)));
+		} catch (ActivityNotFoundException e) {
+		}
+	}
+
+	
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch (item.getItemId()) {
+				case android.R.id.home:
+				case R.id.action_back: {
+					if (mCustomWebView != null && mCustomWebView.getUrl() != null
+							&& mCustomWebView.getUrl().contains("album")) {
+						mCustomWebView.loadUrl(mMainUrl);
+					} else {
+						finish();
+					}
+				}
+					break;
+				default:
+					break;
+			}
+			return super.onOptionsItemSelected(item);
+		}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {

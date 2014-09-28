@@ -1,7 +1,8 @@
 package com.comic.chhreader;
 
-import java.util.List;
+import java.util.ArrayList;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -11,12 +12,18 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
+import com.comic.chhreader.data.ContentData;
+import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.provider.DataProvider;
+import com.comic.chhreader.utils.CHHNetUtils;
+import com.comic.chhreader.utils.DataBaseUtils;
+import com.comic.chhreader.utils.Utils;
 
 public class ContentListFragment extends SwipeRefreshListFragment implements LoaderCallbacks<Cursor>,
 		OnItemClickListener {
@@ -26,6 +33,17 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 	private ContentAdapter mListAdapter;
 
 	private int mCategory = 0;
+	private int mDataSize = 0;
+
+	private ContentResolver mContentResolver;
+
+	private long mImageTimeStamp;
+	private int mLatestId;
+	private ContentData mFirstItem = new ContentData();
+	private ContentData mLastItem = new ContentData();
+
+	private boolean updating = false;
+	private boolean nomore = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +58,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		setListAdapter(mListAdapter);
 		getListView().setDivider(null);
 		getListView().setOnItemClickListener(this);
+		getListView().setOnScrollListener(mScrollListener);
 
 		setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
@@ -64,8 +83,26 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 	}
 
 	private void initiateRefresh() {
-
+		new GetContentDataTask().execute("update");
 	}
+
+	AbsListView.OnScrollListener mScrollListener = new AbsListView.OnScrollListener() {
+
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
+				Loge.i("Scroll to the end");
+				if (Utils.isWifiAvailable(getActivity()) && !updating && !nomore) {
+					new GetContentDataTask().execute("more");
+				}
+			}
+		}
+	};
 
 	public void initData(int category) {
 		mCategory = category;
@@ -114,9 +151,24 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 			case LOADER_ID_LOACL: {
 				if (cur != null && cur.getCount() > 0) {
 					Loge.i("get data from local count = " + cur.getCount());
+					mDataSize = cur.getCount();
 					mListAdapter.swapCursor(cur);
 					mListAdapter.notifyDataSetChanged();
 					setRefreshing(false);
+
+					mLatestId = cur.getCount();
+					if (cur.moveToFirst()) {
+						if (mFirstItem == null) {
+							mFirstItem = new ContentData();
+						}
+						mFirstItem.mLink = cur.getString(5);
+					}
+					if (cur.moveToLast()) {
+						if (mLastItem == null) {
+							mLastItem = new ContentData();
+						}
+						mLastItem.mLink = cur.getString(5);
+					}
 				} else {
 					Loge.i("Cursor is null or count == 0");
 
@@ -133,23 +185,36 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 	public void onLoaderReset(Loader<Cursor> arg0) {
 	};
 
-	private void onRefreshComplete(List<String> result) {
+	private void onRefreshComplete(String result) {
+		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, this);
+		updating = false;
 		setRefreshing(false);
+		if (result.equals("more")) {
+			Toast.makeText(getActivity(), R.string.no_more_data, Toast.LENGTH_SHORT).show();
+			nomore = true;
+		}
 	}
 
-	private class GetContentDataTask extends AsyncTask<Void, Void, String> {
-
-		static final int TASK_DURATION = 3 * 1000; // 3 seconds
+	private class GetContentDataTask extends AsyncTask<String, Void, String> {
 
 		@Override
-		protected String doInBackground(Void... params) {
-			// Sleep for a small amount of time to simulate a background-task
-			try {
-				Thread.sleep(TASK_DURATION);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		protected void onPreExecute() {
+			super.onPreExecute();
+			updating = true;
+		}
 
+		@Override
+		protected String doInBackground(String... params) {
+			// Sleep for a small amount of time to simulate a background-task
+			Loge.i("GetContentDataTask mCategory = " + mCategory);
+			Loge.i("GetContentDataTask mDataSize = " + mDataSize);
+			Loge.i("GetContentDataTask params = " + params);
+
+			if (mCategory == 0) {
+
+			} else {
+				return getCategoryData(params);
+			}
 			// Return a new random list of cheeses
 			return null;
 		}
@@ -157,7 +222,148 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
+			onRefreshComplete(result);
 		}
 
+		private String getCategoryData(String... params) {
+			if (Utils.isNetworkAvailable(getActivity())) {
+				String loadingWay = null;
+				if (params != null && params.length > 0) {
+					loadingWay = params[0];
+				}
+				if (loadingWay == null) {
+					return "fail";
+				}
+				Loge.i("loadingWay = " + loadingWay);
+
+				if (mContentResolver == null) {
+					mContentResolver = getActivity().getContentResolver();
+				}
+
+				String[] subItemProjection = new String[1];
+				subItemProjection[0] = DataProvider.KEY_SUBITEM_PK;
+
+				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
+
+				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA,
+						subItemProjection, selection, null, null);
+
+				ArrayList<SubItemData> subItemDatas = null;
+				if (subItemCursor != null) {
+					if (subItemCursor.getCount() > 0 && subItemCursor.moveToFirst()) {
+						do {
+							if (subItemDatas == null) {
+								subItemDatas = new ArrayList<SubItemData>();
+							}
+							SubItemData itemData = new SubItemData();
+							itemData.mPk = subItemCursor.getInt(subItemCursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
+							Loge.d("SubItemData pk: " + itemData.mPk);
+							subItemDatas.add(itemData);
+						} while (subItemCursor.moveToNext());
+					}
+					subItemCursor.close();
+				}
+				if (subItemDatas == null) {
+					return "fail";
+				}
+
+				ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
+
+				int page = 1;
+				for (SubItemData itemData : subItemDatas) {
+					if (loadingWay.equals("more")) {
+						boolean hasInvalid = false;
+						Loge.d("mLatestId: " + mLatestId);
+						if ((mLatestId % 10) > 5) {
+							hasInvalid = true;
+						}
+						page = mLatestId / 10 + 1;
+						if (hasInvalid) {
+							page++;
+						}
+
+						if (mLatestId <= 5) {
+							page = 1;
+						}
+					}
+					Loge.d("load more page: " + page);
+					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(),
+							mCategory, itemData.mPk, page);
+					if (contentDatasTemp != null) {
+						tempListData.addAll(contentDatasTemp);
+					}
+				}
+
+				boolean updated = true;
+				boolean no_update = false;
+				if (tempListData.size() > 0) {
+					if (loadingWay.equals("update")) {
+						long postdata = 0;
+						int id = 0;
+						boolean anyInvaild = false;
+						for (int i = 0; i < tempListData.size(); i++) {
+							ContentData itemContent = tempListData.get(i);
+							if (!itemContent.mValid) {
+								anyInvaild = true;
+							}
+							if (itemContent.mValid && itemContent.mPostDate > postdata) {
+								postdata = itemContent.mPostDate;
+								id = i;
+							}
+						}
+						ContentData first = tempListData.get(id);
+						Loge.d("load more first 1: " + mFirstItem.mLink);
+						Loge.d("load more first 2: " + first.mLink);
+						if (!first.mLink.equals(mFirstItem.mLink) && first.mPostDate > mImageTimeStamp) {
+							DataBaseUtils.updateTopicImage(getActivity(), mCategory, first.mImageUrl);
+						} else {
+							no_update = true;
+						}
+						if (anyInvaild) {
+							Loge.d("anyInvaild: " + anyInvaild);
+							updated = true;
+						}
+					} else {
+						long postdata = tempListData.get(0).mPostDate;
+						int id = 0;
+						for (int i = 0; i < tempListData.size(); i++) {
+							ContentData itemContent = tempListData.get(i);
+							if (itemContent.mPostDate < postdata) {
+								postdata = itemContent.mPostDate;
+								id = i;
+							}
+						}
+						ContentData last = tempListData.get(id);
+						Loge.d("load more last 1: " + mLastItem.mLink);
+						Loge.d("load more last 2: " + last.mLink);
+						if (last.mLink.equals(mLastItem.mLink)) {
+							if (page != 1) {
+								updated = false;
+							}
+						}
+					}
+				} else {
+					updated = false;
+				}
+
+				if (updated) {
+					DataBaseUtils.saveContentItemData(getActivity(), tempListData);
+				}
+
+				subItemDatas.clear();
+				tempListData.clear();
+
+				if (no_update && 10 <= mLatestId) {
+					return loadingWay;
+				} else if (updated) {
+					return "success";
+				} else {
+					return loadingWay;
+				}
+			}
+			return "fail";
+
+		}
 	}
 }

@@ -451,6 +451,48 @@ public class CHHNetUtils {
 		}
 		return contentDatas;
 	}
+	
+	public static ArrayList<ContentData> getDatasbypage(Context context, int page) {
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("p", page);
+		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/getdatasbypage", params, null);
+		ArrayList<ContentData> contentDatas = null;
+		if (obj instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray) obj;
+			for (int i = 0; i < jsonArray.length(); i++) {
+				try {
+					JSONObject itemObject = jsonArray.getJSONObject(i);
+					JSONObject fieldsObject = itemObject.getJSONObject("fields");
+					String title = fieldsObject.getString("name");
+					String imageurl = fieldsObject.getString("imageurl");
+					String link = fieldsObject.getString("link");
+					String pk = fieldsObject.getString("item");
+					String content = fieldsObject.getString("content");
+					String date = fieldsObject.getString("postdate");
+					boolean valid = fieldsObject.getBoolean("is_valid");
+
+					ContentData itemData = new ContentData();
+					itemData.mTitle = title;
+					itemData.mLink = link;
+					itemData.mImageUrl = imageurl;
+					itemData.mContent = content;
+					itemData.mSubItemType = Integer.parseInt(pk);
+					itemData.mValid = valid;
+					itemData.mPostDate = Long.parseLong(date);
+					if (contentDatas == null) {
+						contentDatas = new ArrayList<ContentData>();
+					}
+					contentDatas.add(itemData);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if (contentDatas != null && contentDatas.size() > 0) {
+			Loge.d("contentDatas fetch ok");
+		}
+		return contentDatas;
+	}
 
 	public static String getContentBody(Context context, String url) {
 		String body = "";
