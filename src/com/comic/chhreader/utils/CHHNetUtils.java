@@ -456,6 +456,7 @@ public class CHHNetUtils {
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("p", page);
 		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/getdatasbypage", params, null);
+		Loge.d("getDatasbypage: " + obj.toString());
 		ArrayList<ContentData> contentDatas = null;
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;

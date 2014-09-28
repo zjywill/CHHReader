@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
+import com.comic.chhreader.data.TopicData;
 import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.provider.DataProvider;
 import com.comic.chhreader.utils.CHHNetUtils;
@@ -189,7 +190,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, this);
 		updating = false;
 		setRefreshing(false);
-		if (result.equals("more")) {
+		Loge.i("onRefreshComplete result = " + result);
+		if (result != null && result.equals("more")) {
 			Toast.makeText(getActivity(), R.string.no_more_data, Toast.LENGTH_SHORT).show();
 			nomore = true;
 		}
@@ -205,18 +207,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 
 		@Override
 		protected String doInBackground(String... params) {
-			// Sleep for a small amount of time to simulate a background-task
-			Loge.i("GetContentDataTask mCategory = " + mCategory);
-			Loge.i("GetContentDataTask mDataSize = " + mDataSize);
-			Loge.i("GetContentDataTask params = " + params);
-
-			if (mCategory == 0) {
-
-			} else {
-				return getCategoryData(params);
-			}
-			// Return a new random list of cheeses
-			return null;
+			return getCategoryData(params);
 		}
 
 		@Override
@@ -234,7 +225,6 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 				if (loadingWay == null) {
 					return "fail";
 				}
-				Loge.i("loadingWay = " + loadingWay);
 
 				if (mContentResolver == null) {
 					mContentResolver = getActivity().getContentResolver();
@@ -243,7 +233,10 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 				String[] subItemProjection = new String[1];
 				subItemProjection[0] = DataProvider.KEY_SUBITEM_PK;
 
-				String selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
+				String selection = null;
+				if (mCategory != 0) {
+					selection = DataProvider.KEY_SUBITEM_TOPIC_PK + "='" + mCategory + "'";
+				}
 
 				Cursor subItemCursor = mContentResolver.query(DataProvider.CONTENT_URI_SUBITEM_DATA,
 						subItemProjection, selection, null, null);
@@ -271,27 +264,46 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 				ArrayList<ContentData> tempListData = new ArrayList<ContentData>();
 
 				int page = 1;
-				for (SubItemData itemData : subItemDatas) {
-					if (loadingWay.equals("more")) {
-						boolean hasInvalid = false;
-						Loge.d("mLatestId: " + mLatestId);
-						if ((mLatestId % 10) > 5) {
-							hasInvalid = true;
-						}
-						page = mLatestId / 10 + 1;
-						if (hasInvalid) {
-							page++;
-						}
 
-						if (mLatestId <= 5) {
-							page = 1;
+				ArrayList<ContentData> contentDatasTemp = null;
+
+				if (loadingWay.equals("more")) {
+					boolean hasInvalid = false;
+					Loge.d("mLatestId: " + mLatestId);
+					if ((mLatestId % 10) > 5) {
+						hasInvalid = true;
+					}
+					page = mLatestId / 10 + 1;
+					if (hasInvalid) {
+						page++;
+					}
+
+					if (mLatestId <= 5) {
+						page = 1;
+					}
+				}
+
+				if (mCategory == 0) {
+					contentDatasTemp = CHHNetUtils.getDatasbypage(getActivity(), page);
+					if (contentDatasTemp != null) {
+						for (int i = contentDatasTemp.size() - 1; i >= 0; i--) {
+							ContentData contentItem = contentDatasTemp.get(i);
+							for (SubItemData subItemData : subItemDatas) {
+								if (contentItem.mSubItemType == subItemData.mPk) {
+									contentItem.mTopicType = subItemData.mTopic;
+								}
+							}
 						}
 					}
-					Loge.d("load more page: " + page);
-					ArrayList<ContentData> contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(),
-							mCategory, itemData.mPk, page);
-					if (contentDatasTemp != null) {
-						tempListData.addAll(contentDatasTemp);
+				} else {
+					for (SubItemData itemData : subItemDatas) {
+						Loge.d("load more page: " + page);
+						contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(), mCategory,
+								itemData.mPk, page);
+
+						if (contentDatasTemp != null) {
+							tempListData.addAll(contentDatasTemp);
+						}
 					}
 				}
 
