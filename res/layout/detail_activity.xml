@@ -55,7 +55,7 @@
                 android:layout_marginBottom="5dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_plus" />
+                android:src="@drawable/ic_menu_browser" />
 
             <ImageButton
                 android:id="@+id/detail_menu_evernote"
@@ -65,7 +65,7 @@
                 android:layout_marginBottom="5dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_plus" />
+                android:src="@drawable/ic_menu_evernote" />
 
             <ImageButton
                 android:id="@+id/detail_menu_share"
@@ -75,7 +75,7 @@
                 android:layout_marginBottom="5dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_plus" />
+                android:src="@drawable/ic_menu_share" />
 
             <ImageButton
                 android:id="@+id/detail_menu_button"
