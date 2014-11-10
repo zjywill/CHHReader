@@ -33,8 +33,7 @@ import com.comic.chhreader.utils.DataBaseUtils;
 import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
 
-public class MainActivity extends FragmentActivity implements
-		LoaderCallbacks<Cursor> {
+public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
 
 	private static final int LOADER_ID_LOACL = 103;
 	private static final long UPGRADE_GAP = DateUtils.DAY_IN_MILLIS;
@@ -63,8 +62,7 @@ public class MainActivity extends FragmentActivity implements
 
 		initDrawer();
 
-		FragmentTransaction transaction = getSupportFragmentManager()
-				.beginTransaction();
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		mMainDataFrgment = new ContentListFragment();
 		transaction.replace(R.id.content_frame, mMainDataFrgment);
 		transaction.commit();
@@ -82,8 +80,7 @@ public class MainActivity extends FragmentActivity implements
 
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
-		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
-				GravityCompat.START);
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
@@ -119,28 +116,25 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	private class DrawerItemClickListener implements
-			ListView.OnItemClickListener {
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			selectItem(position);
 			mDrawerLayout.closeDrawers();
 			Cursor cur = (Cursor) mCategoryAdapter.getItem(position);
-			mCategory = cur.getInt(cur
-					.getColumnIndex(DataProvider.KEY_TOPIC_PK));
+			mCategory = cur.getInt(cur.getColumnIndex(DataProvider.KEY_TOPIC_PK));
 			Loge.d("onItemClick mCategory: " + mCategory);
 			if (mMainDataFrgment != null) {
 				mMainDataFrgment.reloadData(mCategory);
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -151,14 +145,12 @@ public class MainActivity extends FragmentActivity implements
 				Cursor cur = (Cursor) mCategoryAdapter.getItem(position);
 				int pk = 0;
 				if (cur != null) {
-					pk = cur.getInt(cur
-							.getColumnIndex(DataProvider.KEY_TOPIC_PK));
+					pk = cur.getInt(cur.getColumnIndex(DataProvider.KEY_TOPIC_PK));
 				}
 				Loge.i("selectItem pk = " + pk);
 				DataBaseUtils.updateTopicSelectData(mContext, position, false);
 				DataBaseUtils.updateTopicSelectData(mContext, pk, true);
-				getLoaderManager().restartLoader(LOADER_ID_LOACL, null,
-						MainActivity.this);
+				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 			}
 		}).run();
 	}
@@ -178,19 +170,19 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
 		switch (loaderID) {
-		case LOADER_ID_LOACL: {
-			String[] projection = new String[6];
-			projection[0] = DataProvider.KEY_TOPIC_ID;
-			projection[1] = DataProvider.KEY_TOPIC_NAME;
-			projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
-			projection[3] = DataProvider.KEY_TOPIC_PK;
-			projection[4] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
-			projection[5] = DataProvider.KEY_TOPIC_SELECTED;
-			return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA,
-					projection, null, null, DataProvider.KEY_TOPIC_PK);
-		}
-		default:
-			break;
+			case LOADER_ID_LOACL: {
+				String[] projection = new String[6];
+				projection[0] = DataProvider.KEY_TOPIC_ID;
+				projection[1] = DataProvider.KEY_TOPIC_NAME;
+				projection[2] = DataProvider.KEY_TOPIC_IMAGE_URL;
+				projection[3] = DataProvider.KEY_TOPIC_PK;
+				projection[4] = DataProvider.KEY_TOPIC_IMAGE_TIME_STAMP;
+				projection[5] = DataProvider.KEY_TOPIC_SELECTED;
+				return new CursorLoader(this, DataProvider.CONTENT_URI_TOPIC_DATA, projection, null, null,
+						DataProvider.KEY_TOPIC_PK);
+			}
+			default:
+				break;
 		}
 		return null;
 	}
@@ -198,21 +190,21 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		switch (loader.getId()) {
-		case LOADER_ID_LOACL: {
-			if (cur != null && cur.getCount() > 0) {
-				Loge.i("get data from local count = " + cur.getCount());
-				mCategoryAdapter.swapCursor(cur);
-				mCategoryAdapter.notifyDataSetChanged();
-			} else {
-				Loge.i("Cursor is null or count == 0");
-				if (!updating)
-					new FetchDataTaskNet().execute();
+			case LOADER_ID_LOACL: {
+				if (cur != null && cur.getCount() > 0) {
+					Loge.i("get data from local count = " + cur.getCount());
+					mCategoryAdapter.swapCursor(cur);
+					mCategoryAdapter.notifyDataSetChanged();
+				} else {
+					Loge.i("Cursor is null or count == 0");
+					if (!updating)
+						new FetchDataTaskNet().execute();
+				}
 			}
-		}
-			break;
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -241,8 +233,7 @@ public class MainActivity extends FragmentActivity implements
 				if (DataBaseUtils.isTopicDataExist(mContext)) {
 					fetchNetData = false;
 					long timeNow = System.currentTimeMillis();
-					if ((timeNow - SharedPreferencesUtils
-							.getUpdateTime(mContext)) > UPGRADE_GAP) {
+					if ((timeNow - SharedPreferencesUtils.getUpdateTime(mContext)) > UPGRADE_GAP) {
 						fetchNetData = true;
 					}
 				}
@@ -262,8 +253,7 @@ public class MainActivity extends FragmentActivity implements
 					DataBaseUtils.deleteAllSubItemData(mContext);
 					DataBaseUtils.saveSubItemData(mContext, subItemDatas);
 
-					SharedPreferencesUtils.saveUpdateTime(mContext,
-							System.currentTimeMillis());
+					SharedPreferencesUtils.saveUpdateTime(mContext, System.currentTimeMillis());
 
 					if (topicsData != null && topicsData.size() > 0) {
 						DataBaseUtils.deleteAllTopicData(mContext);
@@ -279,32 +269,36 @@ public class MainActivity extends FragmentActivity implements
 				}
 
 				for (TopicData topic : topicsData) {
+					Loge.d("TopicData name: "+topic.mName);
 					if (topic.mSelected == true) {
 						mCategory = topic.mPk;
 						break;
 					}
 				}
-
+				
 				new Handler(Looper.getMainLooper()).post(new Runnable() {
 					@Override
 					public void run() {
 						if (mMainDataFrgment != null) {
 							mMainDataFrgment.initData(mCategory);
 						}
-						getLoaderManager().restartLoader(LOADER_ID_LOACL, null,
-								MainActivity.this);
+						getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 					}
 				});
 
 				if (subItemDatas == null) {
 					return "fail";
 				}
+				
+				for(SubItemData sbuitem : subItemDatas){
+					Loge.d("SubItemData name: "+sbuitem.mName);
+				}
 
-				ArrayList<ContentData> contentDatas = CHHNetUtils
-						.getMainContentItemsDate(mContext);
+				ArrayList<ContentData> contentDatas = CHHNetUtils.getContentItemsDate(mContext, 1);
 				if (contentDatas == null) {
 					return "fail";
 				}
+				Loge.d("contentDatas size: "+contentDatas.size());
 
 				for (int i = contentDatas.size() - 1; i >= 0; i--) {
 					ContentData contentItem = contentDatas.get(i);
@@ -329,14 +323,12 @@ public class MainActivity extends FragmentActivity implements
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				getLoaderManager().restartLoader(LOADER_ID_LOACL, null,
-						MainActivity.this);
+				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 				if (mMainDataFrgment != null) {
 					mMainDataFrgment.reloadData(mCategory);
 				}
 			} else {
-				Toast.makeText(mContext, R.string.no_update, Toast.LENGTH_SHORT)
-						.show();
+				Toast.makeText(mContext, R.string.no_update, Toast.LENGTH_SHORT).show();
 			}
 			updating = false;
 		}

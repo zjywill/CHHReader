@@ -58,7 +58,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		result = result + body;
+		result = "<html>"+result + body+"</html>";
 
 		Document doc = null;
 		imgUrls.clear();

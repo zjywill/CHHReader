@@ -24,9 +24,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
 /**
@@ -35,16 +33,11 @@ import android.widget.ListView;
  * the the content view in a
  * {@link android.support.v4.widget.SwipeRefreshLayout}.
  */
-public class SwipeRefreshListFragment extends Fragment implements View.OnClickListener {
-
-	private static final int ID_MENU_BTN = 0;
+public class SwipeRefreshListFragment extends Fragment {
 
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 
 	private ListView mListView;
-	protected ImageButton mMenuButton;
-
-	private boolean mSign = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,9 +46,6 @@ public class SwipeRefreshListFragment extends Fragment implements View.OnClickLi
 		final View listFragmentView = inflater.inflate(R.layout.main_content_list, null);
 
 		mListView = (ListView) listFragmentView.findViewById(R.id.main_list);
-		mMenuButton = (ImageButton) listFragmentView.findViewById(R.id.main_menu_button);
-		mMenuButton.setId(ID_MENU_BTN);
-		mMenuButton.setOnClickListener(this);
 
 		// Now create a SwipeRefreshLayout to wrap the fragment's content view
 		mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(container.getContext());
@@ -72,34 +62,6 @@ public class SwipeRefreshListFragment extends Fragment implements View.OnClickLi
 
 		// Now return the SwipeRefreshLayout as this fragment's content view
 		return mSwipeRefreshLayout;
-	}
-
-	@Override
-	public void onClick(View v) {
-		int id = v.getId();
-		switch (id) {
-			case ID_MENU_BTN:
-				showRotateAnimation();
-				break;
-			default:
-				break;
-		}
-	}
-
-	public void showRotateAnimation() {
-		final float centerX = mMenuButton.getWidth() / 2.0f;
-		final float centerY = mMenuButton.getHeight() / 2.0f;
-		RotateAnimation rotateAnimation = null;
-		if (!mSign) {
-			rotateAnimation = new RotateAnimation(0, 405, centerX, centerY);
-
-		} else {
-			rotateAnimation = new RotateAnimation(405, 0, centerX, centerY);
-		}
-		rotateAnimation.setDuration(100 + 220);
-		rotateAnimation.setFillAfter(true);
-		mMenuButton.startAnimation(rotateAnimation);
-		mSign = !mSign;
 	}
 
 	/**

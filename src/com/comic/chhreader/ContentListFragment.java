@@ -43,7 +43,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 	private ContentData mFirstItem = new ContentData();
 	private ContentData mLastItem = new ContentData();
 
-	private boolean updating = false;
+	private boolean updating = true;
 	private boolean nomore = false;
 
 	@Override
@@ -97,8 +97,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
-				Loge.i("Scroll to the end");
 				if (Utils.isWifiAvailable(getActivity()) && !updating && !nomore) {
+					Loge.d("Scroll to the end get more data");
 					new GetContentDataTask().execute("more");
 				}
 			}
@@ -170,6 +170,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 						}
 						mLastItem.mLink = cur.getString(5);
 					}
+					updating = false;
 				} else {
 					Loge.i("Cursor is null or count == 0");
 
@@ -226,6 +227,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 					return "fail";
 				}
 
+				Loge.d("getCategoryData loadingWay: " + loadingWay);
+
 				if (mContentResolver == null) {
 					mContentResolver = getActivity().getContentResolver();
 				}
@@ -270,10 +273,10 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 				if (loadingWay.equals("more")) {
 					boolean hasInvalid = false;
 					Loge.d("mLatestId: " + mLatestId);
-					if ((mLatestId % 10) > 5) {
+					if ((mLatestId % 20) > 5) {
 						hasInvalid = true;
 					}
-					page = mLatestId / 10 + 1;
+					page = mLatestId / 20 + 1;
 					if (hasInvalid) {
 						page++;
 					}
@@ -282,9 +285,11 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 						page = 1;
 					}
 				}
-
+				Loge.d("getCategoryData mCategory: " + mCategory);
 				if (mCategory == 0) {
-					contentDatasTemp = CHHNetUtils.getDatasbypage(getActivity(), page);
+					Loge.d("getCategoryData page: " + page);
+					contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(), page);
+					Loge.d("getCategoryData contentDatasTemp: " + contentDatasTemp.size());
 					if (contentDatasTemp != null) {
 						for (int i = contentDatasTemp.size() - 1; i >= 0; i--) {
 							ContentData contentItem = contentDatasTemp.get(i);
@@ -295,17 +300,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 							}
 						}
 					}
-				} else {
-					for (SubItemData itemData : subItemDatas) {
-						Loge.d("load more page: " + page);
-						contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(), mCategory,
-								itemData.mPk, page);
-
-						if (contentDatasTemp != null) {
-							tempListData.addAll(contentDatasTemp);
-						}
-					}
 				}
+				tempListData.addAll(contentDatasTemp);
 
 				boolean updated = true;
 				boolean no_update = false;

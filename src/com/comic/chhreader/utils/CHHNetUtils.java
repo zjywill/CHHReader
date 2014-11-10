@@ -268,7 +268,7 @@ public class CHHNetUtils {
 
 	public static ArrayList<TopicData> getTopicsDate(Context context) {
 		ArrayList<TopicData> topicsData = null;
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/topics", null, null);
+		Object obj = getResult("http://chhreader.sinaapp.com/chhreader/gettopic", null, null);
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -297,7 +297,7 @@ public class CHHNetUtils {
 	}
 
 	public static ArrayList<SubItemData> getAllSubItemsDate(Context context) {
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/allsubitem", null, null);
+		Object obj = getResult("http://chhreader.sinaapp.com/chhreader/getallsubtopic", null, null);
 		ArrayList<SubItemData> subItemDatas = null;
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
@@ -329,134 +329,10 @@ public class CHHNetUtils {
 		return subItemDatas;
 	}
 
-	public static ArrayList<SubItemData> getSubItemsDate(Context context,
-			int pknum) {
-
-		HashMap<String, Object> params = new HashMap<String, Object>();
-		params.put("t", pknum);
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/items", params, null);
-		ArrayList<SubItemData> subItemDatas = null;
-		if (obj instanceof JSONArray) {
-			JSONArray jsonArray = (JSONArray) obj;
-			for (int i = 0; i < jsonArray.length(); i++) {
-				try {
-					JSONObject itemObject = jsonArray.getJSONObject(i);
-					String pk = itemObject.getString("pk");
-					JSONObject fieldsObject = itemObject.getJSONObject("fields");
-					String name = fieldsObject.getString("name");
-					String sourcelink = fieldsObject.getString("sourcelink");
-					String topic = fieldsObject.getString("topic");
-					if (subItemDatas == null) {
-						subItemDatas = new ArrayList<SubItemData>();
-					}
-					SubItemData itemData = new SubItemData();
-					itemData.mName = name;
-					itemData.mUrl = sourcelink;
-					itemData.mPk = Integer.parseInt(pk);
-					itemData.mTopic = Integer.parseInt(topic);
-					subItemDatas.add(itemData);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		if (subItemDatas != null && subItemDatas.size() > 0) {
-			Loge.d("subItemsDate fetch ok");
-		}
-		return subItemDatas;
-	}
-
-	public static ArrayList<ContentData> getMainContentItemsDate(Context context) {
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/maindatas", null, null);
-		ArrayList<ContentData> contentDatas = null;
-		if (obj instanceof JSONArray) {
-			JSONArray jsonArray = (JSONArray) obj;
-			for (int i = 0; i < jsonArray.length(); i++) {
-				try {
-					JSONObject itemObject = jsonArray.getJSONObject(i);
-					JSONObject fieldsObject = itemObject.getJSONObject("fields");
-					String title = fieldsObject.getString("name");
-					String imageurl = fieldsObject.getString("imageurl");
-					String link = fieldsObject.getString("link");
-					String pk = fieldsObject.getString("item");
-					String content = fieldsObject.getString("content");
-					String date = fieldsObject.getString("postdate");
-					boolean valid = fieldsObject.getBoolean("is_valid");
-
-					ContentData itemData = new ContentData();
-					itemData.mTitle = title;
-					itemData.mLink = link;
-					itemData.mImageUrl = imageurl;
-					itemData.mContent = content;
-					itemData.mSubItemType = Integer.parseInt(pk);
-					itemData.mValid = valid;
-					itemData.mPostDate = Long.parseLong(date);
-					if (contentDatas == null) {
-						contentDatas = new ArrayList<ContentData>();
-					}
-					contentDatas.add(itemData);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		if (contentDatas != null && contentDatas.size() > 0) {
-			Loge.d("contentDatas fetch ok");
-		}
-		return contentDatas;
-	}
-
-	public static ArrayList<ContentData> getContentItemsDate(Context context,
-			int topic, int pknum, int page) {
-
-		HashMap<String, Object> params = new HashMap<String, Object>();
-		params.put("i", pknum);
-		params.put("p", page);
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/datas", params, null);
-		ArrayList<ContentData> contentDatas = null;
-		if (obj instanceof JSONArray) {
-			JSONArray jsonArray = (JSONArray) obj;
-			for (int i = 0; i < jsonArray.length(); i++) {
-				try {
-					JSONObject itemObject = jsonArray.getJSONObject(i);
-					JSONObject fieldsObject = itemObject.getJSONObject("fields");
-					String title = fieldsObject.getString("name");
-					String imageurl = fieldsObject.getString("imageurl");
-					String link = fieldsObject.getString("link");
-					String pk = fieldsObject.getString("item");
-					String content = fieldsObject.getString("content");
-					String date = fieldsObject.getString("postdate");
-					boolean valid = fieldsObject.getBoolean("is_valid");
-
-					ContentData itemData = new ContentData();
-					itemData.mTitle = title;
-					itemData.mLink = link;
-					itemData.mImageUrl = imageurl;
-					itemData.mContent = content;
-					itemData.mSubItemType = Integer.parseInt(pk);
-					itemData.mTopicType = topic;
-					itemData.mValid = valid;
-					itemData.mPostDate = Long.parseLong(date);
-					if (contentDatas == null) {
-						contentDatas = new ArrayList<ContentData>();
-					}
-					contentDatas.add(itemData);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		if (contentDatas != null && contentDatas.size() > 0) {
-			Loge.d("contentDatas fetch ok");
-		}
-		return contentDatas;
-	}
-	
-	public static ArrayList<ContentData> getDatasbypage(Context context, int page) {
+	public static ArrayList<ContentData> getContentItemsDate(Context context, int page) {
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("p", page);
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/getdatasbypage", params, null);
-		Loge.d("getDatasbypage: " + obj.toString());
+		Object obj = getResult("http://chhreader.sinaapp.com/chhreader/getpostdata", params, null);
 		ArrayList<ContentData> contentDatas = null;
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
@@ -499,7 +375,7 @@ public class CHHNetUtils {
 		String body = "";
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		params.put("link", url);
-		Object obj = getResult("http://chiphell.sinaapp.com/chiphell/getcontent", params, null);
+		Object obj = getResult("http://chhreader.sinaapp.com/chhreader/getcontent", params, null);
 		if (obj instanceof JSONArray) {
 			JSONArray jsonArray = (JSONArray) obj;
 			for (int i = 0; i < jsonArray.length(); i++) {
