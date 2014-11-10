@@ -56,7 +56,6 @@ import com.evernote.edam.type.Note;
 public class DetailActivity extends Activity implements View.OnClickListener {
 	private static final int ID_MENU_BTN = 0;
 	private static final int ID_MENU_BTN_VIEW_ORIGIN = 1;
-	private static final int ID_MENU_BTN_FAVOR = 2;
 	private static final int ID_MENU_BTN_EVERNOTE = 3;
 	private static final int ID_MENU_BTN_SHARE = 4;
 	private final int DIALOG_PROGRESS = 101;
@@ -67,7 +66,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 	private ImageButton mMenuButton;
 
 	private ImageButton mMenuButtonViewOrigin;
-	private ImageButton mMenuButtonFavor;
 	private ImageButton mMenuButtonEvernote;
 	private ImageButton mMenuButtonShare;
 
@@ -126,8 +124,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
-		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.view_origin_offsety);
-		mFavorY = this.getResources().getDimensionPixelSize(R.dimen.favor_offsety);
+		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.favor_offsety);
 		mEvernoteY = this.getResources().getDimensionPixelSize(R.dimen.evernote_offsety);
 		mShareY = this.getResources().getDimensionPixelSize(R.dimen.share_offsety);
 		mBtnMarginY = this.getResources().getDimensionPixelSize(R.dimen.btn_margin);
@@ -154,10 +151,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		mMenuButtonViewOrigin = (ImageButton) findViewById(R.id.detail_menu_view_origin);
 		mMenuButtonViewOrigin.setId(ID_MENU_BTN_VIEW_ORIGIN);
 		mMenuButtonViewOrigin.setOnClickListener(this);
-
-		mMenuButtonFavor = (ImageButton) findViewById(R.id.detail_menu_favor);
-		mMenuButtonFavor.setId(ID_MENU_BTN_FAVOR);
-		mMenuButtonFavor.setOnClickListener(this);
 
 		mMenuButtonEvernote = (ImageButton) findViewById(R.id.detail_menu_evernote);
 		mMenuButtonEvernote.setId(ID_MENU_BTN_EVERNOTE);
@@ -221,15 +214,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 				}
 			}
 				break;
-			case ID_MENU_BTN_FAVOR: {
-				mFavor = DataBaseUtils.getContentFavorData(mContext, mMainUrl);
-				DataBaseUtils.updateContentFavorData(mContext, mMainUrl, !mFavor ? 1 : 0);
-				mFavor = !mFavor;
-				if (mFavor) {
-				} else {
-				}
-			}
-				break;
 			case ID_MENU_BTN_SHARE: {
 				shareText(mMainTitle + "    " + mMainUrl);
 			}
@@ -259,7 +243,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 	public void outAnimation() {
 		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, -mViewOriginY);
 		translateAnimation.setInterpolator(new DecelerateInterpolator());
-		translateAnimation.setDuration(mAnicatinoTime * 4);
+		translateAnimation.setDuration(mAnicatinoTime * 3);
 		translateAnimation.setFillEnabled(true);
 		translateAnimation.setAnimationListener(new AnimationListener() {
 			@Override
@@ -281,31 +265,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 			}
 		});
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
-
-		TranslateAnimation translateAnimation1 = new TranslateAnimation(0, 0, 0, -mFavorY);
-		translateAnimation1.setInterpolator(new DecelerateInterpolator());
-		translateAnimation1.setDuration(mAnicatinoTime * 3);
-		translateAnimation1.setFillEnabled(true);
-		translateAnimation1.setAnimationListener(new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
-				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-				layoutParams.setMargins(0, 0, 0, mFavorY);
-				mMenuButtonFavor.setLayoutParams(layoutParams);
-			}
-		});
-		mMenuButtonFavor.startAnimation(translateAnimation1);
 
 		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, 0, -mEvernoteY);
 		translateAnimation2.setInterpolator(new DecelerateInterpolator());
@@ -364,19 +323,13 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		layoutParams.setMargins(0, 0, 0, mBtnMarginY);
 
 		mMenuButtonViewOrigin.setLayoutParams(layoutParams);
-		mMenuButtonFavor.setLayoutParams(layoutParams);
 		mMenuButtonEvernote.setLayoutParams(layoutParams);
 		mMenuButtonShare.setLayoutParams(layoutParams);
 
 		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, -mViewOriginY, 0);
-		translateAnimation.setDuration(mAnicatinoTime * 4);
+		translateAnimation.setDuration(mAnicatinoTime * 3);
 		translateAnimation.setFillEnabled(true);
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
-
-		TranslateAnimation translateAnimation1 = new TranslateAnimation(0, 0, -mFavorY, 0);
-		translateAnimation1.setDuration(mAnicatinoTime * 3);
-		translateAnimation1.setFillEnabled(true);
-		mMenuButtonFavor.startAnimation(translateAnimation1);
 
 		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, -mEvernoteY, 0);
 		translateAnimation2.setDuration(mAnicatinoTime * 2);
@@ -415,25 +368,24 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
-	
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			switch (item.getItemId()) {
-				case android.R.id.home:
-				case R.id.action_back: {
-					if (mCustomWebView != null && mCustomWebView.getUrl() != null
-							&& mCustomWebView.getUrl().contains("album")) {
-						mCustomWebView.loadUrl(mMainUrl);
-					} else {
-						finish();
-					}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+			case R.id.action_back: {
+				if (mCustomWebView != null && mCustomWebView.getUrl() != null
+						&& mCustomWebView.getUrl().contains("album")) {
+					mCustomWebView.loadUrl(mMainUrl);
+				} else {
+					finish();
 				}
-					break;
-				default:
-					break;
 			}
-			return super.onOptionsItemSelected(item);
+				break;
+			default:
+				break;
 		}
+		return super.onOptionsItemSelected(item);
+	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {

@@ -97,7 +97,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
-				if (Utils.isWifiAvailable(getActivity()) && !updating && !nomore) {
+				if (Utils.isWifiAvailable(getActivity()) && !updating && !nomore && mCategory == 0) {
 					Loge.d("Scroll to the end get more data");
 					new GetContentDataTask().execute("more");
 				}
@@ -150,7 +150,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cur) {
 		switch (loader.getId()) {
 			case LOADER_ID_LOACL: {
-				if (cur != null && cur.getCount() > 0) {
+				if (cur != null && cur.getCount() >= 0) {
 					Loge.i("get data from local count = " + cur.getCount());
 					mDataSize = cur.getCount();
 					mListAdapter.swapCursor(cur);
@@ -233,8 +233,9 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 					mContentResolver = getActivity().getContentResolver();
 				}
 
-				String[] subItemProjection = new String[1];
+				String[] subItemProjection = new String[2];
 				subItemProjection[0] = DataProvider.KEY_SUBITEM_PK;
+				subItemProjection[1] = DataProvider.KEY_SUBITEM_TOPIC_PK;
 
 				String selection = null;
 				if (mCategory != 0) {
@@ -254,7 +255,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 							SubItemData itemData = new SubItemData();
 							itemData.mPk = subItemCursor.getInt(subItemCursor
 									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
-							Loge.d("SubItemData pk: " + itemData.mPk);
+							itemData.mTopic =subItemCursor.getInt(subItemCursor
+									.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
 							subItemDatas.add(itemData);
 						} while (subItemCursor.moveToNext());
 					}
@@ -285,11 +287,8 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 						page = 1;
 					}
 				}
-				Loge.d("getCategoryData mCategory: " + mCategory);
 				if (mCategory == 0) {
-					Loge.d("getCategoryData page: " + page);
 					contentDatasTemp = CHHNetUtils.getContentItemsDate(getActivity(), page);
-					Loge.d("getCategoryData contentDatasTemp: " + contentDatasTemp.size());
 					if (contentDatasTemp != null) {
 						for (int i = contentDatasTemp.size() - 1; i >= 0; i--) {
 							ContentData contentItem = contentDatasTemp.get(i);
@@ -300,6 +299,9 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 							}
 						}
 					}
+				}
+				if (contentDatasTemp == null) {
+					return "fail";
 				}
 				tempListData.addAll(contentDatasTemp);
 

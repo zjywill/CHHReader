@@ -292,6 +292,7 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 				
 				for(SubItemData sbuitem : subItemDatas){
 					Loge.d("SubItemData name: "+sbuitem.mName);
+					Loge.d("SubItemData topic: "+sbuitem.mTopic);
 				}
 
 				ArrayList<ContentData> contentDatas = CHHNetUtils.getContentItemsDate(mContext, 1);
