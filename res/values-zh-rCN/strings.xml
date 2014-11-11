@@ -32,4 +32,6 @@
 	<string name="origin_url">原贴地址</string>
 	<string name="logout">登出</string>
 	<string name="login">登陆</string>
+	<string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>
