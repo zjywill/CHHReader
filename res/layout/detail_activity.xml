@@ -58,16 +58,6 @@
                 android:src="@drawable/ic_menu_browser" />
 
             <ImageButton
-                android:id="@+id/detail_menu_evernote"
-                android:layout_width="@dimen/btn_size"
-                android:layout_height="@dimen/btn_size"
-                android:layout_gravity="center|bottom"
-                android:layout_marginBottom="5dp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_evernote" />
-
-            <ImageButton
                 android:id="@+id/detail_menu_share"
                 android:layout_width="@dimen/btn_size"
                 android:layout_height="@dimen/btn_size"

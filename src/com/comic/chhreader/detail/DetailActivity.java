@@ -66,7 +66,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 	private ImageButton mMenuButton;
 
 	private ImageButton mMenuButtonViewOrigin;
-	private ImageButton mMenuButtonEvernote;
 	private ImageButton mMenuButtonShare;
 
 	private String mMainTitle;
@@ -124,8 +123,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
-		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.favor_offsety);
-		mEvernoteY = this.getResources().getDimensionPixelSize(R.dimen.evernote_offsety);
+		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.evernote_offsety);
 		mShareY = this.getResources().getDimensionPixelSize(R.dimen.share_offsety);
 		mBtnMarginY = this.getResources().getDimensionPixelSize(R.dimen.btn_margin);
 		mBtnSize = this.getResources().getDimensionPixelSize(R.dimen.btn_size);
@@ -151,10 +149,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		mMenuButtonViewOrigin = (ImageButton) findViewById(R.id.detail_menu_view_origin);
 		mMenuButtonViewOrigin.setId(ID_MENU_BTN_VIEW_ORIGIN);
 		mMenuButtonViewOrigin.setOnClickListener(this);
-
-		mMenuButtonEvernote = (ImageButton) findViewById(R.id.detail_menu_evernote);
-		mMenuButtonEvernote.setId(ID_MENU_BTN_EVERNOTE);
-		mMenuButtonEvernote.setOnClickListener(this);
 
 		mMenuButtonShare = (ImageButton) findViewById(R.id.detail_menu_share);
 		mMenuButtonShare.setId(ID_MENU_BTN_SHARE);
@@ -266,31 +260,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		});
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
 
-		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, 0, -mEvernoteY);
-		translateAnimation2.setInterpolator(new DecelerateInterpolator());
-		translateAnimation2.setDuration(mAnicatinoTime * 2);
-		translateAnimation2.setFillEnabled(true);
-		translateAnimation2.setAnimationListener(new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
-				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-				layoutParams.setMargins(0, 0, 0, mEvernoteY);
-				mMenuButtonEvernote.setLayoutParams(layoutParams);
-			}
-		});
-		mMenuButtonEvernote.startAnimation(translateAnimation2);
-
 		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, 0, -mShareY);
 		translateAnimation3.setInterpolator(new DecelerateInterpolator());
 		translateAnimation3.setDuration(mAnicatinoTime * 1);
@@ -323,18 +292,12 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		layoutParams.setMargins(0, 0, 0, mBtnMarginY);
 
 		mMenuButtonViewOrigin.setLayoutParams(layoutParams);
-		mMenuButtonEvernote.setLayoutParams(layoutParams);
 		mMenuButtonShare.setLayoutParams(layoutParams);
 
 		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, -mViewOriginY, 0);
 		translateAnimation.setDuration(mAnicatinoTime * 3);
 		translateAnimation.setFillEnabled(true);
 		mMenuButtonViewOrigin.startAnimation(translateAnimation);
-
-		TranslateAnimation translateAnimation2 = new TranslateAnimation(0, 0, -mEvernoteY, 0);
-		translateAnimation2.setDuration(mAnicatinoTime * 2);
-		translateAnimation2.setFillEnabled(true);
-		mMenuButtonEvernote.startAnimation(translateAnimation2);
 
 		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, -mShareY, 0);
 		translateAnimation3.setDuration(mAnicatinoTime * 1);
@@ -754,7 +717,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 					}
 					publishProgress(urlStr);
 				} catch (MalformedURLException e) {
-					e.printStackTrace();
+					Loge.e("not an URL");
 				} catch (IOException e) {
 					e.printStackTrace();
 				} finally {
