@@ -238,6 +238,7 @@ public class DataProvider extends ContentProvider {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_NEWS_DATA);
 
 					createTable(db);
 				}
@@ -247,6 +248,7 @@ public class DataProvider extends ContentProvider {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_NEWS_DATA);
 
 					createTable(db);
 				}
