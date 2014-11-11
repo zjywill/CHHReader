@@ -257,14 +257,14 @@ public class DataProvider extends ContentProvider {
 		}
 
 		private void createTable(SQLiteDatabase db) {
-			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
+			String commandTopic = "create table if not exists " + DB_TABLE_TOPIC_DATA //
 					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
 					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
 					+ KEY_TOPIC_PK + " INTEGER, "//
 					+ KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
 					+ KEY_TOPIC_SELECTED + " INTEGER );";
 
-			String commandSubitem = "create table "
+			String commandSubitem = "create table if not exists "
 					+ DB_TABLE_SUBITEM_DATA //
 					+ " (" + KEY_SUBITEM_ID
 					+ " integer primary key autoincrement, " //
@@ -277,7 +277,7 @@ public class DataProvider extends ContentProvider {
 					+ "FOREIGN KEY (" + KEY_SUBITEM_TOPIC_PK + ") REFERENCES " + DB_TABLE_TOPIC_DATA + " ("
 					+ KEY_TOPIC_PK + "));";
 
-			String commandMain = "create table "
+			String commandMain = "create table if not exists "
 					+ DB_TABLE_MAIN_DATA //
 					+ " ("
 					+ KEY_MAIN_ID
@@ -307,7 +307,7 @@ public class DataProvider extends ContentProvider {
 					+ "FOREIGN KEY (" + KEY_MAIN_SUB_PK + ") REFERENCES " + DB_TABLE_SUBITEM_DATA + " ("
 					+ KEY_SUBITEM_PK + "));";
 
-			String commandContent = "create table " + DB_TABLE_CONTENT_DATA //
+			String commandContent = "create table if not exists " + DB_TABLE_CONTENT_DATA //
 					+ " (" + KEY_CONTENT_ID + " integer primary key autoincrement, " //
 					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
 					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
@@ -324,7 +324,7 @@ public class DataProvider extends ContentProvider {
 		}
 
 		private void createNewsTable(SQLiteDatabase db) {
-			String commandNews = "create table " + DB_TABLE_NEWS_DATA//
+			String commandNews = "create table if not exists " + DB_TABLE_NEWS_DATA//
 					+ " (" + KEY_NEWS_ID + " integer primary key autoincrement, " //
 					+ KEY_NEWS_TITLE + " TEXT," + KEY_NEWS_URL + " TEXT, "//
 					+ KEY_NEWS_IMAGE_URL + " TEXT," + KEY_NEWS_DESCRIPTION + " TEXT, "//
