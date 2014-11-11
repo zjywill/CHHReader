@@ -203,6 +203,10 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			if (!Utils.isNetworkAvailable(ContentListFragment.this.getActivity())) {
+				Toast.makeText(ContentListFragment.this.getActivity(), R.string.no_network,
+						Toast.LENGTH_SHORT).show();
+			}
 			updating = true;
 		}
 
@@ -255,7 +259,7 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 							SubItemData itemData = new SubItemData();
 							itemData.mPk = subItemCursor.getInt(subItemCursor
 									.getColumnIndex(DataProvider.KEY_SUBITEM_PK));
-							itemData.mTopic =subItemCursor.getInt(subItemCursor
+							itemData.mTopic = subItemCursor.getInt(subItemCursor
 									.getColumnIndex(DataProvider.KEY_SUBITEM_TOPIC_PK));
 							subItemDatas.add(itemData);
 						} while (subItemCursor.moveToNext());

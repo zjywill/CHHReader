@@ -54,6 +54,8 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 
 	private int mCategory = 0;
 
+	private boolean mFirstLoad = true;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -66,8 +68,6 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 		mMainDataFrgment = new ContentListFragment();
 		transaction.replace(R.id.content_frame, mMainDataFrgment);
 		transaction.commit();
-
-		loadData();
 	}
 
 	private void initDrawer() {
@@ -108,11 +108,22 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 	}
 
+	@Override
+	public void onAttachedToWindow() {
+		if (mFirstLoad) {
+			loadData();
+			mFirstLoad = false;
+		}
+	}
+
 	private void loadData() {
 		getLoaderManager().initLoader(LOADER_ID_LOACL, null, this);
-
 		if (Utils.isWifiAvailable(mContext) && !updating) {
 			new FetchDataTaskNet().execute();
+		} else {
+			if (mMainDataFrgment != null) {
+				mMainDataFrgment.reloadData(mCategory);
+			}
 		}
 	}
 
@@ -218,6 +229,7 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 			super.onPreExecute();
 			updating = true;
 			if (!Utils.isNetworkAvailable(getBaseContext())) {
+				Toast.makeText(MainActivity.this, R.string.no_network, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -269,13 +281,13 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 				}
 
 				for (TopicData topic : topicsData) {
-					Loge.d("TopicData name: "+topic.mName);
+					Loge.d("TopicData name: " + topic.mName);
 					if (topic.mSelected == true) {
 						mCategory = topic.mPk;
 						break;
 					}
 				}
-				
+
 				new Handler(Looper.getMainLooper()).post(new Runnable() {
 					@Override
 					public void run() {
@@ -289,17 +301,17 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 				if (subItemDatas == null) {
 					return "fail";
 				}
-				
-				for(SubItemData sbuitem : subItemDatas){
-					Loge.d("SubItemData name: "+sbuitem.mName);
-					Loge.d("SubItemData topic: "+sbuitem.mTopic);
+
+				for (SubItemData sbuitem : subItemDatas) {
+					Loge.d("SubItemData name: " + sbuitem.mName);
+					Loge.d("SubItemData topic: " + sbuitem.mTopic);
 				}
 
 				ArrayList<ContentData> contentDatas = CHHNetUtils.getContentItemsDate(mContext, 1);
 				if (contentDatas == null) {
 					return "fail";
 				}
-				Loge.d("contentDatas size: "+contentDatas.size());
+				Loge.d("contentDatas size: " + contentDatas.size());
 
 				for (int i = contentDatas.size() - 1; i >= 0; i--) {
 					ContentData contentItem = contentDatas.get(i);
@@ -322,7 +334,6 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 
 		@Override
 		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
 			if (result.equals("success")) {
 				getLoaderManager().restartLoader(LOADER_ID_LOACL, null, MainActivity.this);
 				if (mMainDataFrgment != null) {
