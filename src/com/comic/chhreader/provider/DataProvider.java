@@ -17,7 +17,7 @@ import com.comic.chhreader.Loge;
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1005;
+	private static final int DB_VERSION = 1006;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -77,7 +77,7 @@ public class DataProvider extends ContentProvider {
 	public static final String KEY_CONTENT_IMAGE_SET = "imageset";
 	public static final String KEY_CONTENT_ORIGIN = "origincontent";
 	public static final String KEY_CONTENT_FAVOR = "favorite";
-	
+
 	// Name of table in the database
 	private static final String DB_TABLE_NEWS_DATA = "news";
 
@@ -223,19 +223,25 @@ public class DataProvider extends ContentProvider {
 				}
 				case 1003: {
 					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_ORIGIN, "TEXT");
-					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_FAVOR,
-							"INTEGER NOT NULL DEFAULT 0");
+					addColumn(db, DB_TABLE_CONTENT_DATA, KEY_CONTENT_FAVOR, "INTEGER NOT NULL DEFAULT 0");
 					createNewsTable(db);
 				}
 				case 1004: {
-					addColumn(db, DB_TABLE_MAIN_DATA, KEY_MAIN_FAVOR,
-							"INTEGER NOT NULL DEFAULT 0");
+					addColumn(db, DB_TABLE_MAIN_DATA, KEY_MAIN_FAVOR, "INTEGER NOT NULL DEFAULT 0");
 				}
 				case 1005: {
-					addColumn(db, DB_TABLE_TOPIC_DATA, KEY_TOPIC_SELECTED,
-							"INTEGER NOT NULL DEFAULT 0");
+					addColumn(db, DB_TABLE_TOPIC_DATA, KEY_TOPIC_SELECTED, "INTEGER NOT NULL DEFAULT 0");
 				}
-				break;
+					break;
+				case 1006: {
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
+
+					createTable(db);
+				}
+					break;
 				default: {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
@@ -250,54 +256,71 @@ public class DataProvider extends ContentProvider {
 
 		private void createTable(SQLiteDatabase db) {
 			String commandTopic = "create table " + DB_TABLE_TOPIC_DATA //
-					+  " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
-					+  KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
-					+  KEY_TOPIC_PK+ " INTEGER, "//
-					+  KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
-					+  KEY_TOPIC_SELECTED + " INTEGER );";
+					+ " (" + KEY_TOPIC_ID + " integer primary key autoincrement, " //
+					+ KEY_TOPIC_NAME + " TEXT," + KEY_TOPIC_IMAGE_URL + " TEXT," //
+					+ KEY_TOPIC_PK + " INTEGER, "//
+					+ KEY_TOPIC_IMAGE_TIME_STAMP + " INTEGER, "//
+					+ KEY_TOPIC_SELECTED + " INTEGER );";
 
 			String commandSubitem = "create table "
 					+ DB_TABLE_SUBITEM_DATA //
 					+ " (" + KEY_SUBITEM_ID
 					+ " integer primary key autoincrement, " //
-					+ KEY_SUBITEM_NAME + " TEXT," + KEY_SUBITEM_URL+ " TEXT," //
-					+ KEY_SUBITEM_TOPIC_PK+ " INTEGER,"//
-					+ KEY_SUBITEM_PK+ " INTEGER,"//
+					+ KEY_SUBITEM_NAME + " TEXT," + KEY_SUBITEM_URL
+					+ " TEXT," //
+					+ KEY_SUBITEM_TOPIC_PK
+					+ " INTEGER,"//
+					+ KEY_SUBITEM_PK
+					+ " INTEGER,"//
 					+ "FOREIGN KEY (" + KEY_SUBITEM_TOPIC_PK + ") REFERENCES " + DB_TABLE_TOPIC_DATA + " ("
 					+ KEY_TOPIC_PK + "));";
 
 			String commandMain = "create table "
 					+ DB_TABLE_MAIN_DATA //
-					+ " ("+ KEY_MAIN_ID+ " integer primary key autoincrement, " //
-					+ KEY_MAIN_TITLE + " TEXT,"+ KEY_MAIN_PIC_URL+ " TEXT," //
-					+ KEY_MAIN_TOPIC_PK+ " INTEGER,"//
-					+ KEY_MAIN_SUB_PK + " INTEGER,"+ KEY_MAIN_POSTER+ " TEXT, " //
-					+ KEY_MAIN_CONTENT + " TEXT, "+ KEY_MAIN_URL+ " TEXT, " //
-					+ KEY_MAIN_EXTEND_DATA1 + " TEXT, "+ KEY_MAIN_EXTEND_DATA2+ " TEXT, " //
-					+ KEY_MAIN_VALID + " INTEGER,"+ KEY_MAIN_PUBLISH_DATE+ " INTEGER, "//
-					+ KEY_MAIN_FAVOR + " INTEGER NOT NULL DEFAULT 0, "//
-					+ "FOREIGN KEY (" + KEY_MAIN_TOPIC_PK + ") REFERENCES " + DB_TABLE_TOPIC_DATA + " ("+ KEY_TOPIC_PK+ "),"//
-					+ "FOREIGN KEY (" + KEY_MAIN_SUB_PK + ") REFERENCES " + DB_TABLE_SUBITEM_DATA + " ("+ KEY_SUBITEM_PK + "));";
+					+ " ("
+					+ KEY_MAIN_ID
+					+ " integer primary key autoincrement, " //
+					+ KEY_MAIN_TITLE + " TEXT,"
+					+ KEY_MAIN_PIC_URL
+					+ " TEXT," //
+					+ KEY_MAIN_TOPIC_PK
+					+ " INTEGER,"//
+					+ KEY_MAIN_SUB_PK + " INTEGER,"
+					+ KEY_MAIN_POSTER
+					+ " TEXT, " //
+					+ KEY_MAIN_CONTENT + " TEXT, "
+					+ KEY_MAIN_URL
+					+ " TEXT, " //
+					+ KEY_MAIN_EXTEND_DATA1 + " TEXT, "
+					+ KEY_MAIN_EXTEND_DATA2
+					+ " TEXT, " //
+					+ KEY_MAIN_VALID + " INTEGER,"
+					+ KEY_MAIN_PUBLISH_DATE
+					+ " INTEGER, "//
+					+ KEY_MAIN_FAVOR
+					+ " INTEGER NOT NULL DEFAULT 0, "//
+					+ "FOREIGN KEY (" + KEY_MAIN_TOPIC_PK + ") REFERENCES " + DB_TABLE_TOPIC_DATA + " ("
+					+ KEY_TOPIC_PK
+					+ "),"//
+					+ "FOREIGN KEY (" + KEY_MAIN_SUB_PK + ") REFERENCES " + DB_TABLE_SUBITEM_DATA + " ("
+					+ KEY_SUBITEM_PK + "));";
 
 			String commandContent = "create table " + DB_TABLE_CONTENT_DATA //
 					+ " (" + KEY_CONTENT_ID + " integer primary key autoincrement, " //
 					+ KEY_CONTENT_URL + " TEXT," + KEY_CONTENT_BODY + " TEXT, "//
 					+ KEY_CONTENT_UPLOAD_DATE + " INTEGER,"//
 					+ KEY_CONTENT_IMAGE_SET + " TEXT, "//
-			        + KEY_CONTENT_ORIGIN + " TEXT, "
-			        + KEY_CONTENT_FAVOR + " INTEGER NOT NULL DEFAULT 0 );";
-			
+					+ KEY_CONTENT_ORIGIN + " TEXT, " + KEY_CONTENT_FAVOR + " INTEGER NOT NULL DEFAULT 0 );";
 
 			db.execSQL(commandTopic);
 			db.execSQL(commandSubitem);
 			db.execSQL(commandMain);
 			db.execSQL(commandContent);
-			
-			
+
 			//-------------db version 1003------------------
 			createNewsTable(db);
 		}
-		
+
 		private void createNewsTable(SQLiteDatabase db) {
 			String commandNews = "create table " + DB_TABLE_NEWS_DATA//
 					+ " (" + KEY_NEWS_ID + " integer primary key autoincrement, " //
