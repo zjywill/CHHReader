@@ -5,7 +5,7 @@
         <!-- API 21 theme customizations can go here. -->
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:colorPrimary">@color/red_500</item>
-        <item name="android:colorPrimaryDark">@color/red_900</item>
+        <item name="android:colorPrimaryDark">@color/red_700</item>
         <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 
