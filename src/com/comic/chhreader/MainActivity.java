@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -24,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.comic.chhreader.clean.CleanService;
 import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.data.SubItemData;
 import com.comic.chhreader.data.TopicData;
@@ -61,6 +63,10 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		setContentView(R.layout.activity_main);
+
+		Intent cleanService = new Intent();
+		cleanService.setClass(MainActivity.this, CleanService.class);
+		startService(cleanService);
 
 		initDrawer();
 

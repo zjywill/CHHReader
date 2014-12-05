@@ -40,6 +40,11 @@
             android:name="com.evernote.client.android.EvernoteOAuthActivity"
             android:configChanges="orientation|keyboardHidden" />
 
+        <service
+            android:name="com.comic.chhreader.clean.CleanService"
+            android:label="@string/app_name" >
+        </service>
+
         <provider
             android:name="com.comic.chhreader.provider.DataProvider"
             android:authorities="com.comic.chhreader"

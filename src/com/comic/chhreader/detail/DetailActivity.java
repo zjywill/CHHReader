@@ -177,8 +177,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		if (actionbar != null) {
 			actionbar.setDisplayHomeAsUpEnabled(true);
 			actionbar.setTitle(mMainTitle);
-			actionbar.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg));
-			actionbar.setSplitBackgroundDrawable(this.getResources().getDrawable(R.drawable.actionbar_bg));
 		}
 	}
 
