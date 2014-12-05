@@ -23,7 +23,8 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	public static final String Js2JavaInterfaceName = "JsUseJava";
 	public static final String IMAGE_BREAK_TAG = "&00000&";
-	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/ChhReader/Cache/SUB/";
+	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
+			+ "/ChhReader/Cache/SUB/";
 
 	private String mUrl;
 	private String mThreadId;
@@ -58,7 +59,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		result = "<html>"+result + body+"</html>";
+		result = "<html>" + result + body + "</html>";
 
 		Document doc = null;
 		imgUrls.clear();
@@ -87,7 +88,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 		htmlText = htmlText.replaceAll("1a1a1a", "888888");
 		body = body.replaceAll("b8b7b7", "ffffff");
 		htmlText = htmlText.replaceAll("b8b7b7", "ffffff");
-		
+
 		DataBaseUtils.updateContentData(mContext, mUrl, htmlText, imageSetBuilder.toString(), body);
 
 		return htmlText;
@@ -111,9 +112,9 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 	}
 
 	private void handleImageClickEvent(Document doc) {
-
 		Elements es = doc.getElementsByTag("img");
 
+		int i = 0;
 		for (Element e : es) {
 			String imgUrl = e.attr("src");
 			imgUrls.add(imgUrl);
@@ -123,12 +124,13 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 			if (imgName.endsWith(".gif")) {
 				e.remove();
 			} else {
-				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + imgName;
+				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + String.valueOf(i);
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);
 				String str = "window." + Js2JavaInterfaceName + ".setImgSrc('" + imgUrl + "')";
 				e.attr("onclick", str);
+				i++;
 			}
 		}
 	}

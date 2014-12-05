@@ -658,6 +658,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 				dir.mkdirs();
 			}
 
+			int i = 0;
 			for (String urlStr : params) {
 				if (mDestroyed) {
 					Loge.d("DownloadWebImgTask Destroyed stop loading AAA");
@@ -667,10 +668,9 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 					if (urlStr == null) {
 						break;
 					}
-					int index = urlStr.lastIndexOf("/");
-					String fileName = urlStr.substring(index + 1, urlStr.length());
 
-					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + fileName);
+					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/"
+							+ String.valueOf(i));
 
 					if (file.exists() && file.length() != 0) {
 						publishProgress(urlStr);
@@ -732,6 +732,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 						e.printStackTrace();
 					}
 				}
+				i++;
 			}
 
 			return null;
