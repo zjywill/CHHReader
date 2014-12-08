@@ -20,7 +20,7 @@ import com.comic.chhreader.utils.Utils;
 
 public class CleanService extends Service {
 
-	private static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath()
+	public static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath()
 			+ "/ChhReader/Cache";
 	private static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
 			+ "/ChhReader/Cache/SUB";

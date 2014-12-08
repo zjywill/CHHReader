@@ -1,5 +1,7 @@
 package com.comic.chhreader.provider;
 
+import java.io.File;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,14 +12,17 @@ import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.FileObserver;
 import android.text.TextUtils;
 
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.clean.CleanService;
+import com.comic.chhreader.utils.FileOperation;
 
 public class DataProvider extends ContentProvider {
 
 	private static final String DB_NAME = "chhdatadb.db";
-	private static final int DB_VERSION = 1006;
+	private static final int DB_VERSION = 1007;
 	public static final String DB_AUTHOR = "com.comic.chhreader";
 	private DBHelper mOpenHelper;
 
@@ -243,13 +248,31 @@ public class DataProvider extends ContentProvider {
 					createTable(db);
 				}
 					break;
-				default: {
+				case 1007: {
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
 					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_NEWS_DATA);
 
+					createTable(db);
+					
+					new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							File newFile = new File(CleanService.IMAGE_CACHE_FOLDER);
+							FileOperation.deleteDirectory(newFile);
+						}
+					}).start();
+				}
+					break;
+				default: {
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_TOPIC_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_SUBITEM_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_MAIN_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_CONTENT_DATA);
+					db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_NEWS_DATA);
 					createTable(db);
 				}
 					break;

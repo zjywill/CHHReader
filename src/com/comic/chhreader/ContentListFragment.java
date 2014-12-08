@@ -2,6 +2,7 @@ package com.comic.chhreader;
 
 import java.util.ArrayList;
 
+import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -112,7 +113,12 @@ public class ContentListFragment extends SwipeRefreshListFragment implements Loa
 
 	public void reloadData(int category) {
 		mCategory = category;
-		getLoaderManager().restartLoader(LOADER_ID_LOACL, null, ContentListFragment.this);
+		if (getActivity() != null) {
+			android.support.v4.app.LoaderManager lm = getLoaderManager();
+			if (lm != null) {
+				lm.restartLoader(LOADER_ID_LOACL, null, ContentListFragment.this);
+			}
+		}
 	}
 
 	@Override
