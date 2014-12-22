@@ -7,6 +7,7 @@ import java.util.Date;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Environment;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,9 @@ import com.comic.chhreader.data.ContentData;
 import com.comic.chhreader.image.PhotoView;
 
 public class ContentAdapter extends SimpleCursorAdapter {
+
+	public static final String IMAGE_PATH = Environment.getExternalStorageDirectory().getPath()
+			+ "/ChhReader/Cache";
 
 	static class ViewHolder {
 		PhotoView icon;
@@ -87,7 +91,7 @@ public class ContentAdapter extends SimpleCursorAdapter {
 			if (data.mImageUrl != null) {
 				try {
 					URL localURL = new URL(data.mImageUrl);
-					holder.icon.setImageURL(localURL, true, true, !mNoImage, null);
+					holder.icon.setImageURL(localURL.toString(), IMAGE_PATH);
 					holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
 				} catch (MalformedURLException localMalformedURLException) {
 					localMalformedURLException.printStackTrace();
@@ -104,9 +108,9 @@ public class ContentAdapter extends SimpleCursorAdapter {
 				holder.section.setVisibility(View.GONE);
 			} else {
 				holder.section.setVisibility(View.VISIBLE);
-				if(position == 0){
+				if (position == 0) {
 					holder.section_text.setText("最新");
-				}else{
+				} else {
 					holder.section_text.setText(DateUtils.formatDateTime(mContext, data.mPostDate * 1000,
 							DateUtils.FORMAT_24HOUR));
 				}
