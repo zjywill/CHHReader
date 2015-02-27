@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class Loge {
 	private static final String LOG_TAG = "CHHReader";
-	public static final boolean LOG_STATUS = true;
+	public static final boolean LOG_STATUS = false;
 	private static String tag = "CHHReader";
 
 	private static Loge l = new Loge();

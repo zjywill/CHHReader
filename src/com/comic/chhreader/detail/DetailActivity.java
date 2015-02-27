@@ -1,5 +1,6 @@
 package com.comic.chhreader.detail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +21,8 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -668,7 +671,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 					}
 
 					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/"
-							+ String.valueOf(i));
+							+ String.valueOf(i) + ".jpg");
 
 					if (file.exists() && file.length() != 0) {
 						publishProgress(urlStr);
@@ -685,33 +688,26 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 						e.printStackTrace();
 					}
 
+					Loge.d("Detaila image loader download the image: " + url);
+
 					url = new URL(urlStr);
-					urlCon = (HttpURLConnection) url.openConnection();
-					urlCon.setRequestMethod("GET");
-					urlCon.setRequestProperty("Accept-Encoding", "identity");
-					urlCon.setReadTimeout(5000);
-					urlCon.setDoInput(true);
-					urlCon.connect();
 
-					int contentSize = urlCon.getContentLength();
+					InputStream stream = null;
+					stream = url.openStream();
+					Bitmap targetBitmap = BitmapFactory.decodeStream(stream);
 
-					inputStream = urlCon.getInputStream();
-					outputStream = new FileOutputStream(file);
-					byte buffer[] = new byte[100];
-					int bufferLength = 0;
-					while ((bufferLength = inputStream.read(buffer)) > 0 && !mDestroyed) {
-						outputStream.write(buffer, 0, bufferLength);
-					}
-					outputStream.flush();
-
-					if (file.length() < contentSize || file.length() == 0) {
-						file.delete();
-					}
+					FileOutputStream fos = new FileOutputStream(file);
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					targetBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+					fos.write(baos.toByteArray());
+					baos.flush();
+					fos.flush();
+					baos.close();
+					fos.close();
 
 					if (mDestroyed) {
 						Loge.d("DownloadWebImgTask Destroyed stop loading BBB");
 						file.delete();
-						urlCon.disconnect();
 					}
 					publishProgress(urlStr);
 				} catch (MalformedURLException e) {

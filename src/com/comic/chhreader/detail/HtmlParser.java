@@ -24,7 +24,7 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 	public static final String Js2JavaInterfaceName = "JsUseJava";
 	public static final String IMAGE_BREAK_TAG = "&00000&";
 	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache/SUB/";
+			+ "/Android/data/com.comic.chhreader/Images/Sub/";
 
 	private String mUrl;
 	private String mThreadId;
@@ -122,16 +122,18 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 			File file = new File(imgUrl);
 			imgName = file.getName();
 			if (imgName.endsWith(".gif")) {
-				e.remove();
+				e.attr("src", imgUrl);
+				e.attr("src_link", imgUrl);
+				e.attr("ori_link", imgUrl);
 			} else {
-				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + String.valueOf(i);
+				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + String.valueOf(i)+".jpg";
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);
 				String str = "window." + Js2JavaInterfaceName + ".setImgSrc('" + imgUrl + "')";
 				e.attr("onclick", str);
-				i++;
 			}
+			i++;
 		}
 	}
 

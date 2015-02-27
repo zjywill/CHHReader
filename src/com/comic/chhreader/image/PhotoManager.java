@@ -16,7 +16,7 @@ public class PhotoManager {
 
 	// Sets the image cache folder in external storage, default image downloading path
 	public static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/Imageloader/Images";
+			+ "/Android/data/com.comic.chhreader/Images/ImageLoader";
 	/*
 	 * Status indicators
 	 */
