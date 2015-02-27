@@ -22,7 +22,7 @@ import com.comic.chhreader.image.PhotoView;
 public class ContentAdapter extends SimpleCursorAdapter {
 
 	public static final String IMAGE_PATH = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache";
+			+ "/Android/data/com.comic.chhreader/Images/ImageLoader";
 
 	static class ViewHolder {
 		PhotoView icon;

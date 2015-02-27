@@ -11,19 +11,18 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.IBinder;
 
+import com.comic.chhreader.ContentAdapter;
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.detail.HtmlParser;
 import com.comic.chhreader.utils.FileOperation;
 import com.comic.chhreader.utils.Utils;
 
 public class CleanService extends Service {
 
-	public static final String IMAGE_CACHE_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache";
-	private static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/ChhReader/Cache/SUB";
+	public static final String IMAGE_CACHE_FOLDER = ContentAdapter.IMAGE_PATH;
+	private static final String IMAGE_CACHE_SUB_FOLDER = HtmlParser.IMAGE_CACHE_SUB_FOLDER;
 
 	private Context mCtx;
 

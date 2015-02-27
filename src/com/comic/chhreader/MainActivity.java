@@ -1,5 +1,6 @@
 package com.comic.chhreader;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.LoaderManager.LoaderCallbacks;
@@ -247,6 +248,12 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 				ArrayList<SubItemData> subItemDatas = null;
 
 				boolean fetchNetData = true;
+
+				File photoPath = new File(ContentAdapter.IMAGE_PATH);
+				
+				if(!photoPath.exists()){
+					photoPath.mkdirs();
+				}
 
 				if (DataBaseUtils.isTopicDataExist(mContext)) {
 					fetchNetData = false;
