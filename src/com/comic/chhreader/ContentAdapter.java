@@ -1,10 +1,5 @@
 package com.comic.chhreader;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
@@ -16,8 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.comic.chhreader.data.ContentData;
-import com.comic.chhreader.image.PhotoView;
+import com.comic.chhreader.imageloader.ImageCacheManager;
 
 public class ContentAdapter extends SimpleCursorAdapter {
 
@@ -25,7 +21,7 @@ public class ContentAdapter extends SimpleCursorAdapter {
 			+ "/Android/data/com.comic.chhreader/Images/ImageLoader";
 
 	static class ViewHolder {
-		PhotoView icon;
+		NetworkImageView icon;
 		TextView title;
 		TextView subcontent;
 		LinearLayout section;
@@ -64,7 +60,7 @@ public class ContentAdapter extends SimpleCursorAdapter {
 		if (convertView == null) {
 			convertView = mInflater.inflate(R.layout.content_list_item, null);
 			holder = new ViewHolder();
-			holder.icon = (PhotoView) convertView.findViewById(R.id.content_ori_image);
+			holder.icon = (NetworkImageView) convertView.findViewById(R.id.content_ori_image);
 			holder.title = (TextView) convertView.findViewById(R.id.content_title_text);
 			holder.subcontent = (TextView) convertView.findViewById(R.id.content_subcontent_text);
 			holder.section = (LinearLayout) convertView.findViewById(R.id.list_section);
@@ -89,13 +85,7 @@ public class ContentAdapter extends SimpleCursorAdapter {
 			holder.subcontent.setText(data.mContent);
 
 			if (data.mImageUrl != null) {
-				try {
-					URL localURL = new URL(data.mImageUrl);
-					holder.icon.setImageURL(localURL.toString(), IMAGE_PATH);
-					holder.icon.setCustomDownloadingImage(R.drawable.gray_image_downloading);
-				} catch (MalformedURLException localMalformedURLException) {
-					localMalformedURLException.printStackTrace();
-				}
+				holder.icon.setImageUrl(data.mImageUrl, ImageCacheManager.getInstance().getImageLoader());
 			}
 
 			long prevDate = 0;

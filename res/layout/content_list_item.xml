@@ -67,7 +67,7 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <com.comic.chhreader.image.PhotoView
+        <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/content_ori_image"
             android:layout_width="0dp"
             android:layout_height="match_parent"
