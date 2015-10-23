@@ -1,5 +1,7 @@
 package com.comic.chhreader.imageloader;
 
+import java.io.File;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -45,6 +47,8 @@ public class ImageCacheManager {
 	 */
 	private ImageCache mImageCache;
 
+	private CacheType mType;
+
 	/**
 	 * @return instance of the cache manager
 	 */
@@ -70,6 +74,7 @@ public class ImageCacheManager {
 	 */
 	public void init(Context context, String uniqueName, int cacheSize, CompressFormat compressFormat,
 			int quality, CacheType type) {
+		mType = type;
 		switch (type) {
 			case DISK:
 				mImageCache = new DiskLruImageCache(context, uniqueName, cacheSize, compressFormat, quality);
@@ -127,7 +132,19 @@ public class ImageCacheManager {
 	 * @return cache key value
 	 */
 	private String createKey(String url) {
-		return String.valueOf(url.hashCode());
+		String newKey = ImageUtils.getPhotoName(url);
+		return newKey.replaceAll("[^a-z0-9_-]", "");
+	}
+
+	public File getCacheFolder() {
+		try {
+			if (mImageCache instanceof DiskLruImageCache) {
+				return ((DiskLruImageCache) mImageCache).getCacheFolder();
+			}
+			return null;
+		} catch (NullPointerException e) {
+			throw new IllegalStateException("Disk Cache Not initialized");
+		}
 	}
 
 }

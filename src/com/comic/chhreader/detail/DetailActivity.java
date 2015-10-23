@@ -1,14 +1,5 @@
 package com.comic.chhreader.detail;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,55 +12,35 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.TranslateAnimation;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.comic.chhreader.Loge;
 import com.comic.chhreader.R;
 import com.comic.chhreader.data.ContentDataDetail;
-import com.comic.chhreader.evernoteshare.ShareToEvernote;
+import com.comic.chhreader.imageloader.ImageCacheManager;
 import com.comic.chhreader.utils.DataBaseUtils;
-import com.comic.chhreader.utils.FileOperation;
 import com.comic.chhreader.utils.SharedPreferencesUtils;
 import com.comic.chhreader.utils.Utils;
-import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.OnClientCallback;
-import com.evernote.edam.type.Note;
 
-public class DetailActivity extends Activity implements View.OnClickListener {
-	private static final int ID_MENU_BTN = 0;
-	private static final int ID_MENU_BTN_VIEW_ORIGIN = 1;
-	private static final int ID_MENU_BTN_EVERNOTE = 3;
-	private static final int ID_MENU_BTN_SHARE = 4;
+public class DetailActivity extends Activity {
 	private final int DIALOG_PROGRESS = 101;
 
 	private CustomWebView mCustomWebView;
 	private ProgressBar mWebProgress;
 	private View mLoadingView;
-	private ImageButton mMenuButton;
-
-	private ImageButton mMenuButtonViewOrigin;
-	private ImageButton mMenuButtonShare;
 
 	private String mMainTitle;
 	private String mMainUrl;
@@ -83,35 +54,21 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 	private HtmlParser mParser;
 
 	private boolean mLoadNewsUrl = false;
-	private boolean mDestroyed = false;
 	private boolean mPaused = false;
 	private boolean mNoImage = false;
 	private boolean mFavor = false;
 
 	private MenuItem mFavorMenuItem;
 
-	private boolean mSign = false;
-
 	public List<String> mImgUrls = new ArrayList<String>();
 
-	private int mViewOriginY, mFavorY, mEvernoteY, mShareY, mBtnMarginY, mBtnSize;
-
-	private int mAnicatinoTime = 100;
-
-	private OnClientCallback<Note> mNoteCreateCallback = new OnClientCallback<Note>() {
-		@Override
-		public void onSuccess(Note note) {
-			Toast.makeText(getApplicationContext(), R.string.note_saved, Toast.LENGTH_LONG).show();
-			removeDialog(DIALOG_PROGRESS);
-		}
-
-		@Override
-		public void onException(Exception exception) {
-			Toast.makeText(getApplicationContext(), R.string.note_saved, Toast.LENGTH_LONG).show();
-			Loge.e("NoteCreateCallback onException: " + exception.getMessage());
-			removeDialog(DIALOG_PROGRESS);
-		}
-	};
+	//	private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+	//	private static final int CORE_POOL_SIZE = 8;
+	//	private static final int MAXIMUM_POOL_SIZE = 8;
+	//	private static final TimeUnit KEEP_ALIVE_TIME_UNIT;
+	//
+	//	public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(CORE_POOL_SIZE,
+	//			MAXIMUM_POOL_SIZE, TimeUnit.SECONDS, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,11 +83,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		Loge.d("MainUrl: " + mMainUrl);
 		Loge.d("is News: " + mLoadNewsUrl);
 
-		mViewOriginY = this.getResources().getDimensionPixelSize(R.dimen.evernote_offsety);
-		mShareY = this.getResources().getDimensionPixelSize(R.dimen.share_offsety);
-		mBtnMarginY = this.getResources().getDimensionPixelSize(R.dimen.btn_margin);
-		mBtnSize = this.getResources().getDimensionPixelSize(R.dimen.btn_size);
-
 		setContentView(R.layout.detail_activity);
 
 		initViews();
@@ -144,18 +96,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		mCustomWebView = (CustomWebView) findViewById(R.id.content);
 		mWebProgress = (ProgressBar) findViewById(R.id.web_progress);
 		mLoadingView = (View) findViewById(R.id.web_empty_view);
-
-		mMenuButton = (ImageButton) findViewById(R.id.detail_menu_button);
-		mMenuButton.setId(ID_MENU_BTN);
-		mMenuButton.setOnClickListener(this);
-
-		mMenuButtonViewOrigin = (ImageButton) findViewById(R.id.detail_menu_view_origin);
-		mMenuButtonViewOrigin.setId(ID_MENU_BTN_VIEW_ORIGIN);
-		mMenuButtonViewOrigin.setOnClickListener(this);
-
-		mMenuButtonShare = (ImageButton) findViewById(R.id.detail_menu_share);
-		mMenuButtonShare.setId(ID_MENU_BTN_SHARE);
-		mMenuButtonShare.setOnClickListener(this);
 
 		mCustomWebView.setWebChromeClient(new DetailWebChromeClient());
 		mCustomWebView.setWebViewClient(new DetailWebViewClient());
@@ -183,129 +123,29 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
-	@Override
-	public void onClick(View v) {
-		int id = v.getId();
-		switch (id) {
-			case ID_MENU_BTN: {
-				showRotateAnimation();
-			}
-				break;
-			case ID_MENU_BTN_VIEW_ORIGIN: {
-				Uri uri = Uri.parse(mMainUrl);
-				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(viewIntent);
-			}
-				break;
-			case ID_MENU_BTN_EVERNOTE: {
-				if (!ShareToEvernote.getInstance(this).isLoggedIn()) {
-					Loge.d("App not Logged In");
-					ShareToEvernote.getInstance(this).authenticate();
-				} else {
-					Loge.i("App Logged In");
-					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-						saveToEvernote();
-					}
-				}
-			}
-				break;
-			case ID_MENU_BTN_SHARE: {
-				shareText(mMainTitle + "    " + mMainUrl);
-			}
-				break;
-			default:
-				break;
-		}
-	}
-
-	public void showRotateAnimation() {
-		final float centerX = mMenuButton.getWidth() / 2.0f;
-		final float centerY = mMenuButton.getHeight() / 2.0f;
-		RotateAnimation rotateAnimation = null;
-		if (!mSign) {
-			rotateAnimation = new RotateAnimation(0, 405, centerX, centerY);
-			outAnimation();
-		} else {
-			rotateAnimation = new RotateAnimation(405, 0, centerX, centerY);
-			inAnimation();
-		}
-		rotateAnimation.setDuration(mAnicatinoTime * 4);
-		rotateAnimation.setFillAfter(true);
-		mMenuButton.startAnimation(rotateAnimation);
-		mSign = !mSign;
-	}
-
-	public void outAnimation() {
-		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, -mViewOriginY);
-		translateAnimation.setInterpolator(new DecelerateInterpolator());
-		translateAnimation.setDuration(mAnicatinoTime * 3);
-		translateAnimation.setFillEnabled(true);
-		translateAnimation.setAnimationListener(new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
-				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-				layoutParams.setMargins(0, 0, 0, mViewOriginY);
-				mMenuButtonViewOrigin.setLayoutParams(layoutParams);
-			}
-		});
-		mMenuButtonViewOrigin.startAnimation(translateAnimation);
-
-		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, 0, -mShareY);
-		translateAnimation3.setInterpolator(new DecelerateInterpolator());
-		translateAnimation3.setDuration(mAnicatinoTime * 1);
-		translateAnimation3.setFillEnabled(true);
-		translateAnimation3.setAnimationListener(new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
-				layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-				layoutParams.setMargins(0, 0, 0, mShareY);
-				mMenuButtonShare.setLayoutParams(layoutParams);
-			}
-		});
-		mMenuButtonShare.startAnimation(translateAnimation3);
-	}
-
-	public void inAnimation() {
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mBtnSize, mBtnSize);
-		layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-		layoutParams.setMargins(0, 0, 0, mBtnMarginY);
-
-		mMenuButtonViewOrigin.setLayoutParams(layoutParams);
-		mMenuButtonShare.setLayoutParams(layoutParams);
-
-		TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, -mViewOriginY, 0);
-		translateAnimation.setDuration(mAnicatinoTime * 3);
-		translateAnimation.setFillEnabled(true);
-		mMenuButtonViewOrigin.startAnimation(translateAnimation);
-
-		TranslateAnimation translateAnimation3 = new TranslateAnimation(0, 0, -mShareY, 0);
-		translateAnimation3.setDuration(mAnicatinoTime * 1);
-		translateAnimation3.setFillEnabled(true);
-		mMenuButtonShare.startAnimation(translateAnimation3);
-
-	}
+	//
+	//	@Override
+	//	public void onClick(View v) {
+	//		int id = v.getId();
+	//		switch (id) {
+	//			case ID_MENU_BTN: {
+	//				showRotateAnimation();
+	//			}
+	//				break;
+	//			case ID_MENU_BTN_VIEW_ORIGIN: {
+	//				Uri uri = Uri.parse(mMainUrl);
+	//				Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
+	//				startActivity(viewIntent);
+	//			}
+	//				break;
+	//			case ID_MENU_BTN_SHARE: {
+	//				shareText(mMainTitle + "    " + mMainUrl);
+	//			}
+	//				break;
+	//			default:
+	//				break;
+	//		}
+	//	}
 
 	private void setShareIntent() {
 		if (mMainUrl == null || mMainUrl.isEmpty()) {
@@ -373,53 +213,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		switch (requestCode) {
-			case EvernoteSession.REQUEST_CODE_OAUTH:
-				if (resultCode == Activity.RESULT_OK) {
-					Loge.i("App Logged In Success");
-					if (!ShareToEvernote.getInstance(this).isAppLinkedNotebook()) {
-						saveToEvernote();
-					}
-				}
-				break;
-		}
-	}
-
-	private void saveToEvernote() {
-		if ((mMainContent != null && !mMainContent.isEmpty()) || mLoadNewsUrl) {
-			showDialog(DIALOG_PROGRESS);
-			String content = "";
-			if (!mLoadNewsUrl) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						String content = DataBaseUtils.getContentOriginData(mContext, mMainUrl);
-						content = content.replaceAll("b8b8b8", "000000");
-						content = content.replaceAll("1a1a1a", "888888");
-						content = content.replaceAll("b8b7b7", "ffffff");
-						content = content.replaceAll("<body bgcolor=\"#2a2a2a\">", "");
-						content = content.replaceAll("</body>", "");
-						content = content.replaceAll("<font",
-								"<font style=\"word-break:break-all;word-wrap:break-word;\"");
-						content = content.replaceAll("class=\"img-responsive\"",
-								"style=\"display:block;height:auto;max-width:100%;\"");
-						ShareToEvernote.getInstance(mContext).shareNote(mContext, mMainTitle, mMainUrl,
-								content, mNoteCreateCallback);
-
-					}
-				}).start();
-			} else {
-				content = "";
-				ShareToEvernote.getInstance(this).shareNote(this, mMainTitle, mMainUrl, content,
-						mNoteCreateCallback);
-			}
-
-		}
-	}
-
-	@Override
 	protected void onResume() {
 		mPaused = false;
 		if (SharedPreferencesUtils.getNoImageMode(mContext) && !Utils.isWifiAvailable(mContext)) {
@@ -445,9 +238,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onDestroy() {
-		mDestroyed = true;
 		super.onDestroy();
-
 	}
 
 	@Override
@@ -480,30 +271,6 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 				doImageDownload();
 			}
 		}
-	}
-
-	private void doImageDownload() {
-		if (mNoImage) {
-			mCustomWebView.loadUrl("javascript:(function(){"
-					+ "var objs = document.getElementsByTagName(\"img\"); "
-					+ "for(var i=0;i<objs.length;i++)  " + "{"
-					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
-			return;
-		}
-		DownloadWebImgTask downloadTask = new DownloadWebImgTask();
-		if (mImgUrls.isEmpty()) {
-			if (mParser != null) {
-				mImgUrls.addAll(mParser.getImgUrls());
-			}
-		}
-		if (mImgUrls.isEmpty()) {
-			return;
-		}
-		String urlStrArray[] = new String[mImgUrls.size() + 1];
-		mImgUrls.toArray(urlStrArray);
-
-		downloadTask.execute(urlStrArray);
 	}
 
 	private class DetailWebChromeClient extends WebChromeClient {
@@ -620,117 +387,85 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
-	public class DownloadWebImgTask extends AsyncTask<String, String, Void> {
-		@Override
-		protected void onProgressUpdate(String... values) {
-			super.onProgressUpdate(values);
-			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){"
-						+ "var objs = document.getElementsByTagName(\"img\"); "
-						+ "for(var i=0;i<objs.length;i++)  " + "{"
-						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-						+ "    var imgOriSrc = objs[i].getAttribute(\"ori_link\"); " + " if(imgOriSrc == \""
-						+ values[0] + "\"){ " + "    objs[i].setAttribute(\"src\",imgSrc);}" + "}" + "})()");
+	private void doImageDownload() {
+		if (mNoImage) {
+			mCustomWebView.loadUrl("javascript:(function(){"
+					+ "var objs = document.getElementsByTagName(\"img\"); "
+					+ "for(var i=0;i<objs.length;i++)  " + "{"
+					+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+					+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+			return;
+		}
+		if (mImgUrls.isEmpty()) {
+			if (mParser != null) {
+				mImgUrls.addAll(mParser.getImgUrls());
+			}
+		}
+		if (mImgUrls.isEmpty()) {
+			return;
+		}
+		String urlStrArray[] = new String[mImgUrls.size() + 1];
+		mImgUrls.toArray(urlStrArray);
+
+		for (String urlStr : urlStrArray) {
+			if (urlStr == null) {
+				break;
+			}
+			new DownloadWebImgTask(urlStr).execute();
+		}
+	}
+
+	public class DownloadWebImgTask extends AsyncTask<Void, Void, String> {
+
+		private String mUrl;
+
+		public DownloadWebImgTask(String url) {
+			mUrl = url;
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
-			if (mCustomWebView != null && !mPaused)
-				mCustomWebView.loadUrl("javascript:(function(){"
-						+ "var objs = document.getElementsByTagName(\"img\"); "
-						+ "for(var i=0;i<objs.length;i++)  " + "{"
-						+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
-						+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
-			URL url = null;
-			InputStream inputStream = null;
-			OutputStream outputStream = null;
-			HttpURLConnection urlCon = null;
-
-			if (params.length == 0)
-				return null;
-
-			File dir = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/");
-			if (!dir.exists()) {
-				dir.mkdirs();
+		protected String doInBackground(Void... params) {
+			if (ImageCacheManager.getInstance().getBitmap(mUrl) != null) {
+				return "cached";
 			}
-
-			int i = 0;
-			for (String urlStr : params) {
-				if (mDestroyed) {
-					Loge.d("DownloadWebImgTask Destroyed stop loading AAA");
-					return null;
-				}
-				try {
-					if (urlStr == null) {
-						break;
-					}
-
-					File file = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/"
-							+ String.valueOf(i) + ".jpg");
-
-					if (file.exists() && file.length() != 0) {
-						publishProgress(urlStr);
-						continue;
-					}
-
-					if (file.length() == 0) {
-						file.delete();
-					}
-
-					try {
-						file.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					Loge.d("Detaila image loader download the image: " + url);
-
-					url = new URL(urlStr);
-
-					InputStream stream = null;
-					stream = url.openStream();
-					Bitmap targetBitmap = BitmapFactory.decodeStream(stream);
-
-					FileOutputStream fos = new FileOutputStream(file);
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					targetBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-					fos.write(baos.toByteArray());
-					baos.flush();
-					fos.flush();
-					baos.close();
-					fos.close();
-
-					if (mDestroyed) {
-						Loge.d("DownloadWebImgTask Destroyed stop loading BBB");
-						file.delete();
-					}
-					publishProgress(urlStr);
-				} catch (MalformedURLException e) {
-					Loge.e("not an URL");
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					try {
-						if (inputStream != null) {
-							inputStream.close();
-						}
-						if (outputStream != null) {
-							outputStream.close();
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				i++;
-			}
-
 			return null;
 		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			if (result == null) {
+				ImageCacheManager.getInstance().getImage(mUrl, new ImageListener() {
+					@Override
+					public void onErrorResponse(VolleyError arg0) {
+						Loge.d("DetailActivity onErrorResponse");
+					}
+
+					@Override
+					public void onResponse(ImageContainer arg0, boolean arg1) {
+						if (mCustomWebView != null && !mPaused) {
+							Loge.d("DetailActivity onResponse url: " + arg0.getRequestUrl());
+							if (mCustomWebView != null && !mPaused) {
+								mCustomWebView.loadUrl("javascript:(function(){"
+										+ "var objs = document.getElementsByTagName(\"img\"); "
+										+ "for(var i=0;i<objs.length;i++)  " + "{"
+										+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+										+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+							}
+						}
+
+					}
+				});
+			} else {
+				if (mCustomWebView != null && !mPaused) {
+					mCustomWebView.loadUrl("javascript:(function(){"
+							+ "var objs = document.getElementsByTagName(\"img\"); "
+							+ "for(var i=0;i<objs.length;i++)  " + "{"
+							+ "    var imgSrc = objs[i].getAttribute(\"src_link\"); "
+							+ "    objs[i].setAttribute(\"src\",imgSrc);" + "}" + "})()");
+				}
+			}
+		}
+
 	}
 
 	private class DeleteLocalPhotoTask extends AsyncTask<Void, Void, Void> {
@@ -738,10 +473,10 @@ public class DetailActivity extends Activity implements View.OnClickListener {
 		@Override
 		protected Void doInBackground(Void... params) {
 			if (mThreadId != null && mThreadId.length() > 0) {
-				File dir = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/");
-				if (dir.exists()) {
-					FileOperation.deleteDirectory(dir);
-				}
+				//				File dir = new File(HtmlParser.IMAGE_CACHE_SUB_FOLDER + mThreadId + "/");
+				//				if (dir.exists()) {
+				//					FileOperation.deleteDirectory(dir);
+				//				}
 			}
 			return null;
 		}

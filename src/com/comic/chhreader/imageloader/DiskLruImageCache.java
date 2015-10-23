@@ -64,39 +64,42 @@ public class DiskLruImageCache implements ImageCache {
 	}
 
 	@Override
-	public void putBitmap(String key, Bitmap data) {
-
-		DiskLruCache.Editor editor = null;
-		try {
-			editor = mDiskCache.edit(key);
-			if (editor == null) {
-				return;
-			}
-
-			if (writeBitmapToFile(data, editor)) {
-				mDiskCache.flush();
-				editor.commit();
-				if (BuildConfig.DEBUG) {
-					Log.d("cache_test_DISK_", "image put on disk cache " + key);
+	public void putBitmap(final String key, final Bitmap data) {
+		final String renameKey = renameKey(key);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				DiskLruCache.Editor editor = null;
+				try {
+					editor = mDiskCache.edit(renameKey);
+					if (editor == null) {
+						return;
+					}
+					if (writeBitmapToFile(data, editor)) {
+						mDiskCache.flush();
+						editor.commit();
+						if (BuildConfig.DEBUG) {
+							Log.d("cache_test_DISK_", "image put on disk cache " + renameKey);
+						}
+					} else {
+						editor.abort();
+						if (BuildConfig.DEBUG) {
+							Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + renameKey);
+						}
+					}
+				} catch (IOException e) {
+					if (BuildConfig.DEBUG) {
+						Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + renameKey);
+					}
+					try {
+						if (editor != null) {
+							editor.abort();
+						}
+					} catch (IOException ignored) {
+					}
 				}
-			} else {
-				editor.abort();
-				if (BuildConfig.DEBUG) {
-					Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
-				}
 			}
-		} catch (IOException e) {
-			if (BuildConfig.DEBUG) {
-				Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
-			}
-			try {
-				if (editor != null) {
-					editor.abort();
-				}
-			} catch (IOException ignored) {
-			}
-		}
-
+		}).start();
 	}
 
 	@Override
@@ -104,9 +107,10 @@ public class DiskLruImageCache implements ImageCache {
 
 		Bitmap bitmap = null;
 		DiskLruCache.Snapshot snapshot = null;
+		String renameKey = renameKey(key);
 		try {
 
-			snapshot = mDiskCache.get(key);
+			snapshot = mDiskCache.get(renameKey);
 			if (snapshot == null) {
 				return null;
 			}
@@ -128,15 +132,15 @@ public class DiskLruImageCache implements ImageCache {
 		}
 
 		return bitmap;
-
 	}
 
 	public boolean containsKey(String key) {
 
 		boolean contained = false;
 		DiskLruCache.Snapshot snapshot = null;
+		String renameKey = renameKey(key);
 		try {
-			snapshot = mDiskCache.get(key);
+			snapshot = mDiskCache.get(renameKey);
 			contained = snapshot != null;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -163,6 +167,11 @@ public class DiskLruImageCache implements ImageCache {
 
 	public File getCacheFolder() {
 		return mDiskCache.getDirectory();
+	}
+
+	private String renameKey(String key) {
+		String newKey = ImageUtils.getPhotoName(key);
+		return newKey.replaceAll("[^a-z0-9_-]", "");
 	}
 
 }

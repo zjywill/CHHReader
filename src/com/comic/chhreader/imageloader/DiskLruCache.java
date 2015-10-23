@@ -932,7 +932,7 @@ public final class DiskLruCache implements Closeable {
 		}
 
 		public File getCleanFile(int i) {
-			return new File(directory, key + "." + i);
+			return new File(directory, key + ".png");
 		}
 
 		public File getDirtyFile(int i) {

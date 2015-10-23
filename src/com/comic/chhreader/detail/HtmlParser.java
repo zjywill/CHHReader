@@ -15,7 +15,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.comic.chhreader.Loge;
+import com.comic.chhreader.imageloader.ImageCacheManager;
+import com.comic.chhreader.imageloader.ImageUtils;
 import com.comic.chhreader.utils.CHHNetUtils;
 import com.comic.chhreader.utils.DataBaseUtils;
 
@@ -23,8 +26,6 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	public static final String Js2JavaInterfaceName = "JsUseJava";
 	public static final String IMAGE_BREAK_TAG = "&00000&";
-	public static final String IMAGE_CACHE_SUB_FOLDER = Environment.getExternalStorageDirectory().getPath()
-			+ "/Android/data/com.comic.chhreader/Images/Sub/";
 
 	private String mUrl;
 	private String mThreadId;
@@ -32,10 +33,14 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 
 	public List<String> imgUrls = new ArrayList<String>();
 	public String mImageSet;
+	public String mCacheFolder;
 
 	public HtmlParser(Context context, String url) {
 		mUrl = url;
 		mContext = context;
+		if (ImageCacheManager.getInstance().getCacheFolder() != null) {
+			mCacheFolder = ImageCacheManager.getInstance().getCacheFolder().getPath();
+		}
 	}
 
 	@Override
@@ -126,7 +131,10 @@ public abstract class HtmlParser extends AsyncTask<Void, Void, String> {
 				e.attr("src_link", imgUrl);
 				e.attr("ori_link", imgUrl);
 			} else {
-				String filePath = "file://" + IMAGE_CACHE_SUB_FOLDER + mThreadId + "/" + String.valueOf(i)+".jpg";
+				String imageImage = ImageUtils.getPhotoName(imgUrl).replaceAll("[^a-z0-9_-]", "");
+				Loge.d("HtmlParser imageImage: " + imageImage);
+				String filePath = "file://" + mCacheFolder + "/" + imageImage + ".png";
+				Loge.d("HtmlParser filePath: " + filePath);
 				e.attr("src", "file:///android_asset/temp_img.png");
 				e.attr("src_link", filePath);
 				e.attr("ori_link", imgUrl);

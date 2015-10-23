@@ -7,21 +7,18 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.NetworkImageView;
 import com.comic.chhreader.data.ContentData;
-import com.comic.chhreader.imageloader.ImageCacheManager;
+import com.squareup.picasso.Picasso;
 
 public class ContentAdapter extends SimpleCursorAdapter {
 
-	public static final String IMAGE_PATH = Environment.getExternalStorageDirectory().getPath()
-			+ "/Android/data/com.comic.chhreader/Images/ImageLoader";
-
 	static class ViewHolder {
-		NetworkImageView icon;
+		ImageView icon;
 		TextView title;
 		TextView subcontent;
 		LinearLayout section;
@@ -60,7 +57,7 @@ public class ContentAdapter extends SimpleCursorAdapter {
 		if (convertView == null) {
 			convertView = mInflater.inflate(R.layout.content_list_item, null);
 			holder = new ViewHolder();
-			holder.icon = (NetworkImageView) convertView.findViewById(R.id.content_ori_image);
+			holder.icon = (ImageView) convertView.findViewById(R.id.content_ori_image);
 			holder.title = (TextView) convertView.findViewById(R.id.content_title_text);
 			holder.subcontent = (TextView) convertView.findViewById(R.id.content_subcontent_text);
 			holder.section = (LinearLayout) convertView.findViewById(R.id.list_section);
@@ -84,8 +81,8 @@ public class ContentAdapter extends SimpleCursorAdapter {
 			holder.title.setText(data.mTitle);
 			holder.subcontent.setText(data.mContent);
 
-			if (data.mImageUrl != null) {
-				holder.icon.setImageUrl(data.mImageUrl, ImageCacheManager.getInstance().getImageLoader());
+			if (data.mImageUrl != null && mContext != null) {
+				Picasso.with(mContext).load(data.mImageUrl).into(holder.icon);
 			}
 
 			long prevDate = 0;

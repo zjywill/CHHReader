@@ -67,10 +67,10 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <com.android.volley.toolbox.NetworkImageView
+        <ImageView
             android:id="@+id/content_ori_image"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="78dp"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="7dp"
