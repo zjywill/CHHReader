@@ -111,6 +111,11 @@ public class ImageCacheManager {
         mImageLoader.get(url, listener);
     }
 
+    public void getImage(String url, ImageListener listener, int maxWidth, int maxHeight) {
+        mImageLoader.get(url, listener, maxWidth, maxHeight);
+    }
+
+
     /**
      * @return instance of the image loader
      */

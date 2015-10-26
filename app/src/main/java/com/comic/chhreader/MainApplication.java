@@ -11,7 +11,7 @@ public class MainApplication extends Application {
 
     private static int DISK_IMAGECACHE_SIZE = 1024 * 1024 * 120;
     private static CompressFormat DISK_IMAGECACHE_COMPRESS_FORMAT = CompressFormat.JPEG;
-    private static int DISK_IMAGECACHE_QUALITY = 20; //PNG is lossless so quality is ignored but must be provided
+    private static int DISK_IMAGECACHE_QUALITY = 50; //PNG is lossless so quality is ignored but must be provided
 
     @Override
     public void onCreate() {

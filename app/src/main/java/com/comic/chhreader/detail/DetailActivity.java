@@ -65,6 +65,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
+    private int mScreenWidth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +79,7 @@ public class DetailActivity extends AppCompatActivity {
         mLoadNewsUrl = dataIntent.getBooleanExtra("news", false);
         Loge.d("MainUrl: " + mMainUrl);
         Loge.d("is News: " + mLoadNewsUrl);
-
+        mScreenWidth = getResources().getDisplayMetrics().widthPixels;
         setContentView(R.layout.detail_activity);
 
         initViews();
@@ -468,11 +470,11 @@ public class DetailActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(ImageContainer arg0, boolean arg1) {
                         if (mHandler != null) {
-                            mHandler.sendEmptyMessageDelayed(MESSAGE_INJECT, 1000);
+                            mHandler.sendEmptyMessageDelayed(MESSAGE_INJECT, 200);
                         }
 
                     }
-                });
+                }, mScreenWidth / 2, 0);
             } else {
                 if (mHandler != null) {
                     mHandler.sendEmptyMessage(MESSAGE_INJECT);
