@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-![screenshot](https://github.com/zjywill/CHHReader/blob/master/screen.png)
+![](https://raw.githubusercontent.com/zjywill/CHHReader/master/screen.png)
 
 ## Using library
 
