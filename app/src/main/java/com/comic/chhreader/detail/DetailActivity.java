@@ -219,9 +219,8 @@ public class DetailActivity extends BasicActivity {
             Glide.with(getApplicationContext())
                     .load(urlStr)
                     .asBitmap()
-                    .toBytes(Bitmap.CompressFormat.PNG, 80)
-                    .atMost()
-                    .override(2048, 2048)
+                    .toBytes(Bitmap.CompressFormat.PNG, 30)
+                    .override(180, 180)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
                     .into(new SimpleTarget<byte[]>() {
@@ -236,7 +235,7 @@ public class DetailActivity extends BasicActivity {
                                             imgName = file.getName();
                                             String folder = externalCacheDirPath + "/" + id;
                                             String path = folder + "/" + imgName;
-                                            BitmapUtils.saveJPEG(resource, folder, path);
+                                            BitmapUtils.saveBitmap(resource, folder, path);
                                             return true;
                                         }
                                         return false;

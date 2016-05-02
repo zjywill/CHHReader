@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
  * Created by zhangjunyi on 5/1/16.
  */
 public class BitmapUtils {
-    public static boolean saveJPEG(byte[] resource, String folder, String path) {
+    public static boolean saveBitmap(byte[] resource, String folder, String path) {
         if (resource == null || resource.length == 0 || path == null) {
             return false;
         }
