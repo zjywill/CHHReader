@@ -24,7 +24,10 @@
             android:name="ZHUGE_CHANNEL"
             android:value="public" />
 
-        <activity android:name="com.comic.chhreader.MainActivity">
+        <activity
+            android:name="com.comic.chhreader.MainActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,8 +36,8 @@
         </activity>
         <activity
             android:name="com.comic.chhreader.detail.DetailActivity"
-            android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme"></activity>
+            android:configChanges="screenSize|orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
