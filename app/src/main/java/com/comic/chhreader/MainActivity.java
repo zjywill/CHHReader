@@ -69,9 +69,6 @@ public class MainActivity extends BasicActivity {
         if (mRealmRecyclerView != null) {
             mRealmRecyclerView.setRefreshing(true);
         }
-        if (mMainRealmRecyclerViewAdapter != null) {
-            mMainRealmRecyclerViewAdapter.setRefreshing(true);
-        }
         DataService.getInstance(this)
                 .getPosts(true)
                 .subscribeOn(Schedulers.io())
@@ -99,9 +96,6 @@ public class MainActivity extends BasicActivity {
 
     private void stopLoading() {
         mCurrentPage = 1;
-        if (mMainRealmRecyclerViewAdapter != null) {
-            mMainRealmRecyclerViewAdapter.setRefreshing(false);
-        }
         if (mRealmRecyclerView != null) {
             mRealmRecyclerView.setRefreshing(false);
         }
