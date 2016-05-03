@@ -14,6 +14,8 @@ import io.realm.RealmResults;
  */
 public class MainRealmRecyclerViewAdapter extends RealmBasedRecyclerViewAdapter<Post, MainRealmRecyclerViewHolder> {
 
+    private boolean isRefreshing = false;
+
     public MainRealmRecyclerViewAdapter(
             Context context,
             RealmResults<Post> realmResults) {
@@ -36,5 +38,13 @@ public class MainRealmRecyclerViewAdapter extends RealmBasedRecyclerViewAdapter<
             prePost = realmResults.get(position - 1);
         }
         itemViewHolder.bindItem(post, prePost);
+    }
+
+    public boolean isRefreshing() {
+        return isRefreshing;
+    }
+
+    public void setRefreshing(boolean refreshing) {
+        isRefreshing = refreshing;
     }
 }

@@ -1,2 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
+
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/adapter-rxjava/2.0.2/a60c039ba54c73d1133b72178e1b04133c73d13d/adapter-rxjava-2.0.2.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="a60c039ba54c73d1133b72178e1b04133c73d13d">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/adapter-rxjava-2.0.2_4c276293c65f7397a6259b97ad7dc8c19729c4f9/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="23be6993826b8fd88bbc8d14928bb3b8960d3d4e">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-animated-vector-drawable-23.3.0_f7f3ca74d00c5f2f875b00c65f1a7007b2f988cd/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.tbruyelle.rxpermissions/rxpermissions/0.7.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="50fd38504119ea609c269abf98af75fb14e82f2c">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.tbruyelle.rxpermissions-rxpermissions-0.7.0_7973c8015ac7e944010e87a19ded49b11ae13016/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="ff3df0f9e362ec96b937a8c24fc635d3e8bfbe64">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_1fb71ac8d68ed6df99d5010c8aaf5f10c7a96e13/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/io.realm/realm-annotations/0.89.1/72f7f1d61b46ae68970219f3ec29021becbf2906/realm-annotations-0.89.1.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="72f7f1d61b46ae68970219f3ec29021becbf2906">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/realm-annotations-0.89.1_236119a1e52f3c162e01e0ef0365bb41369a408f/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/support-v13/23.3.0/jars/libs/internal_impl-23.3.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="8813bdcf7583107c4873150075d17c8072ec50cf">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.3.0_4433f55cebffc37bc0c1085b6d07fc3bb9f6f97a/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="a0b5d60246cd9d4f3f2443611b3b4c25265840b5">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-vector-drawable-23.3.0_5a9393d478b64019042e9ba25c83f2f6ecdd61a2/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/logging-interceptor/3.2.0/a56f28d5b7fab623c6c1d2afa08dd496d873ac21/logging-interceptor-3.2.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="a56f28d5b7fab623c6c1d2afa08dd496d873ac21">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/logging-interceptor-3.2.0_f320c74921f30f7b9eab651c50134263c0cb73e8/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="debf30ce0a7560396b6235edef77e447006454c2">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-recyclerview-v7-23.3.0_53c70d1c15ee0ce8bdf57cb1e78c2ef43cf2f0c1/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.github.TonicArtos/SuperSLiM/ed0ba4b4d2/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="290ef10801f39e1947fe5c012fb0ae5d309789c3">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.github.TonicArtos-SuperSLiM-ed0ba4b4d2_ddaee05fb408ad3c1d059e7f869f16d8a29bab68/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/support-v13/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="a809555a2599054c3dcd1bf82b089315ac3a11df">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v13-23.3.0_e7252e90a903d03b6f2081bb152ce87e8c6eb67a/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Develop/android-studio/gradle/m2repository/org/jetbrains/kotlin/kotlin-runtime/1.0.0/kotlin-runtime-1.0.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="8739b3cd3bf98584cf2d1cabf59b55dbd5f7349d">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/kotlin-runtime-1.0.0_dfbb6c14b68da617d11928a34e5cdc01aad4f28d/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/libs/internal_impl-23.3.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="4da5a4d697d32497c6f85567a5112e62fdfd0676">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.3.0_6fe8c9a9f74b81e9e58638da04aa078d80fdd4b9/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/converter-gson/2.0.2/f8d87f15b94b8d74e7ccf61d7eedb558811cdb30/converter-gson-2.0.2.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="f8d87f15b94b8d74e7ccf61d7eedb558811cdb30">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/converter-gson-2.0.2_6c2f84940cdcf6f7084cd4d11ced4b2905139bb0/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/io.reactivex/rxandroid/1.1.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="d4c4b83de2f6412072d2a29b1b7a5b03edaad5ff">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/io.reactivex-rxandroid-1.1.0_c1711eaa51e829c5d1758eab158b850ac77934e9/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/retrofit/2.0.2/43eeae0b9fb087bb3194ba59ab63a38a32fbf3e/retrofit-2.0.2.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="043eeae0b9fb087bb3194ba59ab63a38a32fbf3e">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/retrofit-2.0.2_81c0947fc65d90326aa33e5275ed7ac9fba01714/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="8a034dd16c0dfd75fe86c52c2cd581592acc684a">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-23.3.0_135aad95afb24029a9b0843544b4f2ce016e7bf0/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Develop/AndroidSDK/extras/android/m2repository/com/android/support/support-annotations/23.3.0/support-annotations-23.3.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="db7791d75a07fef9844d06236c1c59ba7bf6997c">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.3.0_623bee6fb886bad1b9b79c0bda8f114b3497308d/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/org.jsoup/jsoup/1.7.3/92568d7167ce1bf9eb1fd815b022d5a2c113547a/jsoup-1.7.3.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="92568d7167ce1bf9eb1fd815b022d5a2c113547a">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/jsoup-1.7.3_d2f5274415adf73f3d69541ba591a77f30fcb26c/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.6.0/98476622f10715998eacf9240d6b479f12c66143/okio-1.6.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="98476622f10715998eacf9240d6b479f12c66143">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/okio-1.6.0_2e8077a466cf31f05248cb6be1e2bc5170179dff/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.github.rahatarmanahmed/circularprogressview/2.5.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="83546b0a7a55c89fcaa55ff282812a4e052e81fe">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.github.rahatarmanahmed-circularprogressview-2.5.0_76cb0aeafd7106eabff469c14598ce9e6bcf9b73/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.getkeepsafe.relinker/relinker/1.2.1/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="264f0bc4c0680cfe7a60fea1f12a43f1ab48e7c8">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.getkeepsafe.relinker-relinker-1.2.1_7b893cadd64b90fd8b831c71774980a0b928a923/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.zhuge.analysis/visual/2.2.8/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="8acebc719bffc19f46828704a1683a720efed57b">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.zhuge.analysis-visual-2.2.8_254acaa7964702f1054258057134fac15e1f67d5/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="1b8e03daaa43fb0a4cd57e378167c2fd70454c1e">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-23.3.0_bd7eda954be5d115195319f77a76296c15c7bbda/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.github.bumptech.glide/glide/3.7.0/9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4/glide-3.7.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/glide-3.7.0_95f881de144d6b2f81780de82209f6f9286e7640/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/io.reactivex/rxjava/1.1.3/5a1aef6a9d56efb473b8be6b66689077e7317c45/rxjava-1.1.3.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="5a1aef6a9d56efb473b8be6b66689077e7317c45">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/rxjava-1.1.3_cd319390eb194d2d36437839fffd24fab2ff2402/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.2.0/f7873a2ebde246a45c2a8d6f3247108b4c88a879/okhttp-3.2.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="f7873a2ebde246a45c2a8d6f3247108b4c88a879">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/okhttp-3.2.0_1d85fffdc0fe131dd00eca2e91bd08ea00905fe8/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.github.thorbenprimke/realm-recyclerview/0.9.15/jars/libs/diffutils-1.2.1.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="1610e5a9255f92759e7910c13a4537a7db7045b2">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/diffutils-1.2.1_23b9344b562fd4695ad17d66d525d8cc7ebb0d81/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/io.realm/realm-android-library/0.89.1/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="01fe1c9ffa3adb86bb2b5456a598d69037bb647e">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/io.realm-realm-android-library-0.89.1_038143332b923e75888e0f2c87159647690d134b/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.android.support/design/23.3.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="f0001e71cea6ae432a00021c6f727f5ef0f3d27e">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-design-23.3.0_bee8db5e9bcc949749f2e82e18ed31b3b0778e86/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.6.2/f1bc476cc167b18e66c297df599b2377131a8947/gson-2.6.2.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="f1bc476cc167b18e66c297df599b2377131a8947">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/gson-2.6.2_f4c1be37ac7451aa86a3dca1cfb986c1e372dfad/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Develop/android-studio/gradle/m2repository/org/jetbrains/kotlin/kotlin-stdlib/1.0.0/kotlin-stdlib-1.0.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="2db5ac6eb2746708e77e4c439625f9331c25e766">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/kotlin-stdlib-1.0.0_4da935d5c13b01e6eb67511704fdab2fcafe5c84/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/exploded-aar/com.github.thorbenprimke/realm-recyclerview/0.9.15/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="eb01fc991b470652d011bc3109974ad06e825078">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.github.thorbenprimke-realm-recyclerview-0.9.15_0fa999b7a0d43a581478e2ed0a62cfbbe7aadad6/classes.dex" />
+    </item>
+    <item
+        jar="/home/junyi/Git/CHHReader/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="43c0d01020b05d13e84124b6f08f06d5d15f1f8a">
+        <dex dex="/home/junyi/Git/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_14cdc8085a84f260bf02b7e300ec808721a337ce/classes.dex" />
+    </item>
+
+</items>

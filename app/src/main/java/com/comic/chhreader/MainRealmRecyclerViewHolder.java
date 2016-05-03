@@ -24,8 +24,11 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
     private View section;
     private TextView sectionText;
 
-    public MainRealmRecyclerViewHolder(View itemView) {
+    private MainRealmRecyclerViewAdapter mainRealmRecyclerViewAdapter;
+
+    public MainRealmRecyclerViewHolder(View itemView, MainRealmRecyclerViewAdapter adapter) {
         super(itemView);
+        mainRealmRecyclerViewAdapter = adapter;
         section = itemView.findViewById(R.id.list_section);
         sectionText = (TextView) itemView.findViewById(R.id.list_section_text);
         thumbnail = (ImageView) itemView.findViewById(R.id.content_ori_image);
@@ -83,11 +86,13 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
             content.setText(Html.fromHtml(contentText));
         }
         itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
-            intent.putExtra("title", post.getFields().getName());
-            intent.putExtra("url", post.getFields().getLink());
-            intent.putExtra("id", post.getPk());
-            itemView.getContext().startActivity(intent);
+            if (mainRealmRecyclerViewAdapter != null && !mainRealmRecyclerViewAdapter.isRefreshing()) {
+                Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
+                intent.putExtra("title", post.getFields().getName());
+                intent.putExtra("url", post.getFields().getLink());
+                intent.putExtra("id", post.getPk());
+                itemView.getContext().startActivity(intent);
+            }
         });
     }
 }
