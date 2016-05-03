@@ -26,7 +26,7 @@ public class MainRealmRecyclerViewAdapter extends RealmBasedRecyclerViewAdapter<
     @Override
     public MainRealmRecyclerViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int i) {
         View v = inflater.inflate(R.layout.content_list_item, viewGroup, false);
-        MainRealmRecyclerViewHolder vh = new MainRealmRecyclerViewHolder(v);
+        MainRealmRecyclerViewHolder vh = new MainRealmRecyclerViewHolder(v, this);
         return vh;
     }
 
