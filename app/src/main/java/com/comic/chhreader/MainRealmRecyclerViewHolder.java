@@ -24,11 +24,9 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
     private View section;
     private TextView sectionText;
 
-    private MainRealmRecyclerViewAdapter mainRealmRecyclerViewAdapter;
 
-    public MainRealmRecyclerViewHolder(View itemView, MainRealmRecyclerViewAdapter adapter) {
+    public MainRealmRecyclerViewHolder(View itemView) {
         super(itemView);
-        mainRealmRecyclerViewAdapter = adapter;
         section = itemView.findViewById(R.id.list_section);
         sectionText = (TextView) itemView.findViewById(R.id.list_section_text);
         thumbnail = (ImageView) itemView.findViewById(R.id.content_ori_image);
@@ -43,11 +41,11 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
     }
 
     public void bindItem(Post post, Post prePost) {
-        if (post == null || post.getFields() == null) {
+        if (post == null || post.getFields() == null || !post.isValid()) {
             return;
         }
         if (section != null && sectionText != null) {
-            if (prePost == null) {
+            if (prePost == null || !prePost.isValid()) {
                 section.setVisibility(View.VISIBLE);
                 sectionText.setText("最新");
             } else {
@@ -86,7 +84,7 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
             content.setText(Html.fromHtml(contentText));
         }
         itemView.setOnClickListener(view -> {
-            if (mainRealmRecyclerViewAdapter != null && !mainRealmRecyclerViewAdapter.isRefreshing()) {
+            if (post.isValid()) {
                 Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
                 intent.putExtra("title", post.getFields().getName());
                 intent.putExtra("url", post.getFields().getLink());

@@ -99,11 +99,11 @@ public class MainActivity extends BasicActivity {
 
     private void stopLoading() {
         mCurrentPage = 1;
-        if (mRealmRecyclerView != null) {
-            mRealmRecyclerView.setRefreshing(false);
-        }
         if (mMainRealmRecyclerViewAdapter != null) {
             mMainRealmRecyclerViewAdapter.setRefreshing(false);
+        }
+        if (mRealmRecyclerView != null) {
+            mRealmRecyclerView.setRefreshing(false);
         }
     }
 
