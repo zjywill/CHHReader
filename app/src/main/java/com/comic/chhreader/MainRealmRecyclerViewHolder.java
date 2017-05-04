@@ -41,7 +41,7 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
     }
 
     public void bindItem(Post post, Post prePost) {
-        if (post == null || post.getFields() == null || !post.isValid()) {
+        if (post == null || !post.isValid()) {
             return;
         }
         if (section != null && sectionText != null) {
@@ -50,10 +50,8 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
                 sectionText.setText("最新");
             } else {
                 long prevDate = 0;
-                if (prePost.getFields() != null) {
-                    prevDate = Long.parseLong(prePost.getFields().getPostdate());
-                }
-                long date = Long.parseLong(post.getFields().getPostdate());
+                prevDate = Long.parseLong(prePost.getPostdate());
+                long date = Long.parseLong(post.getPostdate());
                 if (isSameDate(prevDate, date)) {
                     section.setVisibility(View.GONE);
                 } else {
@@ -65,9 +63,9 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
         }
 
         if (thumbnail != null) {
-            if (!TextUtils.isEmpty(post.getFields().getImageurl())) {
+            if (!TextUtils.isEmpty(post.getImageUrl())) {
                 Glide.with(itemView.getContext())
-                        .load(post.getFields().getImageurl())
+                        .load(post.getImageUrl())
                         .centerCrop()
                         .placeholder(R.drawable.default_image)
                         .crossFade()
@@ -77,18 +75,18 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
             }
         }
         if (title != null) {
-            title.setText(post.getFields().getName());
+            title.setText(post.getName());
         }
         if (content != null) {
-            String contentText = post.getFields().getContent();
+            String contentText = post.getContent();
             content.setText(Html.fromHtml(contentText));
         }
         itemView.setOnClickListener(view -> {
             if (post.isValid()) {
                 Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
-                intent.putExtra("title", post.getFields().getName());
-                intent.putExtra("url", post.getFields().getLink());
-                intent.putExtra("id", post.getPk());
+                intent.putExtra("title", post.getName());
+                intent.putExtra("url", post.getLink());
+                intent.putExtra("id", post.getId());
                 itemView.getContext().startActivity(intent);
             }
         });

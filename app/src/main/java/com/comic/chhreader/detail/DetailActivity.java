@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -17,7 +18,6 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.comic.chhreader.BitmapUtils;
 import com.comic.chhreader.Loge;
-import com.comic.chhreader.MySubscriber;
 import com.comic.chhreader.R;
 import com.comic.chhreader.component.BasicActivity;
 import com.comic.chhreader.dataservice.DataService;
@@ -91,6 +91,7 @@ public class DetailActivity extends BasicActivity {
         progressView = (CircularProgressView) findViewById(R.id.loading_progress);
         webView = (WebView) findViewById(R.id.content_web);
         if (webView != null) {
+            webView.setWebViewClient(new WebViewClient());
             WebSettings webSettings = webView.getSettings();
             if (webSettings != null) {
                 webSettings.setSupportZoom(false);
@@ -102,13 +103,13 @@ public class DetailActivity extends BasicActivity {
     private void getContent() {
         if (!TextUtils.isEmpty(url)) {
             DataService.getInstance(DetailActivity.this)
-                    .getContent(url)
+                    .getContent(61)
                     .map(content -> {
                         String htmlText = "";
-                        if (content != null && content.size() > 0) {
+                        if (content != null) {
 
                             String result = getHeadHtml();
-                            String body = content.get(0).getFields().getContent();
+                            String body = content.getContent();
                             result = "<html>" + result + body + "</html>";
 
 
@@ -131,19 +132,25 @@ public class DetailActivity extends BasicActivity {
                             htmlText = htmlText.replaceAll("b8b7b7", "ffffff");
                         }
 
-
                         return htmlText;
                     })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(MySubscriber.create(content -> {
+                    .subscribe(content -> {
                         if (webView != null && progressView != null && !TextUtils.isEmpty(content)) {
                             webView.loadDataWithBaseURL(null, content, "text/html", "utf-8", null);
                             webView.setVisibility(View.VISIBLE);
                             progressView.setVisibility(View.GONE);
                             doImageDownload();
                         }
-                    }));
+                    }, error -> {
+                        if (webView != null && progressView != null) {
+                            webView.loadUrl(url);
+                            webView.setVisibility(View.VISIBLE);
+                            progressView.setVisibility(View.GONE);
+                            doImageDownload();
+                        }
+                    });
         }
     }
 

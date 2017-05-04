@@ -7,56 +7,40 @@ import com.google.gson.annotations.SerializedName;
  * Created by zhangjunyi on 4/30/16.
  */
 public class Detail {
-    @SerializedName("pk")
+
+    @SerializedName("link")
     @Expose
-    private Integer pk;
-    @SerializedName("model")
+    private String link;
+    @SerializedName("content")
     @Expose
-    private String model;
-    @SerializedName("fields")
-    @Expose
-    private DetailFields fields;
+    private String content;
 
     /**
-     * @return The pk
+     * @return The rootlink
      */
-    public Integer getPk() {
-        return pk;
+    public String getLink() {
+        return link;
     }
 
     /**
-     * @param pk The pk
+     * @param link The rootlink
      */
-    public void setPk(Integer pk) {
-        this.pk = pk;
+    public void setLink(String link) {
+        this.link = link;
     }
 
     /**
-     * @return The model
+     * @return The content
      */
-    public String getModel() {
-        return model;
+    public String getContent() {
+        return content;
     }
 
     /**
-     * @param model The model
+     * @param content The content
      */
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    /**
-     * @return The fields
-     */
-    public DetailFields getFields() {
-        return fields;
-    }
-
-    /**
-     * @param fields The fields
-     */
-    public void setFields(DetailFields fields) {
-        this.fields = fields;
+    public void setContent(String content) {
+        this.content = content;
     }
 
 }

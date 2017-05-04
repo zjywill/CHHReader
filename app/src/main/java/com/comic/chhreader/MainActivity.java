@@ -57,7 +57,7 @@ public class MainActivity extends BasicActivity {
             mRealm = Realm.getDefaultInstance();
             RealmResults<Post> datums = mRealm
                     .where(Post.class)
-                    .findAllSorted("pk", Sort.DESCENDING);
+                    .findAll();
             Loge.d("initViews post size: " + datums.size());
             mMainRealmRecyclerViewAdapter = new MainRealmRecyclerViewAdapter(this, datums);
             mRealmRecyclerView.setAdapter(mMainRealmRecyclerViewAdapter);

@@ -30,6 +30,7 @@ public class MainRealmRecyclerViewAdapter extends RealmBasedRecyclerViewAdapter<
 
     @Override
     public void onBindRealmViewHolder(MainRealmRecyclerViewHolder itemViewHolder, int position) {
+        Loge.d("onBindRealmViewHolder position: " + position);
         Post post = realmResults.get(position);
         Post prePost = null;
         if (position > 0) {

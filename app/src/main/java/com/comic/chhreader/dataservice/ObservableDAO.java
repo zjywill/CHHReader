@@ -41,6 +41,7 @@ public class ObservableDAO {
     public Observable<RealmList<Post>> writePosts(final RealmList<Post> posts, final boolean forceUpdate) {
         return RealmObservable.list(mContext, realm -> {
             if (posts != null && posts.size() > 0) {
+                Loge.d("writePosts posts: " + posts.size());
                 if (forceUpdate) {
                     RealmResults<Post> realmResults = realm.where(Post.class).findAll();
                     Loge.d("writePosts force update remove former data: " + realmResults.size());

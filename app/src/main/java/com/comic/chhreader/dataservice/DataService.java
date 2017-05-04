@@ -85,7 +85,7 @@ public class DataService {
     public Observable<List<Post>> getPosts(final String page) {
         final Map<String, String> queryMap = new HashMap<>();
         if (!TextUtils.isEmpty(page)) {
-            queryMap.put("p", page);
+            queryMap.put("page", page);
         }
         final Observable<RealmList<Post>> apiObservable = getApiService().getApiClient().getPosts(queryMap);
         return apiObservable
@@ -99,11 +99,7 @@ public class DataService {
                 });
     }
 
-    public Observable<List<Detail>> getContent(String url) {
-        final Map<String, String> queryMap = new HashMap<>();
-        if (!TextUtils.isEmpty(url)) {
-            queryMap.put("link", url);
-        }
-        return getApiService().getApiClient().getContent(queryMap);
+    public Observable<Detail> getContent(int id) {
+        return getApiService().getApiClient().getContent(id);
     }
 }
