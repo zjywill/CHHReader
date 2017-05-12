@@ -1,2 +1,329 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/io.realm/realm-annotations/2.2.1/3095c5145d7966e555c113c6a3fc33a107badc80/realm-annotations-2.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="3095c5145d7966e555c113c6a3fc33a107badc80">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/realm-annotations-2.2.1_0a0f59054e95f0f06dc73892ea4ac2099af9eeba/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/org.jsoup/jsoup/1.7.3/92568d7167ce1bf9eb1fd815b022d5a2c113547a/jsoup-1.7.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="92568d7167ce1bf9eb1fd815b022d5a2c113547a">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/jsoup-1.7.3_ab5f80d4447959bc6d5076085810df4262568ab6/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.0"
+        sha1="caff8e51a24901cfc9cd7e1cf83d84f4cb0c103b">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_20cc05aa091a67c4a5bf8ea1add05ed6f7505c01/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/c9d6f1947c279b8b38791844df37a660b887ae78/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="83546b0a7a55c89fcaa55ff282812a4e052e81fe">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_f64f33ae8e0d91162fbd3fb2657043085d748639/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/a1556a83a0deec479119ea9eb1ea2e98413fd556/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="6ef31f1555bb4cc513ec8d52711365a8b89f3600">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_b4dbec76c38bbdd09b8ff608bcf2dabd6afc3aec/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.0"
+        sha1="c6ae831b040063b83251e6483683e36e105cce1a">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_92a8cb697ca666e0555329f7e4704e21d284844b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/retrofit/2.0.2/43eeae0b9fb087bb3194ba59ab63a38a32fbf3e/retrofit-2.0.2.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="043eeae0b9fb087bb3194ba59ab63a38a32fbf3e">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/retrofit-2.0.2_d29074473078f2173f806a41a3047ed9e3c09fdb/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/1d7380d2ca08d06a0dea870082698b4cfd3c37f7/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="052f5f840f21174a3ecf6544130194e2652cbb73">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_a1e2e3ae1bc90da12d81203e83018631d51bf759/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/6f97ae0ff69c3bc31257658cf03f49c42485d4cf/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="b6f8e49f2ebcea1dc839e5ac823d2b61e58d6de7">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_375f0bbdcd7d97bb8c21b26f5006cde91d0a01f1/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/logging-interceptor/3.2.0/a56f28d5b7fab623c6c1d2afa08dd496d873ac21/logging-interceptor-3.2.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="a56f28d5b7fab623c6c1d2afa08dd496d873ac21">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/logging-interceptor-3.2.0_dbce8d61579a65dfe2552e2d018fbb3e7b18a783/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/5eee8cfba0a7c0745f267dec054bbd7f987ba17f/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="efb8cb62d47d157c29d1521daac7eefd4cb881ee">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_06bb7913bad8e9fe906ec6f370c91de4c02c9a77/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.2.0/f7873a2ebde246a45c2a8d6f3247108b4c88a879/okhttp-3.2.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="f7873a2ebde246a45c2a8d6f3247108b4c88a879">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/okhttp-3.2.0_391628207cc5993b80f997f05027b5289aeab506/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/21ed071175a1404dafbc0189000d3569185d3b97/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d4c4b83de2f6412072d2a29b1b7a5b03edaad5ff">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_73b74469f74ed816ecaa5834fe83cef4027adfc7/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/ae34dc717972e2a1af6288b2f5c47a491934c184/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4a26a1154d053ab11aaf4c3967c42a4d66390991">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_fa9d22e473f3381489a5a9c7989c0e82ef8e0833/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/c5eb92dc64099142778be504c9e6a9f75993c53e/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="8adfd82229a5f0a129469305587557199017219e">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_a634b1773de63266c2fdbe46f06aff3743b7810e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/4ed250fa54b864c88b33afd465e53c89015d6468/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="470bfafdea99720e19d2c405608088034f02fb2b">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_120478a40348c4e4f9cf106cd353848011a16ebf/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/3eee577c8e960caa635f9e8bdf50b373258de944/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d4cf6227dd6a2ceff0f7dcf0c324380b7abf2c28">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_1932213c88f2ed93a9fc8263bc39d694739fe0d7/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/2cddfe7bb8f6ffc03337ca54e8e0aabf7c109b47/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_57663b5fb31e3b476de23b7cce675ac7b7a79027/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/f36bc624b3c62adb069d614afc8bc5a5d1c89d7b/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="da27a32db6af8954ee8061537c7d476fcb1df46f">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_77de0544c5403b07f71cc8c5ea006da0f5e84086/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/25.3.1/support-annotations-25.3.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="bf8841d29fa39e077730e7a91222c2ce269fa7c9">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-25.3.1_15c38e291e3eab33e4b3fb9ea5620e648506c639/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/c7572902eaebf0e2d8618c16575a5e2ba6315823/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="95519720620b553f63afc789beba9ad582807f7c">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_12764dca882ebfeed4e33f5ed7ead321d4f4c275/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/49ddc02d9d4cb5e4e853f7e2a21f77c2d7d775c1/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="45f697922e6f072daa12f8a2995dc77ab03c11da">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_e80b9b1da64bbe37224e49677824c1721da458f3/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/466f04b3cf27759c9ef8591816e9da89420c997c/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="38789e20ace9ab7dbd00554bd2673ab424478d3b">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c8f671307ce3c7bbcf2ad75d9818fb462f0d8cb3/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.6.0/98476622f10715998eacf9240d6b479f12c66143/okio-1.6.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="98476622f10715998eacf9240d6b479f12c66143">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/okio-1.6.0_4e8d43b020de4e7d7aae51e91a5039135079400c/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/io.reactivex/rxjava/1.1.3/5a1aef6a9d56efb473b8be6b66689077e7317c45/rxjava-1.1.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="5a1aef6a9d56efb473b8be6b66689077e7317c45">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/rxjava-1.1.3_c7bc7ec40831dd6b0a6b55b3cbd02f10a1960fd0/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/05d747a2a077d27293fce8e92bff2383da44dffd/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_857a0f7b7d75906bad93812d88680d7d388a1996/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="caff8e51a24901cfc9cd7e1cf83d84f4cb0c103b">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_20cc05aa091a67c4a5bf8ea1add05ed6f7505c01/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/80b3d68f1f65b69855ca681195f753f557a0a24d/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d16c820d6943f6bbfe74699ca2ce2ad4dd44829e">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_febe89c52441c75d4c6654f0cce227e8f1145307/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.googlecode.java-diff-utils/diffutils/1.3.0/7e060dd5b19431e6d198e91ff670644372f60fbd/diffutils-1.3.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="7e060dd5b19431e6d198e91ff670644372f60fbd">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/diffutils-1.3.0_af1a440773afe508679926c033ee555ba496f812/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/adapter-rxjava/2.0.2/a60c039ba54c73d1133b72178e1b04133c73d13d/adapter-rxjava-2.0.2.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="a60c039ba54c73d1133b72178e1b04133c73d13d">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/adapter-rxjava-2.0.2_059c68d36b48837b80eeee5d166df8016d14514f/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/converter-gson/2.0.2/f8d87f15b94b8d74e7ccf61d7eedb558811cdb30/converter-gson-2.0.2.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="f8d87f15b94b8d74e7ccf61d7eedb558811cdb30">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/converter-gson-2.0.2_671f03d4bec5f86154c333dd190428c5bfc0a8b5/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="18e42d1359925d0be2c51466998f84ddd3959fa1">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_92a8cb697ca666e0555329f7e4704e21d284844b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/6d7474d3c4982b4a1cb1ff812e26c16055ac2263/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="50fd38504119ea609c269abf98af75fb14e82f2c">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_531b4f0d6ae718e57ae449655e8ffa9c3bc34fda/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/e2fff2f97892521115f8fa00f7dee0ea2782a43d/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="8531f2d46b35de75e6130f25830e0c2c0d6bb98c">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_013c975dac1cb324ebcce30e5ebf5a72b44ced1a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/d51d19f17f77c29ff6f0be2f6b99cac33a6368f9/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="150252b33b00274cc868578ade018fda0d43a3eb">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_cc95483cad0a9b341a180b9f8dae38b0df4ff8df/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/903bdf8d03a4ec8b5621c4aa89d50f99f8f0e84f/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="b64dd5f01bc37de289f90fd59299b0c76d119611">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_0aaa282b62abb4235e6a4b9455edd8672493e2a7/classes.dex" />
+    </item>
+
+</items>

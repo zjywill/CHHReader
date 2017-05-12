@@ -7,11 +7,9 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.comic.chhreader.detail.DetailActivity;
 import com.comic.chhreader.model.Post;
-
 import io.realm.RealmViewHolder;
 
 /**
@@ -23,7 +21,6 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
     private TextView content;
     private View section;
     private TextView sectionText;
-
 
     public MainRealmRecyclerViewHolder(View itemView) {
         super(itemView);
@@ -57,19 +54,19 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
                 } else {
                     section.setVisibility(View.VISIBLE);
                     sectionText.setText(DateUtils.formatDateTime(itemView.getContext(), date * 1000,
-                            DateUtils.FORMAT_SHOW_DATE));
+                                                                 DateUtils.FORMAT_SHOW_DATE));
                 }
             }
         }
 
         if (thumbnail != null) {
             if (!TextUtils.isEmpty(post.getImageUrl())) {
-                Glide.with(itemView.getContext())
-                        .load(post.getImageUrl())
-                        .centerCrop()
-                        .placeholder(R.drawable.default_image)
-                        .crossFade()
-                        .into(thumbnail);
+                Glide.with(itemView.getContext().getApplicationContext())
+                    .load(post.getImageUrl())
+                    .centerCrop()
+                    .placeholder(R.drawable.default_image)
+                    .crossFade()
+                    .into(thumbnail);
             } else {
                 thumbnail.setImageResource(R.drawable.default_image);
             }
@@ -81,14 +78,15 @@ public class MainRealmRecyclerViewHolder extends RealmViewHolder {
             String contentText = post.getContent();
             content.setText(Html.fromHtml(contentText));
         }
+        String name = post.getName();
+        String url = post.getLink();
+        Long id = post.getId();
         itemView.setOnClickListener(view -> {
-            if (post.isValid()) {
-                Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
-                intent.putExtra("title", post.getName());
-                intent.putExtra("url", post.getLink());
-                intent.putExtra("id", post.getId());
-                itemView.getContext().startActivity(intent);
-            }
+            Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
+            intent.putExtra("title", name);
+            intent.putExtra("url", url);
+            intent.putExtra("id", id);
+            itemView.getContext().startActivity(intent);
         });
     }
 }

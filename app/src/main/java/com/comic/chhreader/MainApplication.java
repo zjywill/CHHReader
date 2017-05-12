@@ -1,9 +1,7 @@
 package com.comic.chhreader;
 
 import android.app.Application;
-
 import com.comic.chhreader.component.BasicActivityContainer;
-
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -19,10 +17,10 @@ public class MainApplication extends Application {
         super.onCreate();
         application = this;
         BasicActivityContainer.notifyAppStart(this);
-        RealmConfiguration config = new RealmConfiguration.Builder(this)
-                .name("chhreader.storage")
-                .deleteRealmIfMigrationNeeded()
-                .build();
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().name("chhreader.storage")
+            .deleteRealmIfMigrationNeeded()
+            .build();
         Realm.deleteRealm(config);
         Realm.setDefaultConfiguration(config);
     }
