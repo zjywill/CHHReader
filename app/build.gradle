@@ -14,7 +14,7 @@ apply plugin: 'realm-android'
 
 def versionMajor = 3
 def versionMinor = 0
-def versionPatch = 0
+def versionPatch = 1
 
 android {
   compileSdkVersion 25
@@ -67,7 +67,6 @@ dependencies {
   compile 'io.reactivex:rxjava:1.1.3'
   compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
   compile 'com.google.code.gson:gson:2.7'
-  compile 'com.zhuge.analysis:visual:latest.integration'
   compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
   compile 'com.github.thorbenprimke:realm-recyclerview:0.9.25'
   compile 'org.jsoup:jsoup:1.7.3'

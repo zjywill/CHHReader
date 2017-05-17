@@ -6,9 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.zhuge.analysis.stat.ZhugeSDK;
-
 import rx.Subscription;
 
 /**
@@ -50,7 +47,6 @@ public class BasicActivity extends AppCompatActivity {
         if (!mCreating) {
             switchContext();
         }
-        ZhugeSDK.getInstance().init(getApplicationContext());
         mActivityEnterTime = System.currentTimeMillis();
         isPause = false;
         mCreating = false;
@@ -80,13 +76,11 @@ public class BasicActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onDestroy() {
         long stayTime = System.currentTimeMillis() - mActivityEnterTime;
         releaseLazy();
         super.onDestroy();
-        ZhugeSDK.getInstance().flush(getApplicationContext());
     }
 
     protected void releaseLazy() {
