@@ -4,60 +4,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.comic.chhreader.detail.DetailActivity">
+    tools:context="com.comic.chhreader.detail.DetailActivity"
+    >
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:elevation="4dp">
+  <android.support.v7.widget.Toolbar
+      android:id="@+id/toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="@color/colorPrimary"
+      android:elevation="4dp"
+      >
 
-        <android.support.v7.widget.AppCompatImageButton
-            android:id="@+id/toolbar_back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginLeft="@dimen/padding_normal"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="center"
-            android:src="@drawable/ic_arrow_back_white_24dp" />
+    <android.support.v7.widget.AppCompatImageButton
+        android:id="@+id/toolbar_back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginLeft="@dimen/padding_normal"
+        android:background="?android:selectableItemBackground"
+        android:scaleType="center"
+        android:src="@drawable/ic_arrow_back_white_24dp"
+        />
 
-        <TextView
-            android:id="@+id/toolbar_title_text"
-            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginLeft="@dimen/spacing_normal"
-            android:singleLine="true"
-            tools:text="TITLE" />
-    </android.support.v7.widget.Toolbar>
+    <TextView
+        android:id="@+id/toolbar_title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="@dimen/spacing_normal"
+        android:singleLine="true"
+        tools:text="TITLE"
+        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+        />
+  </android.support.v7.widget.Toolbar>
 
-    <FrameLayout
+  <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginTop="?attr/actionBarSize"
+      >
+
+    <WebView
+        android:id="@+id/content_web"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:background="@android:color/white"
+        android:visibility="gone"
+        />
+    <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/loading_progress"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/padding_normal"
+        android:visibility="visible"
+        app:cpv_animAutostart="true"
+        app:cpv_color="@color/colorPrimary"
+        app:cpv_indeterminate="true"
+        app:cpv_thickness="5dp"
+        />
 
-        <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/loading_progress"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/padding_normal"
-            android:visibility="visible"
-            app:cpv_animAutostart="true"
-            app:cpv_color="@color/colorPrimary"
-            app:cpv_indeterminate="true"
-            app:cpv_thickness="5dp" />
-
-        <WebView
-            android:id="@+id/content_web"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:visibility="gone" />
-    </FrameLayout>
+  </FrameLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>
