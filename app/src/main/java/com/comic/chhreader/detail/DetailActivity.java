@@ -290,12 +290,14 @@ public class DetailActivity extends BasicActivity {
       if (newProgress > 50 && progressView != null) {
         progressView.setVisibility(View.GONE);
       }
-      if (newProgress % 10 == 0) {
-        if (webView != null) {
-          webView.loadUrl(
-            "javascript:(function(){" + "document.getElementsByClassName(\"header\")[0].remove();"
-              + "document.getElementsByClassName(\"footer\")[0].remove();" + "})()");
-        }
+
+      if (webView != null) {
+        webView.loadUrl(
+          "javascript:(function(){" + "document.getElementsByClassName(\"header\")[0].remove();"
+            + "document.getElementsByClassName(\"footer\")[0].remove();" + "})()");
+        webView.loadUrl(
+          "javascript:(function(){" + "var objs = document.getElementsByClassName(\"orange\");"
+            + " for(var i=0;i<objs.length;i++){objs[i].removeAttribute(\"href\")}" + "})()");
       }
     }
   }
