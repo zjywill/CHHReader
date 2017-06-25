@@ -27,7 +27,7 @@ android {
 
 
   defaultConfig {
-    applicationId "com.comic.chhreader"
+    applicationId "com.comic.hcreader"
     minSdkVersion 15
     targetSdkVersion 25
     versionCode versionMajor * 100000 + versionMinor * 100 + versionPatch
@@ -68,6 +68,7 @@ dependencies {
   compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
   compile 'com.google.code.gson:gson:2.7'
   compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
+  compile 'com.github.zjywill:OverwatchProgress:1.4'
   compile 'com.github.thorbenprimke:realm-recyclerview:0.9.25'
   compile 'org.jsoup:jsoup:1.7.3'
 }

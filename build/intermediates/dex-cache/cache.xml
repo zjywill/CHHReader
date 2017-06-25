@@ -12,6 +12,15 @@
     </item>
     <item
         is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/f98d2e13e1fd3c8c1713ed757cb494f686097224/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="e882432920ebe090a73c0b0b363dbe1802c2d485">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_083ce7e1169bc177c55f37a71ec1e228b937df31/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/Users/junyizhang/.gradle/caches/modules-2/files-2.1/org.jsoup/jsoup/1.7.3/92568d7167ce1bf9eb1fd815b022d5a2c113547a/jsoup-1.7.3.jar"
         jumboMode="true"
         optimize="true"
@@ -138,15 +147,6 @@
     </item>
     <item
         is-multidex="true"
-        jar="/Users/junyizhang/.android/build-cache/4ed250fa54b864c88b33afd465e53c89015d6468/output/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="470bfafdea99720e19d2c405608088034f02fb2b">
-        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_120478a40348c4e4f9cf106cd353848011a16ebf/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="/Users/junyizhang/.android/build-cache/3eee577c8e960caa635f9e8bdf50b373258de944/output/jars/classes.jar"
         jumboMode="true"
         optimize="true"
@@ -228,21 +228,21 @@
     </item>
     <item
         is-multidex="true"
-        jar="/Users/junyizhang/.android/build-cache/05d747a2a077d27293fce8e92bff2383da44dffd/output/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
-        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_857a0f7b7d75906bad93812d88680d7d388a1996/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
         sha1="caff8e51a24901cfc9cd7e1cf83d84f4cb0c103b">
         <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_20cc05aa091a67c4a5bf8ea1add05ed6f7505c01/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/junyizhang/.android/build-cache/05d747a2a077d27293fce8e92bff2383da44dffd/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
+        <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_857a0f7b7d75906bad93812d88680d7d388a1996/classes.dex" />
     </item>
     <item
         is-multidex="true"
@@ -286,7 +286,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="18e42d1359925d0be2c51466998f84ddd3959fa1">
+        sha1="180eb77f23b23ccb531f0738fa48c180fe4d79d5">
         <dex dex="/Users/junyizhang/Git/CHHREADERAndroid/CHHReader/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_92a8cb697ca666e0555329f7e4704e21d284844b/classes.dex" />
     </item>
     <item

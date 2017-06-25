@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.comic.chhreader.detail.DetailActivity"
+    tools:context="com.comic.hcreader.detail.DetailActivity"
     >
 
   <android.support.v7.widget.Toolbar
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="@dimen/spacing_normal"
-        android:singleLine="true"
+        android:maxLines="1"
         tools:text="TITLE"
         style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
         />
@@ -51,17 +51,19 @@
         android:background="@android:color/white"
         android:visibility="gone"
         />
-    <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    <com.comix.overwatch.HiveProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/loading_progress"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/padding_normal"
-        android:visibility="visible"
-        app:cpv_animAutostart="true"
-        app:cpv_color="@color/colorPrimary"
-        app:cpv_indeterminate="true"
-        app:cpv_thickness="5dp"
+        app:hive_animDuration="4000"
+        app:hive_color="@color/colorPrimary"
+        app:hive_cornerRadius="0"
+        app:hive_maxAlpha="255"
+        app:hive_rainbow="false"
+        app:hive_shrink="true"
         />
 
   </FrameLayout>
